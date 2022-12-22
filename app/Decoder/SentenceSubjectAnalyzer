@@ -1,0 +1,30 @@
+from google.cloud import language
+from google.cloud.language import enums
+from google.cloud.language import types
+
+
+
+class SubjectAnalyzer:
+    def __init__(self):
+        print("SubjectAnalyzer created");
+
+    def analyze(self, sentence):
+        # Create a client for the Natural Language API
+        client = language.LanguageServiceClient()
+
+        # Create a document object from the sentence
+        document = types.Document(content = sentence, type=enums.Document.Type.PLAIN_TEXT)
+
+        # Use the Natural Language API to analyze the entities in the text
+        response = client.analyze_entities(document = document)
+
+        subject = ""
+        
+        # Iterate over the entities in the text
+        for entity in response.entities:
+            # Print the entity name and type
+            print(entity.name, entity.type)
+            
+            subject += entity.name + " "
+        
+        return subject;
