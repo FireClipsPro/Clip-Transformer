@@ -12,7 +12,6 @@ class SentenceSubjectAnalyzer:
     def __init__(self):
         print("SubjectAnalyzer created");
 
-# Start of new function ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def parse_sentence_subject(self, sentence):
         # Tokenize the sentence
         tokens = nltk.word_tokenize(sentence)
@@ -35,13 +34,13 @@ class SentenceSubjectAnalyzer:
         return relevant_words
 
 
-# make a main method to test this
 
+# Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-analyzer = SentenceSubjectAnalyzer()
+# analyzer = SentenceSubjectAnalyzer()
 
-print(analyzer.parse_sentence_subject("Merry Christmas, it's our holiday extravaganza episode."))
-print(analyzer.parse_sentence_subject("Um I of course celebrate Quanza but for today I'm making um, and we have all of this. I am Jewish. I am Jewish and muslim."))
+# print(analyzer.parse_sentence_subject("Mom and Alexander went to the grocery store down the street and bought some whole wheat bread and turnips."))
        
-print(analyzer.parse_sentence_subject("The quick brown fox jumps over the lazy dog."))
+# print(analyzer.parse_sentence_subject("The quick brown fox jumps over the lazy dog."))
 
+# print(analyzer.parse_sentence_subject("Um I of course celebrate Quanza but for today I'm making um, and we have all of this. I am Jewish. I am Jewish and muslim."))
