@@ -2,15 +2,16 @@ import nltk
 import numpy as np
 from nltk import word_tokenize, pos_tag
 
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('maxent_ne_chunker')
-nltk.download('words')
-nltk.download('wordnet')
+
 
 class SentenceSubjectAnalyzer:
     def __init__(self):
-        print("SubjectAnalyzer created");
+        print("SubjectAnalyzer created")
+        nltk.download('punkt')
+        nltk.download('averaged_perceptron_tagger')
+        nltk.download('maxent_ne_chunker')
+        nltk.download('words')
+        nltk.download('wordnet')
 
     def parse_sentence_subject(self, sentence):
         # Tokenize the sentence
@@ -37,9 +38,9 @@ class SentenceSubjectAnalyzer:
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# analyzer = SentenceSubjectAnalyzer()
+analyzer = SentenceSubjectAnalyzer()
 
-# print(analyzer.parse_sentence_subject("Mom and Alexander went to the grocery store down the street and bought some whole wheat bread and turnips."))
+print(analyzer.parse_sentence_subject("Mom and Alexander went to the grocery store down the street and bought some whole wheat bread and turnips."))
        
 # print(analyzer.parse_sentence_subject("The quick brown fox jumps over the lazy dog."))
 
