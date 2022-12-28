@@ -6,11 +6,9 @@ def main():
     # Transcribe the audio file
     
     # chunk into time segments - for now 8 seconds
-    # make an array called _chunk_array of dictionaries with the following
-    # keys: start_time, end_time, text
     _chunk_array = []
-    _chunk_array.append({'start_time': 0, 'end_time': 8, 'text': 'I love to eat pizza'})
-    _chunk_array.append({'start_time': 8, 'end_time': 16, 'text': 'I love to eat watermelon'})
+    _chunk_array.append({'start_time': 0, 'end_time': 8, 'text': 'I love to eat pizza and watermelon'})
+    _chunk_array.append({'start_time': 8, 'end_time': 16, 'text': 'I went to the zoo and saw a monkey kill a lion'})
     
     # initialize the sentence subject analyzer and image scraper
     analyzer = SentenceSubjectAnalyzer()

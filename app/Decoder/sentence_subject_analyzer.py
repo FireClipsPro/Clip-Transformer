@@ -23,6 +23,8 @@ class SentenceSubjectAnalyzer:
         # Extract the nouns, named entities, and adjectives
         relevant_words = []
         for token, tag in tags:
+            # TODO if two nnp's are next to each other than make them one entity
+
             if (tag.startswith("NN") 
                 or tag.startswith("NNP") 
                 or tag.startswith("JJ")):
@@ -38,10 +40,10 @@ class SentenceSubjectAnalyzer:
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# analyzer = SentenceSubjectAnalyzer()
+analyzer = SentenceSubjectAnalyzer()
 
-# sentenceContent = analyzer.parse_sentence_subject("The night of christmas eve, all the children prepare cookies for Santa Claus because its a western tradition.")
-
+sentenceContent = analyzer.parse_sentence_subject("The night of christmas eve, all the children prepare cookies for Santa Claus because its a western tradition.")
+print(sentenceContent)
 # newSetence = ""
 
 # for word in sentenceContent:
