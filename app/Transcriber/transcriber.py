@@ -45,9 +45,11 @@ class Transcriber:
 
 
 transcriber = Transcriber()
+
 joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
 joe_elon_tesla_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
+transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path)
+
 joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
 joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
-# transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path)
 # transcriber.transcribe_audio_file(joe_long_absolute_path)

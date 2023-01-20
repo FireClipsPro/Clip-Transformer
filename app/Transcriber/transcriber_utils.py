@@ -28,14 +28,13 @@ def print_transcription(response_standard_wav):
     for result in response_standard_wav.results:
         # The first alternative is the most likely one for this portion.
         alternative = result.alternatives[0]
-        print(f"Transcript: {alternative.transcript}")
+        # print(f"Transcript: {alternative.transcript}")
         for word_info in alternative.words:
             word = word_info.word
             start_time = word_info.start_time
             end_time = word_info.end_time
-            print(f'Word: {word}, '
-                  f'start_time {start_time.seconds}s, '
-                  f'end_time {end_time.seconds}s')
+            line = f'"word": "{word}", "start_time": {start_time.seconds}, "end_time": {end_time.seconds}'
+            print('{' + line + '},')
 
 
 def delete_file(path):
