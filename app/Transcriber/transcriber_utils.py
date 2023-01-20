@@ -36,6 +36,9 @@ def print_transcription(response_standard_wav):
             line = f'"word": "{word}", "start_time": {start_time.seconds}, "end_time": {end_time.seconds}'
             print('{' + line + '},')
 
+def print_transcription_text(stamped_texts):
+    for text_obj in stamped_texts:
+        print(f'text: {text_obj["text"]}. [start time: {text_obj["start_time"]} and end time: {text_obj["end_time"]}]')
 
 def delete_file(path):
     if Path(path).exists():

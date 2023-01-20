@@ -5,6 +5,7 @@ from mutagen.mp3 import MP3
 import transcriber_utils
 from long_speech_to_text_convertor import LongSpeechToTextConvertor
 from short_speech_to_text_convertor import ShortSpeechToTextConvertor
+from text_timestamper import TextTimeStamper
 import os
 
 
@@ -13,19 +14,21 @@ class Transcriber:
     def __init__(self):
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../../helpful-symbol-374005-f716a7246dc4.json'
 
-    def transcribe_audio_file(self, path):
+    def transcribe_audio_file(self, path, chunk_length):
         audio = MP3(path)
         if audio.info.length < 60:
-            return self.transcribe_short_audio_file(path)
+            transcription = self.transcribe_short_audio_file(path)
         else:
-            return self.transcribe_long_audio_file(path)
+            transcription = self.transcribe_long_audio_file(path)
+        timestamper = TextTimeStamper()
+        stamped_texts = timestamper.timestamp_chunk_of_text(transcription, chunk_length)
+        transcriber_utils.print_transcription_text(stamped_texts)
+        return stamped_texts
 
 
     def transcribe_short_audio_file(self, path):
         short_speech_to_text_convertor = ShortSpeechToTextConvertor()
-        transcription = short_speech_to_text_convertor.convert_speech_to_text_with_timestamps(path)
-        transcriber_utils.print_transcription(transcription)
-        return transcription
+        return short_speech_to_text_convertor.convert_speech_to_text_with_timestamps(path)
 
 
     def transcribe_long_audio_file(self, path):
@@ -40,16 +43,16 @@ class Transcriber:
             file_uri = storage_manager.store_audio_file(bucket, wav_path)
             transcription = long_speech_to_text_convertor.convert_speech_to_text_with_timestamps(file_uri)
             storage_manager.delete_audio_file(bucket, wav_path)
-            transcriber_utils.print_transcription(transcription)
             return transcription
 
 
 transcriber = Transcriber()
+chunk_length = 6
 
 joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
 joe_elon_tesla_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
-transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path)
+transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path, chunk_length)
 
 joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
 joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
-# transcriber.transcribe_audio_file(joe_long_absolute_path)
+# transcriber.transcribe_audio_file(joe_long_absolute_path, chunk_length)

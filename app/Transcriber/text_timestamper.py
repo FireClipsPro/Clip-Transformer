@@ -29,6 +29,7 @@ class TextTimeStamper:
         text_object['end_time'] = 0
         text_object['text'] = ''
         current_text_start_time = 0
+        last_text_end_time = 0
         for word_object in stamped_words:
             if abs(word_object['end_time'] - current_text_start_time) < chunk_length:
                 if text_object['text'] != '':
@@ -36,12 +37,13 @@ class TextTimeStamper:
                 else:
                     text_object['text'] = word_object['word']
                 text_object['end_time'] = word_object['end_time']
+                last_text_end_time = word_object['end_time']
             else:
-                text_object['end_time'] = word_object['end_time']
+                text_object['end_time'] = last_text_end_time
                 stamped_texts.append(text_object)
                 current_text_start_time = word_object['end_time']
                 text_object = {}
-                text_object['start_time'] = word_object['end_time']
+                text_object['start_time'] = word_object['start_time']
                 text_object['end_time'] = word_object['end_time']
                 text_object['text'] = word_object['word']
         stamped_texts.append(text_object)
