@@ -40,10 +40,10 @@ class SentenceSubjectAnalyzer:
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-analyzer = SentenceSubjectAnalyzer()
+# analyzer = SentenceSubjectAnalyzer()
 
-sentenceContent = analyzer.parse_sentence_subject("The night of christmas eve, all the children prepare cookies for Santa Claus because its a western tradition.")
-print(sentenceContent)
+# sentenceContent = analyzer.parse_sentence_subject("The night of christmas eve, all the children prepare cookies for Santa Claus because its a western tradition.")
+# print(sentenceContent)
 # newSetence = ""
 
 # for word in sentenceContent:

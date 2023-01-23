@@ -1,14 +1,16 @@
+from VideoEditor import MediaAdder, VideoResizer
+from content_generator import ImageScraper, ImageToVideoCreator
+from decoder import SentenceSubjectAnalyzer
 
-from ContentGenerator import ImageScraper
-from Decoder import SentenceSubjectAnalyzer
+
 
 def main():
     # Transcribe the audio file
-    
+    media = MediaAdder()
     # chunk into time segments - for now 8 seconds
     _chunk_array = []
-    _chunk_array.append({'start_time': 0, 'end_time': 8, 'text': 'I love to eat pizza and watermelon'})
-    _chunk_array.append({'start_time': 8, 'end_time': 16, 'text': 'I went to the zoo and saw a monkey kill a lion'})
+    _chunk_array.append({'start_time': 0, 'end_time': 8, 'text': 'I saw a horse on the moon.'})
+    _chunk_array.append({'start_time': 8, 'end_time': 16, 'text': f'I\'m playing flappy bird on my computer.'})
     
     # initialize the sentence subject analyzer and image scraper
     analyzer = SentenceSubjectAnalyzer()
@@ -29,7 +31,17 @@ def main():
     # print the _time_stamped_images array
     print(_time_stamped_images)
         
+    
 
-#run the main function
+
+
+
+
+    
+    
+ 
+ 
 main()
+    
+    
     
