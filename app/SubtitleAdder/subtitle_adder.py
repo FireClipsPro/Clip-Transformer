@@ -49,15 +49,16 @@ class SubtitleAdder:
         curr_frames = 0
         duration_of_silence = 0
         frames_per_subtitle = self.get_frames_per_subtitle_add(transcript, fps)
-        frames_per_subtitle.reverse()
+        subtitles = self.configure_subtitles_to_frames(frames_per_subtitle, max_text_width, fps)
+        subtitles.reverse()
         while video_cap.isOpened():
             if curr_frames == 0:
-                if len(frames_per_subtitle) == 0:
+                if len(subtitles) == 0:
                     curr_frames = -1
                     text_top = ''
                     text_bottom = ''
                 else:
-                    text_per_frames_obj = frames_per_subtitle.pop()
+                    text_per_frames_obj = subtitles.pop()
                     curr_frames = text_per_frames_obj['frames']
                     if text_per_frames_obj['text'] != '':
                         duration_of_silence = 0
@@ -69,11 +70,7 @@ class SubtitleAdder:
                         text_new_width = text_new_size[0][0]
                         if text_new_width > max_text_width:
                             text_top = text_bottom
-                            text_lines = self.get_text_lines_per_second('', text_per_frames_obj["text"], max_text_width, fps)
-                            self.add_text_lines_to_frames_per_subtitle(text_lines, frames_per_subtitle)
-                            new_text_per_frames_obj = frames_per_subtitle.pop()
-                            curr_frames = new_text_per_frames_obj['frames']
-                            text_bottom = new_text_per_frames_obj['text']
+                            text_bottom = text_per_frames_obj["text"]
                         else:
                             text_bottom = new_text
                     else:
@@ -94,8 +91,8 @@ class SubtitleAdder:
                 text_bottom_y = int((video_height / 2))
             new_frame = cv2.putText(frame, text_top, (text_x, text_top_y), self.TEXT_FONT, self.FONT_SCALE,
                                     self.TEXT_COLOUR, self.TEXT_THICKNESS)
-            new_frame = cv2.putText(new_frame, text_bottom, (text_x, text_bottom_y), self.TEXT_FONT, self.FONT_SCALE,
-                                    self.TEXT_COLOUR, self.TEXT_THICKNESS)
+            new_frame = cv2.putText(new_frame, text_bottom, (text_x, text_bottom_y), self.TEXT_FONT,
+                                    text_per_frames_obj['font_scale'], self.TEXT_COLOUR, self.TEXT_THICKNESS)
             out.write(new_frame)
             cv2.imshow("Subtitled Video", new_frame)
             curr_frames -= 1
@@ -108,6 +105,18 @@ class SubtitleAdder:
         return output_path
 
     def configure_subtitles_to_frames(self, frames_per_subtitle, max_text_width, fps):
+        subtitles = []
+        for subtitle_chunk in frames_per_subtitle:
+            text_dimensions = cv2.getTextSize(subtitle_chunk['text'],
+                                              self.TEXT_FONT, self.FONT_SCALE, self.TEXT_THICKNESS)
+            text_width = text_dimensions[0][0]
+            if text_width > max_text_width:
+                text_lines = self.get_text_lines_per_second('', subtitle_chunk['text'], max_text_width, fps)
+                subtitles.extend(text_lines)
+            else:
+                subtitle_chunk['font_scale'] = self.FONT_SCALE
+                subtitles.append(subtitle_chunk)
+        return subtitles
 
 
     def add_text_lines_to_frames_per_subtitle(self, text_lines, frames_per_subtitle):
@@ -194,6 +203,7 @@ class SubtitleAdder:
                 # solve by reducing font scale by half every time until it fits (< or = to max_text_width).
                 if total_width > max_text_width:
                     current_text_font_scale = self.get_font_scale_which_fits_text(text_size, max_text_width)
+                    total_new_words_width = max_text_width
                 else:
                     current_text_font_scale = self.FONT_SCALE
         self.add_text_obj_to_lines(current_text, current_text_font_scale, total_width, text_lines)
