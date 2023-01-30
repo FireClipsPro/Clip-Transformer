@@ -41,17 +41,16 @@ class TextTimeStamper:
             else:
                 text_object['end_time'] = last_text_end_time
                 stamped_texts.append(text_object)
-                current_text_start_time = word_object['end_time']
+                current_text_start_time = word_object['start_time']
                 text_object = {}
                 text_object['start_time'] = word_object['start_time']
                 text_object['end_time'] = word_object['end_time']
                 text_object['text'] = word_object['word']
+                last_text_end_time = word_object['end_time']
         stamped_texts.append(text_object)
         return stamped_texts
 
 
-
-
-
+# beginning end_time gets stuck at 0 and time = 11, end_time gets stuck at 12
 
 

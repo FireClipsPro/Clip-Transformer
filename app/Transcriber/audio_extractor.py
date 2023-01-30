@@ -23,4 +23,5 @@ class AudioExtractor:
         
 # Test code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-AudioExtractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/TestAudioExtraction.mp3")
+AudioExtractor.extract_audio("../videos/Eminem-RapGod.mp4", "../videos/Eminem-RapGod.mp3")
+# AudioExtractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/TestAudioExtraction.mp3")
