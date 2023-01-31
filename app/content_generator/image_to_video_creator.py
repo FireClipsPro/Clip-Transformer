@@ -10,7 +10,9 @@ class ImageToVideoCreator:
     def __init__(self,
                  image_file_path,
                  video_2_image_file_path):
-        
+        print("---------------------\n\n\n\n\n\n")
+        print(os.getcwd)
+        print("\n\n\n\n\n\n\n---------------------")
         self.image_file_path = image_file_path
         self.video_2_image_file_path = video_2_image_file_path
         print("ImageToVideoCreator created")

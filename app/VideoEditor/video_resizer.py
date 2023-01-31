@@ -3,22 +3,25 @@ import subprocess
 
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 PADDING_HEIGHT = 100
-OUTPUT_FILE_PATH = '../OutputVideos/'
-INPUT_FILE_PATH = '../InputVideos/'
+
 
 class VideoResizer:
-    def __init__(self):
+    def __init__(self,
+                 input_file_path, 
+                 resized_file_path):
         self.HALF_YOUTUBE_SHORT_HEIGHT = 960
         self.YOUTUBE_SHORT_HEIGHT = 1920
         self.YOUTUBE_SHORT_WIDTH = 1080
-        
         self.YOUTUBE_VIDEO_HEIGHT = 1080
         self.YOUTUBE_VIDEO_WIDTH = 1920
         
+        self.INPUT_FILE_PATH = input_file_path
+        self.OUTPUT_FILE_PATH  = resized_file_path
         
         print("VideoResizer created")
 
     def resize_mp4(self, input_file, output_file, width, height):
+        
         command = [
             'ffmpeg',
             '-i', input_file,
@@ -74,13 +77,17 @@ class VideoResizer:
         subprocess.run(command)
 
     # make video into bottom half of bottom half of tiktok/short video
-    def  resize_video(self, input_file_name, output_file_name, new_width, new_height):
+    def  resize_video(self, 
+                      input_file_name, 
+                      output_file_name, 
+                      new_width, 
+                      new_height):
         # add ../videos/ to the beginning of the file name if it is not there
-        if input_file_name[:8] != INPUT_FILE_PATH:
-            input_file_name = INPUT_FILE_PATH + input_file_name
+        if input_file_name[:8] != self.INPUT_FILE_PATH:
+            input_file_name = self.INPUT_FILE_PATH + input_file_name
         # do the same for the output file
-        if output_file_name[:8] != OUTPUT_FILE_PATH:
-            output_file_name = OUTPUT_FILE_PATH + output_file_name
+        if output_file_name[:8] != self.OUTPUT_FILE_PATH:
+            output_file_path_and_name = self.OUTPUT_FILE_PATH + output_file_name
         
         # check if that file exists
         if os.path.exists(input_file_name):
@@ -90,8 +97,8 @@ class VideoResizer:
             return
         
         #delete the output file if it exists
-        if os.path.exists(output_file_name):
-            os.remove(output_file_name)
+        if os.path.exists(output_file_path_and_name):
+            os.remove(output_file_path_and_name)
         
         # get video dimensions
         curr_width, curr_height = self.get_video_dimensions(input_file_name)
@@ -101,7 +108,7 @@ class VideoResizer:
             return
         
         #make an output file for the first resize
-        temp_file = os.path.splitext(output_file_name)[0] + "_temp" + os.path.splitext(output_file_name)[1]
+        temp_file = os.path.splitext(output_file_path_and_name)[0] + "_temp" + os.path.splitext(output_file_path_and_name)[1]
         
         
         #crop to the proportions of a tiktok/short video
@@ -112,7 +119,7 @@ class VideoResizer:
         
         temp_curr_width, temp_curr_height = self.get_video_dimensions(temp_file)
         # make another temp file for the second resize
-        temp_file_2 = os.path.splitext(output_file_name)[0] + "_temp2" + os.path.splitext(output_file_name)[1]
+        temp_file_2 = os.path.splitext(output_file_path_and_name)[0] + "_temp2" + os.path.splitext(output_file_path_and_name)[1]
         
         self.add_bottom_padding(temp_file,
                                 temp_file_2,
@@ -123,7 +130,7 @@ class VideoResizer:
         # resize the video to be half the height of a tiktok/short video
         if curr_height != new_height:
             self.resize_mp4(temp_file_2,
-                            output_file_name,
+                            output_file_path_and_name,
                             new_width,
                             new_height)
     
@@ -140,7 +147,9 @@ class VideoResizer:
         if os.path.exists(temp_file_2):
             os.remove(temp_file_2)
         
-        print("Resized video " + input_file_name + " to " + output_file_name)
+        print("Resized video " + input_file_name + " to " + output_file_path_and_name)
+        
+        return output_file_name;
         
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  

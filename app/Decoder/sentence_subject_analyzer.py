@@ -34,7 +34,14 @@ class SentenceSubjectAnalyzer:
         # relevant_words = list(set(relevant_words))
 
         # Return the nouns, verbs, and entities in the order they appeared
-        return relevant_words
+        
+        #make a string out of the list
+        newSetence = ""
+        
+        for word in relevant_words:
+            newSetence = newSetence + word + " "
+        
+        return newSetence
 
 
 
