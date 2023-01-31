@@ -12,9 +12,12 @@ import hashlib
 
 class ImageScraper:
     
-    def __init__(self):
+    def __init__(self,
+                 chrome_driver_path,
+                 output_path):
         print("ImageScraper created")
-        self.PATH = './chromedriver.exe'
+        self.output_path = output_path
+        self.chrome_driver_path = chrome_driver_path
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def fetch_image_urls(self, query:str, max_links_to_fetch:int, wd:webdriver, sleep_between_interactions:int=1):
@@ -100,16 +103,16 @@ class ImageScraper:
             print(f"ERROR - Could not save {url} - {e}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def search_and_download(self, search_term:str, driver_path:str,target_path='./images',number_images=1):
+    def search_and_download(self, search_term, number_images):
         
-        target_folder = os.path.join(target_path)
+        target_folder = os.path.join(self.output_path)
         
         # create the directory
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
         
         # start the web driver
-        service = Service(executable_path=driver_path)
+        service = Service(executable_path=self.chrome_driver_path)
         service.start()
         
         # create a new chrome session
@@ -118,11 +121,19 @@ class ImageScraper:
         
         _photo_id = 0
         
+        if res == None:
+            print("No images found")
+            return None
+        
         # this only brings up the first image
         # later on we can add more and run an algorithm to pick the best one
             # We can choose 
         for elem in res:
-            _photo_id = self.persist_image(target_folder,elem)
+            _photo_id = self.persist_image(target_folder, elem)
+        
+        if _photo_id == 0:
+            print("No images found")
+            return None
         
         return _photo_id
         
