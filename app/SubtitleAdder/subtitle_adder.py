@@ -23,8 +23,9 @@ class SubtitleAdder:
     FONT_SCALE = 1
     TEXT_THICKNESS = 2
     TEXT_COLOUR = (255, 255, 255)
+    TEXT_BLACK_COLOUR = (0, 0, 0)
     SUBTITLE_LENGTH = 1
-    SUBTITLE_HORIZONTAL_WIDTH = 0.2
+    SUBTITLE_HORIZONTAL_WIDTH = 0.6
 
     def __init__(self):
         pass
@@ -41,10 +42,8 @@ class SubtitleAdder:
         out = cv2.VideoWriter(output_path, fourcc, fps, (video_width, video_height))
         increment = int(video_height / 40)
         max_text_width = int(self.SUBTITLE_HORIZONTAL_WIDTH * video_width)
-        text_top = ''
-        text_bottom = ''
-        x_start = (1 - self.SUBTITLE_HORIZONTAL_WIDTH) / 2
-        text_x = int(x_start * video_width)
+        text_top = self.create_text_obj('', self.FONT_SCALE, 0, 0)
+        text_bottom = self.create_text_obj('', self.FONT_SCALE, 0, 0)
         text_top_y = int(video_height / 2) - increment
         curr_frames = 0
         duration_of_silence = 0
@@ -55,44 +54,52 @@ class SubtitleAdder:
             if curr_frames == 0:
                 if len(subtitles) == 0:
                     curr_frames = -1
-                    text_top = ''
-                    text_bottom = ''
+                    text_top = self.create_text_obj('', self.FONT_SCALE, 0, 0)
+                    text_bottom = self.create_text_obj('', self.FONT_SCALE, 0, 0)
                 else:
                     text_per_frames_obj = subtitles.pop()
                     curr_frames = text_per_frames_obj['frames']
                     if text_per_frames_obj['text'] != '':
                         duration_of_silence = 0
-                        if text_bottom == '':
+                        if text_bottom['text'] == '':
                             new_text = f'{text_per_frames_obj["text"]}'
                         else:
-                            new_text = f'{text_bottom} {text_per_frames_obj["text"]}'
+                            new_text = f'{text_bottom["text"]} {text_per_frames_obj["text"]}'
                         text_new_size = cv2.getTextSize(new_text, self.TEXT_FONT, self.FONT_SCALE, self.TEXT_THICKNESS)
                         text_new_width = text_new_size[0][0]
+                        text_new_height = text_new_size[0][1]
                         if text_new_width > max_text_width:
                             text_top = text_bottom
-                            text_bottom = text_per_frames_obj["text"]
+                            text_bottom = self.create_text_obj(text_per_frames_obj["text"],
+                                                               text_per_frames_obj["font_scale"],
+                                                               text_per_frames_obj["width"],
+                                                               text_per_frames_obj["height"])
                         else:
-                            text_bottom = new_text
+                            text_bottom = self.create_text_obj(new_text, self.FONT_SCALE, text_new_width, text_new_height)
                     else:
                         duration_of_silence += 1
                         if 3 <= duration_of_silence < 5:
-                            text_top = ''
+                            text_top = self.create_text_obj('', self.FONT_SCALE, 0, 0)
                         elif duration_of_silence >= 5:
-                            text_bottom = ''
+                            text_bottom = self.create_text_obj('', self.FONT_SCALE, 0, 0)
 
             retVal, frame = video_cap.read()
             if not retVal:
                 break
-            text_bottom_size = cv2.getTextSize(text_bottom, self.TEXT_FONT, self.FONT_SCALE, self.TEXT_THICKNESS)
-            text_bottom_height = text_bottom_size[0][1]
-            if text_top != '':
-                text_bottom_y = int((video_height / 2) + text_bottom_height + increment)
+            if text_top['text'] != '':
+                text_bottom_y = int((video_height / 2) + text_bottom['height'] + increment)
             else:
                 text_bottom_y = int((video_height / 2))
-            new_frame = cv2.putText(frame, text_top, (text_x, text_top_y), self.TEXT_FONT, self.FONT_SCALE,
-                                    self.TEXT_COLOUR, self.TEXT_THICKNESS)
-            new_frame = cv2.putText(new_frame, text_bottom, (text_x, text_bottom_y), self.TEXT_FONT,
-                                    text_per_frames_obj['font_scale'], self.TEXT_COLOUR, self.TEXT_THICKNESS)
+            text_top_x = int((video_width - text_top['width']) / 2)
+            text_bottom_x = int((video_width - text_bottom['width']) / 2)
+            new_frame = cv2.putText(frame, text_top['text'], (text_top_x, text_top_y), self.TEXT_FONT,
+                                    text_top['font_scale'], self.TEXT_BLACK_COLOUR, self.TEXT_THICKNESS * 2)
+            new_frame = cv2.putText(new_frame, text_top['text'], (text_top_x, text_top_y), self.TEXT_FONT,
+                                    text_top['font_scale'], self.TEXT_COLOUR, self.TEXT_THICKNESS)
+            new_frame = cv2.putText(new_frame, text_bottom['text'], (text_bottom_x, text_bottom_y), self.TEXT_FONT,
+                                    text_bottom['font_scale'], self.TEXT_BLACK_COLOUR, self.TEXT_THICKNESS * 2)
+            new_frame = cv2.putText(new_frame, text_bottom['text'], (text_bottom_x, text_bottom_y), self.TEXT_FONT,
+                                    text_bottom['font_scale'], self.TEXT_COLOUR, self.TEXT_THICKNESS)
             out.write(new_frame)
             cv2.imshow("Subtitled Video", new_frame)
             curr_frames -= 1
@@ -107,15 +114,12 @@ class SubtitleAdder:
     def configure_subtitles_to_frames(self, frames_per_subtitle, max_text_width, fps):
         subtitles = []
         for subtitle_chunk in frames_per_subtitle:
-            text_dimensions = cv2.getTextSize(subtitle_chunk['text'],
-                                              self.TEXT_FONT, self.FONT_SCALE, self.TEXT_THICKNESS)
-            text_width = text_dimensions[0][0]
-            if text_width > max_text_width:
+            if subtitle_chunk['text'] != '':
                 text_lines = self.get_text_lines_per_second('', subtitle_chunk['text'], max_text_width, fps)
-                subtitles.extend(text_lines)
             else:
-                subtitle_chunk['font_scale'] = self.FONT_SCALE
-                subtitles.append(subtitle_chunk)
+                text_lines = [self.create_text_obj('', self.FONT_SCALE, 0, 0)]
+                text_lines[0]['frames'] = subtitle_chunk['frames']
+            subtitles.extend(text_lines)
         return subtitles
 
 
@@ -191,22 +195,19 @@ class SubtitleAdder:
                 if text_size['type'] == 'new':
                     total_new_words_width += text_size['width']
             else:
-                # need to add the text duration (in frames) later
-                self.add_text_obj_to_lines(current_text, current_text_font_scale, total_new_words_width, text_lines)
+                self.add_text_obj_to_lines(current_text, current_text_font_scale, text_lines)
                 current_text = text_size['word']
                 total_width = text_size['width']
                 if text_size['type'] == 'new':
                     total_new_words_width = text_size['width']
                 else:
                     total_new_words_width = 0
-                # handle edge case where current_text (single word) has higher width than max_text_width.
-                # solve by reducing font scale by half every time until it fits (< or = to max_text_width).
                 if total_width > max_text_width:
                     current_text_font_scale = self.get_font_scale_which_fits_text(text_size, max_text_width)
                     total_new_words_width = max_text_width
                 else:
                     current_text_font_scale = self.FONT_SCALE
-        self.add_text_obj_to_lines(current_text, current_text_font_scale, total_width, text_lines)
+        self.add_text_obj_to_lines(current_text, current_text_font_scale, text_lines)
         self.add_duration_to_objs_in_lines(text_lines, fps * self.SUBTITLE_LENGTH)
         return text_lines
 
@@ -220,18 +221,25 @@ class SubtitleAdder:
         for line in text_lines:
             line['frames'] = int(math.floor(total_frames * (line['width'] / sum)))
             total_frames_used += line['frames']
-        # adjust last line in text_lines
         last_line['frames'] = total_frames - total_frames_used
         text_lines.append(last_line)
 
 
-    def add_text_obj_to_lines(self, text, font_scale, width, text_lines):
+    def add_text_obj_to_lines(self, text, font_scale, text_lines):
         if text != '':
-            text_per_frames_obj = {}
-            text_per_frames_obj['text'] = text
-            text_per_frames_obj['font_scale'] = font_scale
-            text_per_frames_obj['width'] = width
-            text_lines.append(text_per_frames_obj)
+            text_new_size = cv2.getTextSize(text, self.TEXT_FONT, font_scale, self.TEXT_THICKNESS)
+            width = text_new_size[0][0]
+            height = text_new_size[0][1]
+            text_obj = self.create_text_obj(text, font_scale, width, height)
+            text_lines.append(text_obj)
+
+    def create_text_obj(self, text, font_scale, width, height):
+        text_obj = {}
+        text_obj['text'] = text
+        text_obj['font_scale'] = font_scale
+        text_obj['width'] = width
+        text_obj['height'] = height
+        return text_obj
 
     def get_size_of_each_word_in_text(self, text_old_words, text_words):
         text_sizes = []
@@ -281,19 +289,22 @@ joe_elon_tesla_mp3_clip_json = '../Vault/JoeElonTesla_short.txt'
 joe_elon_tesla_mp3_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
 joe_elon_tesla_mp3_json_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip_json)
 # transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_mp3_absolute_path, chunk_length)
-transcription = transcriber_utils.load_transcription(joe_elon_tesla_mp3_json_absolute_path)
+# transcription = transcriber_utils.load_transcription(joe_elon_tesla_mp3_json_absolute_path)
 
 joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
 joe_long_mp3_clip_json = '../Vault/JoeLong_long.txt'
+joe_long_mp3_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
 joe_long_mp3_json_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip_json)
 # transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_mp3_absolute_path, chunk_length)
-# transcription = transcriber_utils.load_transcription(joe_long_mp3_json_absolute_path)
+transcription = transcriber_utils.load_transcription(joe_long_mp3_json_absolute_path)
 
 
-joe_long_mp4_clip = '../videos/JoeElonTesla.mp4'
+joe_long_mp4_clip = '../videos/ResizedJoeRoganClip.mp4'
 joe_long_mp4_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp4_clip)
+white_screen_mp4_clip = '../videos/Full-white-screen.mp4'
+white_screen_mp4_absolute_path = transcriber_utils.get_absolute_path(__file__, white_screen_mp4_clip)
 sub_adder = SubtitleAdder()
-output_file_path = sub_adder.add_subtitles(joe_long_mp4_absolute_path, transcription)
+output_file_path = sub_adder.add_subtitles(white_screen_mp4_absolute_path, transcription)
 audio_adder = AudioAdder()
-output_final_file_path = audio_adder.add_audio_to_video(joe_elon_tesla_mp3_absolute_path, output_file_path)
-print(output_final_file_path)
+# output_final_file_path = audio_adder.add_audio_to_video(joe_long_mp3_absolute_path, output_file_path)
+# print(output_final_file_path)

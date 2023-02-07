@@ -17,7 +17,7 @@ class AudioAdder:
     def add_audio_to_video(self, audio_file_path, video_file_path):
         video = VideoFileClip(video_file_path)
         audio = AudioFileClip(audio_file_path)
-        audio = audio.set_duration(video.duration)
+        # audio = audio.set_duration(video.duration)
         final_video = video.set_audio(audio)
         output_video_path = self.get_output_video_path(video_file_path)
         temp_audio_path = self.get_temporary_audio_path(audio_file_path)
@@ -45,7 +45,7 @@ class AudioAdder:
         return temp_audio_video_path
 
 audio_adder = AudioAdder()
-video_file = utils.get_absolute_path(__file__, '../videos/JoeElonTesla-out.mp4')
-audio_file = utils.get_absolute_path(__file__, '../videos/JoeElonTesla.mp3')
+video_file = utils.get_absolute_path(__file__, '../videos/ResizedJoeRoganClip-out.mp4')
+audio_file = utils.get_absolute_path(__file__, '../videos/JoeRoganClip.mp3')
 # audio_adder.add_audio_to_video(audio_file, video_file)
 

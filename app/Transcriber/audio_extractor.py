@@ -9,7 +9,7 @@ class AudioExtractor:
     # converts mp4 to mp3
         # ab = audio bitrate
         # ar = audio sample rate
-    def extract_audio(input_file, output_file):
+    def extract_audio(self, input_file, output_file):
         command = [
             'ffmpeg',
             '-i', input_file,
@@ -23,5 +23,6 @@ class AudioExtractor:
         
 # Test code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-AudioExtractor.extract_audio("../videos/Eminem-RapGod.mp4", "../videos/Eminem-RapGod.mp3")
+audio_extractor = AudioExtractor()
+audio_extractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/JoeRoganClip.mp3")
 # AudioExtractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/TestAudioExtraction.mp3")
