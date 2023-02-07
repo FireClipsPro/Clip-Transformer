@@ -5,21 +5,19 @@ from Transcriber import Transcriber, AudioExtractor
 from garbage_collection import FileDeleter
 import os
 
-INPUT_FILE_PATH = './InputVideos/'
-AUDIO_EXTRACTIONS_PATH = './audio_extractions/'
-IMAGE_FILE_PATH = './images/'
-IMAGE_2_VIDEOS_FILE_PATH = './ImageVideos/'
+INPUT_FILE_PATH = "./InputVideos/"
+AUDIO_EXTRACTIONS_PATH = "./audio_extractions/"
+IMAGE_FILE_PATH = "./images/"
+IMAGE_2_VIDEOS_FILE_PATH = "./videos_made_from_images/"
 OUTPUT_FILE_PATH = "./OutputVideos/"
 ORIGINAL_INPUT_FILE_PATH = "./InputVideos/"
 CHROME_DRIVER_PATH = "./content_generator/chromedriver.exe"
 RESIZED_FILE_PATH = "./resized_original_videos/"
+VIDEOS_WITH_OVERLAYED_MEDIA_PATH = "./media_added_videos/"
 
 def main():
     file_deleter = FileDeleter()
     # print(os.getcwd())
-    # return
-    # get original video
-    original_video_name = 'JordanClip.mp4'
     
     # get the names of all the files in the input folder
     input_file_names = os.listdir(INPUT_FILE_PATH)
@@ -32,7 +30,7 @@ def main():
                                     RESIZED_FILE_PATH)
         
         resized_video_name = video_resizer.resize_video(original_video_name,
-                                                    "JordanClipResized.mp4",
+                                                    "resized_" + original_video_name,
                                                     video_resizer.YOUTUBE_SHORT_WIDTH, 
                                                     video_resizer.YOUTUBE_SHORT_HEIGHT)
         
@@ -45,9 +43,6 @@ def main():
         # chunk into time segments - for now 8 seconds
         transcriber = Transcriber(AUDIO_EXTRACTIONS_PATH)
         chunk_array = transcriber.run_transcription(audio_extraction_file_name, 8)
-        
-        # delete the contents of the audio_extractions folder
-        file_deleter.delete_files_in_folder(AUDIO_EXTRACTIONS_PATH)
 
         # initialize the sentence subject analyzer and image scraper
         analyzer = SentenceSubjectAnalyzer()
@@ -84,8 +79,9 @@ def main():
             raise Exception("Error: Images were not found. Stopping program.")
         
         media_adder = MediaAdder(RESIZED_FILE_PATH,
-                                OUTPUT_FILE_PATH,
-                                IMAGE_2_VIDEOS_FILE_PATH)
+                                VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
+                                IMAGE_2_VIDEOS_FILE_PATH,
+                                OUTPUT_FILE_PATH)
         
         final_video = media_adder.add_videos_to_original_clip(original_clip=resized_video_name,
                                         videos=video_data,
@@ -101,6 +97,7 @@ def main():
         audioAdder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
 
         audioAdder.combine_video_audio(final_video, audio_extraction_file_name)
+        
      
  
 main()

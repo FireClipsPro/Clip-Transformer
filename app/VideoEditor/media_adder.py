@@ -7,11 +7,15 @@ from moviepy.editor import *
 class MediaAdder:
     def __init__(self,
                  input_videos_file_path,
-                 output_file_path,
-                 image_videos_file_path):
+                 media_added_vidoes_file_path,
+                 image_videos_file_path,
+                 final_output_file_path):
+        
         self.input_videos_file_path = input_videos_file_path
-        self.output_file_path = output_file_path
+        self.output_file_path = media_added_vidoes_file_path
         self.image_videos_file_path = image_videos_file_path
+        self.final_output_file_path = final_output_file_path
+        
         self.YOUTUBE_SHORT_HALF_HEIGHT = 960
         self.YOUTUBE_SHORT_WIDTH = 1080
         self.YOUTUBE_SHORT_OVERLAY_ZONE_X = 0
@@ -56,7 +60,7 @@ class MediaAdder:
                 print(f'Overlay video {overlay_video_file_name} does not exist')
                 return None
             # initialize the output video path
-            output_video = self.output_file_path + original_clip + f'_{index}.mp4'
+            output_video = self.output_file_path + original_clip[:-4] + f'_{index - 1}.mp4'
             if os.path.exists(output_video):
                 os.remove(output_video)
             
@@ -73,14 +77,18 @@ class MediaAdder:
             overlay_video = overlay_video.set_position((overlay_top_left, overlay_top_right))
             final_video = CompositeVideoClip([background_video, overlay_video])
             final_video.write_videofile(output_video)
-            
-           
-            
+             
             # set the input video to the output video
             input_video = output_video
+        
+        # move output video to final output file path
+        if output_video is not None:
+            os.rename(output_video, self.final_output_file_path + original_clip)
+        
+        
+        return original_clip[:-4] + f'_{len(videos)}.mp4'
 
-        return output_video
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def remove_audio(self, original_clip, index):
         overlay_video_no_audio = original_clip + f'_{index}_no_audio.mp4'
         if os.path.exists(overlay_video_no_audio):
@@ -100,9 +108,7 @@ class MediaAdder:
         # change the name of the video to the one without audio
         os.rename(overlay_video_no_audio, original_clip)
         
-
-        
-            
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
     def calculate_top_left_right(self,
                                  overlay_video_width,
                                  overlay_video_height,

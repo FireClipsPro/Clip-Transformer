@@ -96,11 +96,11 @@ class VideoResizer:
                       output_file_name, 
                       new_width, 
                       new_height):
-        # add ../videos/ to the beginning of the file name if it is not there
-        if input_file_name[:8] != self.INPUT_FILE_PATH:
+        # add Self.Input_file_path to the beginning of the file name if it is not there
+        if input_file_name[:len(self.INPUT_FILE_PATH)] != self.INPUT_FILE_PATH:
             input_file_name = self.INPUT_FILE_PATH + input_file_name
         # do the same for the output file
-        if output_file_name[:8] != self.OUTPUT_FILE_PATH:
+        if output_file_name[:len(self.INPUT_FILE_PATH)] != self.OUTPUT_FILE_PATH:
             output_file_path_and_name = self.OUTPUT_FILE_PATH + output_file_name
 
         # check if that file exists
@@ -147,13 +147,7 @@ class VideoResizer:
                             output_file_path_and_name,
                             new_width,
                             new_height)
-
-        # crop the sides of the video to fill the bottom half of the tiktok/short video
-        # if curr_width != new_width:
-        #     self.crop_mp4(temp_file,
-        #                   output_file_name,
-        #                   1080,
-        #                   new_height)
+    
         # delete the temp files if they exist
         if os.path.exists(temp_file):
             os.remove(temp_file)
