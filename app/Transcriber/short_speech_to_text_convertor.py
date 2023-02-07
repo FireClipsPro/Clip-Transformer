@@ -22,7 +22,6 @@ class ShortSpeechToTextConvertor:
 
         audio_wav = speech.RecognitionAudio(content=byte_data_wav)
         config_wav = speech.RecognitionConfig(
-            sample_rate_hertz=44100,
             enable_automatic_punctuation=True,
             enable_word_time_offsets=True,
             language_code='en-US',
@@ -34,3 +33,4 @@ class ShortSpeechToTextConvertor:
 
 
 
+# sample_rate_hertz=44100,

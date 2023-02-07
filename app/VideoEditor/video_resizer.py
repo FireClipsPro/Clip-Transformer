@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 PADDING_HEIGHT = 100
 
@@ -17,7 +18,7 @@ class VideoResizer:
         
         self.INPUT_FILE_PATH = input_file_path
         self.OUTPUT_FILE_PATH  = resized_file_path
-        
+
         print("VideoResizer created")
 
     def resize_mp4(self, input_file, output_file, width, height):
@@ -32,7 +33,7 @@ class VideoResizer:
             output_file
         ]
         subprocess.run(command)
-        
+
     def crop_mp4(self, input_file, output_file, width, height):
         command = [
             'ffmpeg',
@@ -44,7 +45,7 @@ class VideoResizer:
             output_file
         ]
         subprocess.run(command)
-        
+
     def get_video_dimensions(self, input_file):
         command = [
             'ffprobe',
@@ -60,9 +61,22 @@ class VideoResizer:
         print("~~~~~~~~~~~~~~~")
 
         width, height = map(int, output.strip().split(','))
-        
+
         return width, height
     
+    def add_bottom_padding(self, input_file, output_file, video_width, video_height, padding_height=100):
+        # add 100 pixels of black padding to the bottom of the video
+        command = [
+            'ffmpeg',
+            '-i', input_file,
+            '-vf', f'pad=width={video_width}:height={video_height + padding_height}:x=0:y=0:color=black',
+            '-c:v', 'libx264',
+            '-crf', '18',
+            '-preset', 'veryfast',
+            output_file
+        ]
+        subprocess.run(command)
+
     def add_bottom_padding(self, input_file, output_file, video_width, video_height, padding_height=100):
         # add 100 pixels of black padding to the bottom of the video
         command = [
@@ -88,7 +102,7 @@ class VideoResizer:
         # do the same for the output file
         if output_file_name[:8] != self.OUTPUT_FILE_PATH:
             output_file_path_and_name = self.OUTPUT_FILE_PATH + output_file_name
-        
+
         # check if that file exists
         if os.path.exists(input_file_name):
             print("Input file exists.")
@@ -99,10 +113,10 @@ class VideoResizer:
         #delete the output file if it exists
         if os.path.exists(output_file_path_and_name):
             os.remove(output_file_path_and_name)
-        
+
         # get video dimensions
         curr_width, curr_height = self.get_video_dimensions(input_file_name)
-        
+
         # if video is already correct size do nothing
         if curr_width == new_width and curr_height == new_height:
             return
@@ -120,7 +134,7 @@ class VideoResizer:
         temp_curr_width, temp_curr_height = self.get_video_dimensions(temp_file)
         # make another temp file for the second resize
         temp_file_2 = os.path.splitext(output_file_path_and_name)[0] + "_temp2" + os.path.splitext(output_file_path_and_name)[1]
-        
+
         self.add_bottom_padding(temp_file,
                                 temp_file_2,
                                 temp_curr_width,
@@ -133,14 +147,13 @@ class VideoResizer:
                             output_file_path_and_name,
                             new_width,
                             new_height)
-    
+
         # crop the sides of the video to fill the bottom half of the tiktok/short video
         # if curr_width != new_width:
         #     self.crop_mp4(temp_file,
         #                   output_file_name,
         #                   1080,
         #                   new_height)
-        
         # delete the temp files if they exist
         if os.path.exists(temp_file):
             os.remove(temp_file)
@@ -152,12 +165,11 @@ class VideoResizer:
         return output_file_name;
         
         
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        
 
 # tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# resizer = VideoResizer()
+resizer = VideoResizer()
 
 # # # check if that file exists
 # # if os.path.exists(address):
@@ -174,4 +186,5 @@ class VideoResizer:
 # # width 1280, height 720
 
 
-        
+
+

@@ -21,7 +21,7 @@ class AudioExtractor:
         #if output file already exists, delete it
         if os.path.exists(output_audio_path):
             os.remove(output_audio_path)
-        
+
         command = [
             'ffmpeg',
             '-i', input_video_path,
@@ -39,4 +39,6 @@ class AudioExtractor:
         
 # Test code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+audio_extractor = AudioExtractor()
+audio_extractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/JoeRoganClip.mp3")
 # AudioExtractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/TestAudioExtraction.mp3")

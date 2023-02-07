@@ -1,6 +1,8 @@
 from pydub import AudioSegment
 from pathlib import Path
 import os
+import json
+from google.cloud.speech import RecognizeResponse, LongRunningRecognizeResponse
 
 def convert_to_wav(input_path):
     file_type = input_path.split('.')[-1]
@@ -64,6 +66,39 @@ def get_absolute_path(current_path, relative_path_to_dst):
     return str(absolute_path.resolve())
 
 
+def store_transcription(data, path):
+    path_obj = Path(path).resolve()
+    file_name = path_obj.stem
+    if type(data).__name__ == 'RecognizeResponse':
+        data = RecognizeResponse.to_json(data)
+        file_name = f'{file_name}_short'
+    elif type(data).__name__ == 'LongRunningRecognizeResponse':
+        data = LongRunningRecognizeResponse.to_json(data)
+        file_name = f'{file_name}_long'
+    path_obj = path_obj.with_stem(file_name)
+    if not os.path.exists(str(path_obj)):
+        path_obj.parent.mkdir(parents=True, exist_ok=True)
+        path_obj.touch()
+    elif os.path.getsize(path) != 0:
+        raise Exception('File must be empty!')
+    with open(str(path_obj), 'w') as file:
+        file.write(json.dumps(data))
+    return str(path_obj)
 
 
+def load_transcription(path):
+    path_obj = Path(path).resolve()
+    file_name = str(path_obj.stem)
+    transcript_length = file_name.rsplit('_', 1)[-1]
+    if not os.path.exists(path):
+        raise Exception(f'file at path: {path} does not exist!')
+    elif os.path.getsize(path) == 0:
+        raise Exception('File is empty! No transcript can be loaded from file!')
+    with open(path, 'r') as file:
+        data = json.loads(file.read())
+    if transcript_length.lower() == 'short':
+        data = RecognizeResponse.from_json(data)
+    elif transcript_length.lower() == 'long':
+        data = LongRunningRecognizeResponse.from_json(data)
+    return data
 
