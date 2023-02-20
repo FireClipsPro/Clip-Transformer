@@ -5,15 +5,15 @@ from Transcriber import Transcriber, AudioExtractor
 from garbage_collection import FileDeleter
 import os
 
-INPUT_FILE_PATH = "./InputVideos/"
-AUDIO_EXTRACTIONS_PATH = "./audio_extractions/"
-IMAGE_FILE_PATH = "./images/"
-IMAGE_2_VIDEOS_FILE_PATH = "./videos_made_from_images/"
-OUTPUT_FILE_PATH = "./OutputVideos/"
-ORIGINAL_INPUT_FILE_PATH = "./InputVideos/"
+INPUT_FILE_PATH = "./media_storage/InputVideos/"
+AUDIO_EXTRACTIONS_PATH = "./media_storage/audio_extractions/"
+IMAGE_FILE_PATH = "./media_storage/images/"
+IMAGE_2_VIDEOS_FILE_PATH = "./media_storage/videos_made_from_images/"
+OUTPUT_FILE_PATH = "./media_storage/OutputVideos/"
+ORIGINAL_INPUT_FILE_PATH = "./media_storage/InputVideos/"
 CHROME_DRIVER_PATH = "./content_generator/chromedriver.exe"
-RESIZED_FILE_PATH = "./resized_original_videos/"
-VIDEOS_WITH_OVERLAYED_MEDIA_PATH = "./media_added_videos/"
+RESIZED_FILE_PATH = "./media_storage/resized_original_videos/"
+VIDEOS_WITH_OVERLAYED_MEDIA_PATH = "./media_storage/media_added_videos/"
 
 def main():
     file_deleter = FileDeleter()
@@ -98,6 +98,10 @@ def main():
 
         audioAdder.combine_video_audio(final_video, audio_extraction_file_name)
         
-     
+        file_deleter.delete_files_from_folder(IMAGE_2_VIDEOS_FILE_PATH)
+        file_deleter.delete_files_from_folder(IMAGE_FILE_PATH)
+        
+    
+
  
 main()
