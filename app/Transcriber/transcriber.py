@@ -2,7 +2,8 @@ import google.cloud.exceptions
 import os
 
 print(os.sys.path)
-os.sys.path.append("/Users/alexander/Documents/Clip_Transformer/Clip-Transformer/app/Transcriber")
+os.sys.path.append(os.path.abspath('../Transcriber'))
+print(os.sys.path)
 
 from storage_manager import GCStorageManager
 from mutagen.mp3 import MP3
@@ -21,7 +22,8 @@ class Transcriber:
         # print(os.sys.path)
         print(os.getcwd())
         print("-----------------------\n\n\n\n\n")
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../helpful-symbol-374005-f716a7246dc4.json'
+        credential_path = transcriber_utils.get_absolute_path(__file__, '../../helpful-symbol-374005-f716a7246dc4.json')
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
     def transcribe_audio_file(self, path, chunk_length):
         audio = MP3(path)
@@ -60,6 +62,7 @@ class Transcriber:
         absolute_path = transcriber_utils.get_absolute_path(__file__, file_path)
         return self.transcribe_audio_file(file_path, chunk_length)
 
+'''
 transcriber = Transcriber()
 chunk_length = 6
 
@@ -87,3 +90,4 @@ path_to_mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__,
 # transcription = transcriber_utils.load_transcription(path_to_mnm_rapgod_absolute_path)
 # transcriber_utils.print_transcription(transcription)
 
+'''
