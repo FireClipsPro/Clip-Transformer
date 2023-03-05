@@ -1,6 +1,5 @@
 import os
 import subprocess
-import time
 import imageio_ffmpeg as ffmpeg
 from moviepy.editor import *
 

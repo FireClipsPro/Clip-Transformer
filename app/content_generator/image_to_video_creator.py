@@ -1,9 +1,15 @@
 import subprocess
 import os
+import moviepy.editor as mp
+import math
+from PIL import Image
+import numpy
+import ffmpeg
 
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 YOUTUBE_SHORT_HALF_HEIGHT = 960
 YOUTUBE_SHORT_WIDTH = 1080
+PERCENT_OF_DISPLAY_SCREEN = 0.8
 
 class ImageToVideoCreator:
     
@@ -31,22 +37,13 @@ class ImageToVideoCreator:
             if os.path.exists(output_file):
                 os.remove(output_file)
             
-            # if the image size is uneven, change it to even
-            if image['width'] % 2 != 0:
-                image['width'] -= 1
-            if image['height'] % 2 != 0:
-                image['height'] -= 1
+            size = (image["width"], image["height"])
+            duration = image["end_time"] - image["start_time"]
             
-            command = [
-                'ffmpeg',
-                '-loop', '1',
-                '-i', input_file,
-                '-vf', f'zoompan=z=\'zoom+0.005\':x=\'iw/2-(iw/zoom/2)\':y=\'ih/2-(ih/zoom/2)\':d=300:s={image["width"]}x{image["height"]}\'',
-                '-t', str(image['end_time'] - image['start_time']),
-                '-pix_fmt', 'yuv420p',
-                output_file
-            ]
-            subprocess.run(command)
+            slide = mp.ImageClip(input_file).set_fps(25).set_duration(duration).resize(size)
+            slide = self.zoom_in_effect(slide, 0.05)
+
+            slide.write_videofile(output_file)
             
             # set the image's video file name
             image['video_file_name'] = f'{image["image"][:-4]}.mp4'
@@ -55,6 +52,37 @@ class ImageToVideoCreator:
             print(f'Dimensions: {image["width"]}x{image["height"]}')
             
         return images
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def zoom_in_effect(self, clip, zoom_ratio=0.04):
+        def effect(get_frame, t):
+            img = Image.fromarray(get_frame(t))
+            base_size = img.size
+
+            new_size = [
+                math.ceil(img.size[0] * (1 + (zoom_ratio * t))),
+                math.ceil(img.size[1] * (1 + (zoom_ratio * t)))
+            ]
+
+            # The new dimensions must be even.
+            new_size[0] = new_size[0] + (new_size[0] % 2)
+            new_size[1] = new_size[1] + (new_size[1] % 2)
+
+            img = img.resize(new_size, Image.LANCZOS)
+
+            x = math.ceil((new_size[0] - base_size[0]) / 2)
+            y = math.ceil((new_size[1] - base_size[1]) / 2)
+
+            img = img.crop([
+                x, y, new_size[0] - x, new_size[1] - y
+            ]).resize(base_size, Image.LANCZOS)
+
+            result = numpy.array(img)
+            img.close()
+
+            return result
+
+        return clip.fl(effect)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~           
     def crop_images(self, images, width, height):
@@ -100,7 +128,7 @@ class ImageToVideoCreator:
                 image['width'] = new_width
                 image['height'] = new_height
                 
-            else:
+            elif image['width'] > width or image['height'] > height:
                 print(f'Image {image["image"]} is too large to crop. Shrinking instead.')
                 # Shrink the image to fit in a 1080x960 box, add black bars if ratio is not 9/16
                 # Determine the new width and height of the image
@@ -124,6 +152,30 @@ class ImageToVideoCreator:
                     output_file
                 ]
 
+                subprocess.run(command)
+                
+                # replace the old image widths and heights
+                image['width'] = new_width
+                image['height'] = new_height
+            else:
+                print(f'Image {image["image"]} is too small to crop. enlarging instead.')
+                scale_factor = 1
+                if image['width'] > image['height']:
+                    scale_factor = YOUTUBE_SHORT_WIDTH * PERCENT_OF_DISPLAY_SCREEN / image['width']
+                else:
+                    scale_factor = YOUTUBE_SHORT_HALF_HEIGHT * PERCENT_OF_DISPLAY_SCREEN / image['height']
+                
+                new_height = int(image['height'] * scale_factor)
+                new_width = int(image['width'] * scale_factor)
+                
+                command = [
+                    'ffmpeg',
+                    '-i', input_file,
+                    '-vf', f'scale={new_width}:{new_height}',
+                    '-c:a', 'copy',
+                    output_file
+                ]
+                
                 subprocess.run(command)
                 
                 # replace the old image widths and heights
