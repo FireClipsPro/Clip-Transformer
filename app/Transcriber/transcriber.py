@@ -32,6 +32,16 @@ class Transcriber:
         timestamper = TextTimeStamper()
         stamped_texts = timestamper.timestamp_chunk_of_text(transcription, chunk_length)
         transcriber_utils.print_transcription_text(stamped_texts)
+        
+        # iterate over stamped_texts and store the text in a csv file
+        # with the format:
+        #   start_time, end_time, text
+        # call the csv file "transcription.csv"
+        with open('./media_storage/transcription.csv', 'w') as csv_file:
+            csv_file.write("start_time,end_time,text\n")
+            for text in stamped_texts:
+                csv_file.write(str(text['start_time']) + "," + str(text['end_time']) + "," + text['text'] + "\n")
+        
         return stamped_texts
 
 

@@ -63,7 +63,7 @@ def main():
         # Transcribe the audio file
         # chunk into time segments - for now 8 seconds
         transcriber = Transcriber(AUDIO_EXTRACTIONS_PATH)
-        chunk_array = transcriber.run_transcription(audio_extraction_file_name, 8)
+        chunk_array = transcriber.run_transcription(audio_extraction_file_name, 5)
         
         print(chunk_array)
         
@@ -99,7 +99,7 @@ def main():
         video_data = image_to_video_creator.process_images(time_stamped_images)
         
         if video_data == None:
-            raise Exception("Error: Images were not found. Stopping program.")
+            raise Excep tion("Error: Images were not found. Stopping program.")
         
         media_adder = MediaAdder(RESIZED_FILE_PATH,
                                 VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
@@ -117,9 +117,9 @@ def main():
 
         print("Finished adding videos to original clip")
         
-        audioAdder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
+        # audioAdder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
 
-        audioAdder.combine_video_audio(final_video, audio_extraction_file_name)
+        # audioAdder.combine_video_audio(final_video, audio_extraction_file_name)
         
         # file_deleter.delete_files_from_folder(IMAGE_2_VIDEOS_FILE_PATH)
         # file_deleter.delete_files_from_folder(IMAGE_FILE_PATH)

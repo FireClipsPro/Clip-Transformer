@@ -1,6 +1,8 @@
 import nltk
 import numpy as np
 from nltk import word_tokenize, pos_tag
+import datetime
+import csv
 
 
 class SentenceSubjectAnalyzer:
@@ -14,6 +16,9 @@ class SentenceSubjectAnalyzer:
         print("NLTK downloaded")
 
     def parse_sentence_subject(self, sentence):
+        if len(sentence) < 80:
+            return sentence
+        
         # Tokenize the sentence
         tokens = nltk.word_tokenize(sentence)
 
@@ -24,7 +29,7 @@ class SentenceSubjectAnalyzer:
         relevant_words = []
         for token, tag in tags:
             # TODO if two nnp's are next to each other than make them one entity
-
+            
             if (tag.startswith("NN") 
                 or tag.startswith("NNP") 
                 or tag.startswith("JJ")):
@@ -36,12 +41,22 @@ class SentenceSubjectAnalyzer:
         # Return the nouns, verbs, and entities in the order they appeared
         
         #make a string out of the list
-        newSetence = ""
+        newSentence = ""
         
         for word in relevant_words:
-            newSetence = newSetence + word + " "
+            newSentence = newSentence + word + " "
         
-        return newSetence
+        #save the string to a csv file called "sentence_subjects.csv"
+        #with the time stamp as the second column
+        #create the file if it doesn't exist
+        #append to the file if it does exist
+        filename = "sentence_subjects.csv"
+        with open(filename, "a", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            now = datetime.datetime.now()
+            writer.writerow([sentence, newSentence, now.strftime("%Y-%m-%d %H:%M:%S")])
+        
+        return newSentence
 
 
 

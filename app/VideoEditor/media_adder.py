@@ -1,6 +1,5 @@
 import os
 import subprocess
-import imageio_ffmpeg as ffmpeg
 from moviepy.editor import *
 
 class MediaAdder:
@@ -116,10 +115,13 @@ class MediaAdder:
                                  overlay_zone_x,
                                  overlay_zone_y):
         # calculate the overlay top left and right
-        overlay_top_left = overlay_zone_x + abs((overlay_video_width - overlay_zone_width) / 2)
-        overlay_top_right = overlay_zone_y + abs((overlay_video_height - overlay_zone_height) / 2)
-
-        return overlay_top_left, overlay_top_right
+        overlay_center_y = overlay_zone_y + (overlay_zone_height / 2)
+        overlay_center_x = overlay_zone_x + (overlay_zone_width / 2)
+        
+        overlay_video_top_left_x = overlay_center_x - (overlay_video_width / 2)
+        overlay_video_top_left_y = overlay_center_y - (overlay_video_height / 2)
+        
+        return overlay_video_top_left_x, overlay_video_top_left_y
         
 
 

@@ -58,12 +58,12 @@ class VideoClipper:
 
 
 #Testing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-RAW_VIDEO_FILE_PATH = "../media_storage/raw_videos/"
-INPUT_FILE_PATH = "../media_storage/InputVideos/"
-clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
+# RAW_VIDEO_FILE_PATH = "../media_storage/OutputVideos/"
+# INPUT_FILE_PATH = "../media_storage/OutputVideos/"
+# clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
 
-# # clipper.clip_video("Woody.mp4", "0", "1:00")
-clipper.clip_video("Woody.mp4", "0", "10")
+# # # clipper.clip_video("Woody.mp4", "0", "1:00")
+# clipper.clip_video("resized_palestine_(0, 52)_(2, 24).mp4", "12", "1:11")
 
 # print(clipper.format_time_string("40"))
 # print(clipper.format_time_string("11:40.5"))

@@ -15,7 +15,7 @@ def test_full_usage():
     image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
                                                 IMAGE_2_VIDEOS_FILE_PATH)
     image_data = [
-        {'image': '70398fb45e.jpg', 'start_time': 0, 'end_time': 4}
+        {'image': '87de250c3e.jpg', 'start_time': 0, 'end_time': 4}
     ]
 
     video_data = image_to_video_creator.process_images(image_data)
