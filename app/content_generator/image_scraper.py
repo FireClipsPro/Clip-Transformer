@@ -7,8 +7,6 @@ import io
 import os
 import time
 import random
-import hashlib
-
 
 class ImageScraper:
     
