@@ -163,7 +163,7 @@ class VideoResizer:
 
 
 # tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-resizer = VideoResizer()
+# resizer = VideoResizer()
 
 # # # check if that file exists
 # # if os.path.exists(address):

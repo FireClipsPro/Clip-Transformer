@@ -5,35 +5,31 @@ import unittest
 import os
 import subprocess
 
-
-
-IMAGE_FILE_PATH = './app/media_for_testing/'
-IMAGE_2_VIDEOS_FILE_PATH = './app/media_for_testing/'
-OUTPUT_FILE_PATH = "./app/media_for_testing/"
-ORIGINAL_INPUT_FILE_PATH = "./app/media_for_testing/"
-
+IMAGE_FILE_PATH = './media_storage/images/'
+IMAGE_2_VIDEOS_FILE_PATH = './media_storage/videos_made_from_images/'
+OUTPUT_FILE_PATH = "./media_storage/media_added_videos/"
+ORIGINAL_INPUT_FILE_PATH = "./media_storage/resized_original_videos/"
+FINAL_OUTPUT_FILE_PATH = "./media_storage/OutputVideos/"
        
 def test_full_usage():
     image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
                                                 IMAGE_2_VIDEOS_FILE_PATH)
     image_data = [
-        {'image': 'biebs.jpg', 'start_time': 0.0, 'end_time': 8},
-        {'image': 'biebs.jpg', 'start_time': 10, 'end_time': 18},
-        {'image': 'pizza.jpg', 'start_time': 20, 'end_time': 28},
+        {'image': '87de250c3e.jpg', 'start_time': 0, 'end_time': 4}
     ]
-    
 
     video_data = image_to_video_creator.process_images(image_data)
     
     if video_data == None:
         print("Error: Images were not found. Stopping program.")
+        return
         
-    
     media_adder = MediaAdder(ORIGINAL_INPUT_FILE_PATH,
                              OUTPUT_FILE_PATH,
-                             IMAGE_2_VIDEOS_FILE_PATH)
+                             IMAGE_2_VIDEOS_FILE_PATH,
+                             FINAL_OUTPUT_FILE_PATH)
     
-    media_adder.add_videos_to_original_clip(original_clip="ResizedTestOutput.mp4",
+    media_adder.add_videos_to_original_clip(original_clip='resized_Woody_(0, 0)_(0, 10).mp4',
                                        videos=video_data,
                                        original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                        original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,

@@ -77,7 +77,7 @@ class ImageScraper:
         return image_urls
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def persist_image(self, folder_path:str, url:str):
+    def persist_image(self, folder_path:str, url:str, search_term:str):
        # try to download the image
         try:
             image_content = requests.get(url).content
@@ -90,9 +90,10 @@ class ImageScraper:
             image_file = io.BytesIO(image_content)
             image = Image.open(image_file).convert('RGB')
             
-            _image_id = hashlib.sha1(image_content).hexdigest()[:10]
+            _image_id = search_term
             
-            file_path = os.path.join(folder_path, hashlib.sha1(image_content).hexdigest()[:10] + '.jpg')
+            # file_path = os.path.join(folder_path, hashlib.sha1(image_content).hexdigest()[:10] + '.jpg')
+            file_path = os.path.join(folder_path, search_term + '.jpg')
             
             with open(file_path, 'wb') as f:
                 image.save(f, "JPEG", quality=85)
@@ -129,7 +130,7 @@ class ImageScraper:
         # later on we can add more and run an algorithm to pick the best one
             # We can choose 
         for elem in res:
-            _photo_id = self.persist_image(target_folder, elem)
+            _photo_id = self.persist_image(target_folder, elem, search_term)
         
         if _photo_id == 0:
             print("No images found")

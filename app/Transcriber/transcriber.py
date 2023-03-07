@@ -25,14 +25,24 @@ class Transcriber:
 
     def transcribe_audio_file(self, path, chunk_length):
         audio = MP3(path)
-        if audio.info.length < 60:
+        if audio.info.length <= 60:
             transcription = self.transcribe_short_audio_file(path)
         else:
             transcription = self.transcribe_long_audio_file(path)
         timestamper = TextTimeStamper()
         stamped_texts = timestamper.timestamp_chunk_of_text(transcription, chunk_length)
         transcriber_utils.print_transcription_text(stamped_texts)
-        return transcription, stamped_texts
+        
+        # iterate over stamped_texts and store the text in a csv file
+        # with the format:
+        #   start_time, end_time, text
+        # call the csv file "transcription.csv"
+        with open('./media_storage/transcription.csv', 'w') as csv_file:
+            csv_file.write("start_time,end_time,text\n")
+            for text in stamped_texts:
+                csv_file.write(str(text['start_time']) + "," + str(text['end_time']) + "," + text['text'] + "\n")
+        
+        return stamped_texts
 
 
     def transcribe_short_audio_file(self, path):
@@ -60,30 +70,30 @@ class Transcriber:
         absolute_path = transcriber_utils.get_absolute_path(__file__, file_path)
         return self.transcribe_audio_file(file_path, chunk_length)
 
-transcriber = Transcriber()
-chunk_length = 6
+# transcriber = Transcriber()
+# chunk_length = 6
 
-joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
-joe_elon_tesla_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
+# joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
+# joe_elon_tesla_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
 #transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path, chunk_length)
-path_to_joe_elon_tesla_mp3_clip = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeElonTesla.txt')
+# path_to_joe_elon_tesla_mp3_clip = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeElonTesla.txt')
 # transcriber_utils.store_data(transcription, path_to_joe_elon_tesla_mp3_clip)
 # transcription = transcriber_utils.load_transcription(path_to_joe_elon_tesla_mp3_clip)
 # transcriber_utils.print_transcription(transcription)
 
-joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
-joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
-# transcription, stamped_texts = transcriber.transcribe_audio_file(joe_long_absolute_path, chunk_length)
-path_to_joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeLong_long.txt')
+# joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
+# joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
+# # transcription, stamped_texts = transcriber.transcribe_audio_file(joe_long_absolute_path, chunk_length)
+# path_to_joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeLong_long.txt')
 # transcriber_utils.store_transcription(transcription, path_to_joe_long_absolute_path)
 # transcription = transcriber_utils.load_transcription(path_to_joe_long_absolute_path)
 # transcriber_utils.print_transcription(transcription)
 
-mnm_rapgod_mp3_clip = '../videos/RAP-GOD-FAST.mp3'
-mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, mnm_rapgod_mp3_clip)
-# transcription, stamped_texts = transcriber.transcribe_audio_file(mnm_rapgod_absolute_path, chunk_length)
-path_to_mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/RAP-GOD-FAST.txt')
-# out_path = transcriber_utils.store_transcription(transcription, path_to_mnm_rapgod_absolute_path)
-# transcription = transcriber_utils.load_transcription(path_to_mnm_rapgod_absolute_path)
-# transcriber_utils.print_transcription(transcription)
+# mnm_rapgod_mp3_clip = '../videos/RAP-GOD-FAST.mp3'
+# mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, mnm_rapgod_mp3_clip)
+# # transcription, stamped_texts = transcriber.transcribe_audio_file(mnm_rapgod_absolute_path, chunk_length)
+# path_to_mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/RAP-GOD-FAST.txt')
+# # out_path = transcriber_utils.store_transcription(transcription, path_to_mnm_rapgod_absolute_path)
+# # transcription = transcriber_utils.load_transcription(path_to_mnm_rapgod_absolute_path)
+# # transcriber_utils.print_transcription(transcription)
 

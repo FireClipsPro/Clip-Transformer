@@ -39,6 +39,6 @@ class AudioExtractor:
         
 # Test code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-audio_extractor = AudioExtractor()
-audio_extractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/JoeRoganClip.mp3")
+# audio_extractor = AudioExtractor()
+# audio_extractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/JoeRoganClip.mp3")
 # AudioExtractor.extract_audio("../videos/JoeRoganClip.mp4", "../videos/TestAudioExtraction.mp3")
