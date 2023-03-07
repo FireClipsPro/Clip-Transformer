@@ -3,7 +3,24 @@ from content_generator import ImageScraper, ImageToVideoCreator
 from decoder import SentenceSubjectAnalyzer
 from Transcriber import Transcriber, AudioExtractor
 from garbage_collection import FileDeleter
+from music_adder import MusicAdder
 import os
+
+ANGRY_MUSIC_FILE_PATH = '../media_storage/songs/angry/'
+CUTE_MUSIC_FILE_PATH = '../media_storage/songs/cute/'
+FUNNY_MUSIC_FILE_PATH = '../media_storage/songs/funny/'
+MOTIVATIONAL_MUSIC_FILE_PATH = '../media_storage/songs/motivational/'
+INTRIGUING_MUSIC_FILE_PATH = '../media_storage/songs/fascinating/'
+CONSPIRACY_MUSIC_FILE_PATH = '../media_storage/songs/conspiracy/'
+
+MUSIC_CATEGORY_PATH_DICT = {
+    'funny': FUNNY_MUSIC_FILE_PATH,
+    'cute': CUTE_MUSIC_FILE_PATH,
+    'motivational': MOTIVATIONAL_MUSIC_FILE_PATH,
+    'fascinating': INTRIGUING_MUSIC_FILE_PATH,
+    'angry': ANGRY_MUSIC_FILE_PATH,
+    'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
+}
 
 RAW_VIDEO_FILE_PATH = "./media_storage/raw_videos/"
 INPUT_FILE_PATH = "./media_storage/InputVideos/"
@@ -26,13 +43,14 @@ def main():
     with open('./media_storage/input_info.csv', 'r') as csv_file:
         for line in csv_file:
             # skip the first line
-            if line == "raw_video_name,start_time,end_time\n":
+            if line == "raw_video_name,start_time,end_time,music_category\n":
                 continue
             line = line.strip()
             line = line.split(',')
             raw_videos.append({'raw_video_name': str(line[0]),
                                 'start_time': str(line[1]),
-                                'end_time': str(line[2])})
+                                'end_time': str(line[2]),
+                                'music_category': str(line[3])})
   
     print(raw_videos)
     
@@ -99,7 +117,7 @@ def main():
         video_data = image_to_video_creator.process_images(time_stamped_images)
         
         if video_data == None:
-            raise Excep tion("Error: Images were not found. Stopping program.")
+            raise Exception("Error: Images were not found. Stopping program.")
         
         media_adder = MediaAdder(RESIZED_FILE_PATH,
                                 VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
@@ -116,6 +134,15 @@ def main():
                                         overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
 
         print("Finished adding videos to original clip")
+        
+        myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
+                          video_files_path='../media_storage/OutputVideos/',
+                          output_path='../media_storage/OutputVideos/')
+
+        myMusicAdder.add_music_to_video(music_category=raw_video['music_category'],
+                                        video_name=final_video,
+                                        video_length=ceil(video_data['start_time']['end_time']))
+
         
         # audioAdder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
 
