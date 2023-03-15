@@ -1,10 +1,8 @@
 import os
 import subprocess
 
-
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 PADDING_HEIGHT = 100
-
 
 class VideoResizer:
     def __init__(self,
@@ -77,19 +75,6 @@ class VideoResizer:
         ]
         subprocess.run(command)
 
-    def add_bottom_padding(self, input_file, output_file, video_width, video_height, padding_height=100):
-        # add 100 pixels of black padding to the bottom of the video
-        command = [
-            'ffmpeg',
-            '-i', input_file,
-            '-vf', f'pad=width={video_width}:height={video_height + padding_height}:x=0:y=0:color=black',
-            '-c:v', 'libx264',
-            '-crf', '18',
-            '-preset', 'veryfast',
-            output_file
-        ]
-        subprocess.run(command)
-
     # make video into bottom half of bottom half of tiktok/short video
     def  resize_video(self, 
                       input_file_name, 
@@ -103,6 +88,11 @@ class VideoResizer:
         if output_file_name[:len(self.INPUT_FILE_PATH)] != self.OUTPUT_FILE_PATH:
             output_file_path_and_name = self.OUTPUT_FILE_PATH + output_file_name
 
+        # if the output file already exists, return the name of the file
+        if os.path.exists(output_file_path_and_name):
+            print("Output file already exists.")
+            return output_file_name
+        
         # check if that file exists
         if os.path.exists(input_file_name):
             print("Input file exists.")

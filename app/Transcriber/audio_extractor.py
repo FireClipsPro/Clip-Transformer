@@ -14,6 +14,10 @@ class AudioExtractor:
         # ab = audio bitrate
         # ar = audio sample rate
     def extract_mp3_from_mp4(self, input_file):
+        # if audio file already exists return it
+        if os.path.exists(self._audio_extraction_path + input_file[:-4] + ".mp3"):
+            return input_file[:-4] + ".mp3"
+        
         print("\n\n\n\n\n\nExtracting audio from " + input_file + "\n\n\n\n\n\n")
         input_video_path = self._input_file_path + input_file
         # make the output_audio_path an mp3 file

@@ -1,9 +1,5 @@
-
-# VideoClipper class:
-# Given a video name, filepath of video passed into constructor, and start and end time,
-# return a clip of the video put into the output folder specified in the constructor.
-
 from moviepy.editor import *
+import os
 
 class VideoClipper:
     def __init__(self,
@@ -15,9 +11,19 @@ class VideoClipper:
      # time strings can be in the following formats:
         # "1:11:40.5" or "1:11:40" or "1:11" or "1"
     def clip_video(self, video_name, start_time, end_time):
-        
         start_time = self.format_time_string(start_time)
         end_time = self.format_time_string(end_time)
+        
+        start_time_sec = 0
+        for i in range(len(start_time)):
+            start_time_sec += start_time[i] * (60 ** (len(start_time) - i - 1))
+        end_time_sec = 0
+        for i in range(len(end_time)):
+            end_time_sec += end_time[i] * (60 ** (len(end_time) - i - 1))
+        
+        # if the video has already been clipped, return the file name
+        if os.path.exists(self.output_file_path + video_name[:-4] + f'_{start_time}_{end_time}.mp4'):
+            return {'file_name': video_name[:-4] + f'_{start_time}_{end_time}.mp4', 'start_time_sec': start_time_sec, 'end_time_sec': end_time_sec} 
         
         # initialize the input video path
         input_video = self.input_video_file_path + video_name
@@ -34,7 +40,7 @@ class VideoClipper:
         video_clip = VideoFileClip(input_video).subclip(start_time, end_time)
         video_clip.write_videofile(output_video)
         
-        return video_name[:-4] + f'_{start_time}_{end_time}.mp4'
+        return {'file_name': video_name[:-4] + f'_{start_time}_{end_time}.mp4', 'start_time_sec': start_time_sec, 'end_time_sec': end_time_sec}
 
     # works for all string inputs smaller too eg "1:11" or "1"
     #given input: "1:11:40.5" output: (1, 11, 40.5)
