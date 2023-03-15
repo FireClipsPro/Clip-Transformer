@@ -6,7 +6,7 @@ file_deleter = FileDeleter()
 #print working directory
 print("Working directory is: " + os.getcwd())
 
-file_deleter.delete_files_from_folder('./media_storage/audio_extractions/')
+# file_deleter.delete_files_from_folder('./media_storage/audio_extractions/')
 
 file_deleter.delete_files_from_folder('./media_storage/images/')
 

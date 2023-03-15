@@ -1,10 +1,14 @@
-from VideoEditor import MediaAdder, VideoResizer, AudioAdder, VideoClipper
+from VideoEditor import MediaAdder, VideoResizer, VideoClipper
 from content_generator import ImageScraper, ImageToVideoCreator
 from decoder import SentenceSubjectAnalyzer
-from Transcriber import Transcriber, AudioExtractor
+from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder
 import os
+import math
+import logging
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
 
 ANGRY_MUSIC_FILE_PATH = '../media_storage/songs/angry/'
 CUTE_MUSIC_FILE_PATH = '../media_storage/songs/cute/'
@@ -39,18 +43,7 @@ def main():
     
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
-    raw_videos = []
-    with open('./media_storage/input_info.csv', 'r') as csv_file:
-        for line in csv_file:
-            # skip the first line
-            if line == "raw_video_name,start_time,end_time,music_category\n":
-                continue
-            line = line.strip()
-            line = line.split(',')
-            raw_videos.append({'raw_video_name': str(line[0]),
-                                'start_time': str(line[1]),
-                                'end_time': str(line[2]),
-                                'music_category': str(line[3])})
+    raw_videos = get_raw_videos()
   
     print(raw_videos)
     
@@ -59,7 +52,6 @@ def main():
         
         video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FILE_PATH,
                                      output_file_path=INPUT_FILE_PATH)
-        
         clipped_video = video_clipper.clip_video(raw_video['raw_video_name'],
                                                  raw_video['start_time'],
                                                  raw_video['end_time'])
@@ -67,53 +59,46 @@ def main():
         # resize the video
         video_resizer = VideoResizer(INPUT_FILE_PATH,
                                     RESIZED_FILE_PATH)
-        
-        resized_video_name = video_resizer.resize_video(clipped_video,
-                                                    "resized_" + clipped_video,
+        resized_video_name = video_resizer.resize_video(clipped_video['file_name'],
+                                                    "resized_" + clipped_video['file_name'],
                                                     video_resizer.YOUTUBE_SHORT_WIDTH, 
                                                     video_resizer.YOUTUBE_SHORT_HEIGHT)
         
         audio_extractor = AudioExtractor(INPUT_FILE_PATH,
                                         AUDIO_EXTRACTIONS_PATH)
+        audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
-        audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video)
-                
         # Transcribe the audio file
-        # chunk into time segments - for now 8 seconds
-        transcriber = Transcriber(AUDIO_EXTRACTIONS_PATH)
-        chunk_array = transcriber.run_transcription(audio_extraction_file_name, 5)
+        transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
+        transcription = transcriber.transcribe(audio_extraction_file_name)
         
-        print(chunk_array)
+        print(transcription)
         
-        # initialize the sentence subject analyzer and image scraper
         analyzer = SentenceSubjectAnalyzer()
-        _image_scraper = ImageScraper(CHROME_DRIVER_PATH,
+        image_scraper = ImageScraper(CHROME_DRIVER_PATH,
                                     IMAGE_FILE_PATH)
         print("Initialized the sentence subject analyzer and image scraper")
-        # for each segment:
-        # parse the sentence subject
-        # search for and download an image and save the imageID
-        # to the _time_stamped_images array
+        query_list = analyzer.process_transcription(transcription['segments'],
+                                                    transcription['segments'][-1]['end'],
+                                                    6)
+        
         time_stamped_images = []
-        for chunk in chunk_array:
-            _sentence_subject = analyzer.parse_sentence_subject(chunk['text'])
+        for query in query_list:
+            image_id = image_scraper.search_and_download(query['query'], 1)
             
-            _image_id = _image_scraper.search_and_download(_sentence_subject, 1)
-            
-            if _image_id == None:
+            if image_id == None:
                 print("No Image found. Skipping.")
                 continue
             
-            time_stamped_images.append({'start_time': chunk['start_time'],
-                                        'end_time': chunk['end_time'], 
-                                        'image': _image_id + '.jpg'})
+            time_stamped_images.append({'start_time': query['start'],
+                                        'end_time': query['end'], 
+                                        'image': image_id + '.jpg'})
         
         # print the _time_stamped_images array
         print(time_stamped_images)
         
         image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
                                                     IMAGE_2_VIDEOS_FILE_PATH)
-        
         video_data = image_to_video_creator.process_images(time_stamped_images)
         
         if video_data == None:
@@ -123,7 +108,6 @@ def main():
                                 VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
                                 IMAGE_2_VIDEOS_FILE_PATH,
                                 OUTPUT_FILE_PATH)
-        
         final_video = media_adder.add_videos_to_original_clip(original_clip=resized_video_name,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
@@ -136,22 +120,28 @@ def main():
         print("Finished adding videos to original clip")
         
         myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
-                          video_files_path='../media_storage/OutputVideos/',
-                          output_path='../media_storage/OutputVideos/')
-
+                          video_files_path=OUTPUT_FILE_PATH,
+                          output_path=OUTPUT_FILE_PATH)
         myMusicAdder.add_music_to_video(music_category=raw_video['music_category'],
-                                        video_name=final_video,
-                                        video_length=ceil(video_data['start_time']['end_time']))
+                                        video_name=final_video['file_name'],
+                                        video_length=math.ceil(float(clipped_video['end_time_sec']) - float(clipped_video['start_time_sec'])))
 
-        
-        # audioAdder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
-
-        # audioAdder.combine_video_audio(final_video, audio_extraction_file_name)
-        
-        # file_deleter.delete_files_from_folder(IMAGE_2_VIDEOS_FILE_PATH)
-        # file_deleter.delete_files_from_folder(IMAGE_FILE_PATH)
-        
-    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def get_raw_videos():
+    raw_videos = []
+    with open('./media_storage/input_info.csv', 'r') as csv_file:
+        for line in csv_file:
+            # skip the first line
+            if line == "raw_video_name,start_time,end_time,music_category\n":
+                continue
+            line = line.strip()
+            line = line.split(',')
+            raw_videos.append({'raw_video_name': str(line[0]),
+                                'start_time': str(line[1]),
+                                'end_time': str(line[2]),
+                                'music_category': str(line[3])})
+            
+    return raw_videos
 
  
 main()
