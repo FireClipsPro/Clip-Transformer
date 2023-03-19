@@ -1,7 +1,10 @@
 from VideoEditor import MediaAdder, VideoResizer, AudioAdder
+from Transcriber.text_timestamper import TextTimeStamper
 from content_generator import ImageScraper, ImageToVideoCreator
-from decoder import SentenceSubjectAnalyzer
+from Decoder import SentenceSubjectAnalyzer
 from Transcriber import Transcriber, AudioExtractor
+from Transcriber.transcriber_utils import load_transcription
+from SubtitleAdder.subtitle_adder_mv import SubtitleAdderMv
 import os
 
 RESIZED_FILE_PATH = './OutputVideos/'
@@ -27,22 +30,26 @@ def main():
                                                 video_resizer.YOUTUBE_SHORT_WIDTH, 
                                                 video_resizer.YOUTUBE_SHORT_HEIGHT)
     
-    audio_extractor = AudioExtractor(INPUT_FILE_PATH,
-                                    AUDIO_EXTRACTIONS_PATH)
-    
+    audio_extractor = AudioExtractor(INPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
     audio_extraction = audio_extractor.extract_mp3_from_mp4(original_video)
-    
-    
+
     # Transcribe the audio file
     # chunk into time segments - for now 8 seconds
-    transcriber = Transcriber(AUDIO_EXTRACTIONS_PATH)
-    chunk_array = transcriber.run_transcription(audio_extraction, 8)
+    # transcriber = Transcriber(AUDIO_EXTRACTIONS_PATH)
+    # chunk_array = transcriber.run_transcription(audio_extraction, 8)
+
+    transcription = load_transcription(os.path.abspath('./Vault/JordanClip_short.txt'))
+    timestamper = TextTimeStamper()
+    chunk_array = timestamper.timestamp_chunk_of_text(transcription, 8)
+    print(chunk_array)
+
+    subtitler = SubtitleAdderMv(INPUT_FILE_PATH, RESIZED_FILE_PATH)
+    subtitled_resized_video = subtitler.subtitle_adder(resized_video, transcription)
     
 
     # initialize the sentence subject analyzer and image scraper
     analyzer = SentenceSubjectAnalyzer()
-    _image_scraper = ImageScraper(CHROME_DRIVER_PATH,
-                                  IMAGE_FILE_PATH)
+    _image_scraper = ImageScraper(CHROME_DRIVER_PATH, IMAGE_FILE_PATH)
     print("Initialized the sentence subject analyzer and image scraper")
     # for each segment:
     # parse the sentence subject
@@ -65,8 +72,7 @@ def main():
     # print the _time_stamped_images array
     print(time_stamped_images)
     
-    image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
-                                                IMAGE_2_VIDEOS_FILE_PATH)
+    image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH, IMAGE_2_VIDEOS_FILE_PATH)
     
     video_data = image_to_video_creator.process_images(time_stamped_images)
     
@@ -77,7 +83,7 @@ def main():
                              OUTPUT_FILE_PATH,
                              IMAGE_2_VIDEOS_FILE_PATH)
     
-    final_video = media_adder.add_videos_to_original_clip(original_clip=resized_video,
+    final_video = media_adder.add_videos_to_original_clip(original_clip=subtitled_resized_video,
                                        videos=video_data,
                                        original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                        original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
@@ -89,9 +95,8 @@ def main():
     print("Finished adding videos to original clip")
     
     audioAdder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
-
-    audioAdder.combine_video_audio(final_video, audio_extraction)
-    
+    final_video_with_audio = audioAdder.add_audio_to_video(final_video, audio_extraction)
+    print(final_video_with_audio)
 
 # make a function that takes in an mp4 video and an mp3 audio file and combines them    
     

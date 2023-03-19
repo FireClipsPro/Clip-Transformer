@@ -15,9 +15,9 @@ class AudioAdder:
         self.video_files_path = video_files_path
         self.audio_files_path = audio_files_path
 
-    def add_audio_to_video(self, audio_file_path, video_file_path):
+    def add_audio_to_video(self, video_file_path, audio_file_path):
         video = VideoFileClip(video_file_path)
-        audio = AudioFileClip(audio_file_path)
+        audio = AudioFileClip(os.path.join(self.audio_files_path, audio_file_path))
         # audio = audio.set_duration(video.duration)
         final_video = video.set_audio(audio)
         output_video_path = self.get_output_video_path(video_file_path)

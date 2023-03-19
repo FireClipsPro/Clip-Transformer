@@ -1,13 +1,14 @@
 from moviepy.editor import *
-from subtitle_utils import *
 import os
 from pathlib import Path
 
 current_path = Path(os.path.abspath(__file__)).resolve()
+sys.path.append(str(current_path.parent))
 transcriber_path = os.path.join(current_path.parent.parent, 'Transcriber')
 sys.path.append(transcriber_path)
+from subtitle_utils import *
 
-import transcriber_utils
+# import transcriber_utils
 
 class SubtitleAdderMv:
     def __init__(self, input_dir_path, output_dir_path, font='Arial'):
@@ -40,7 +41,9 @@ class SubtitleAdderMv:
             composite_clips += [top, bottom]
         result = CompositeVideoClip(composite_clips)
         output_file_name = f'{os.path.splitext(file_name)[0]}-out.mp4'
-        result.write_videofile(os.path.join(self.OUTPUT_DIR_PATH, output_file_name), fps=fps)
+        output_file_path = os.path.join(self.OUTPUT_DIR_PATH, output_file_name)
+        result.write_videofile(output_file_path, fps=fps)
+        return output_file_name
 
 
     def get_top_bottom_clips(self, subtitle, text_top, text_bottom, video_width, video_height, increment):
@@ -50,11 +53,11 @@ class SubtitleAdderMv:
         bottom_text = ' ' if text_bottom['text'] == '' else text_bottom['text']
         top = TextClip(text_top['text'], fontsize=text_top['font_scale'], font=self.TEXT_FONT, color=self.TEXT_COLOUR)
         top_x = int((video_width - top.size[0]) / 2)
-        top_y = int(video_height / 2) if text_bottom['text'] == '' else int(video_height / 2) - increment
+        top_y = int(video_height / 3) if text_bottom['text'] == '' else int(video_height / 3) - increment
         top = top.set_position((top_x, top_y)).set_duration(duration).set_start(start)
         bottom = TextClip(bottom_text, fontsize=text_bottom['font_scale'], font=self.TEXT_FONT, color=self.TEXT_COLOUR)
         bottom_x = int((video_width - bottom.size[0]) / 2)
-        bottom_y = int((video_height / 2) + top.size[1] + increment)
+        bottom_y = int((video_height / 3) + top.size[1] + increment)
         bottom = bottom.set_position((bottom_x, bottom_y)).set_duration(duration).set_start(start)
         return top, bottom
 
@@ -92,6 +95,7 @@ class SubtitleAdderMv:
         param['SUBTITLE_SIZE'] = 0.6
         return param
 
+'''
 input_dir = os.path.abspath('../InputVideos')
 output_dir = os.path.abspath('../OutputVideos')
 subtitler = SubtitleAdderMv(input_dir, output_dir)
@@ -99,3 +103,4 @@ file_name = 'JordanClipResized.mp4_6.mp4'
 transcription = transcriber_utils.load_transcription(os.path.abspath('../Vault/JordanClip_short.txt'))
 transcriber_utils.print_transcription(transcription)
 subtitler.subtitle_adder(file_name, transcription)
+'''
