@@ -1,10 +1,8 @@
 import os
 import subprocess
 
-
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 PADDING_HEIGHT = 100
-
 
 class VideoResizer:
     def __init__(self,
@@ -77,32 +75,24 @@ class VideoResizer:
         ]
         subprocess.run(command)
 
-    def add_bottom_padding(self, input_file, output_file, video_width, video_height, padding_height=100):
-        # add 100 pixels of black padding to the bottom of the video
-        command = [
-            'ffmpeg',
-            '-i', input_file,
-            '-vf', f'pad=width={video_width}:height={video_height + padding_height}:x=0:y=0:color=black',
-            '-c:v', 'libx264',
-            '-crf', '18',
-            '-preset', 'veryfast',
-            output_file
-        ]
-        subprocess.run(command)
-
     # make video into bottom half of bottom half of tiktok/short video
     def  resize_video(self, 
                       input_file_name, 
                       output_file_name, 
                       new_width, 
                       new_height):
-        # add ../videos/ to the beginning of the file name if it is not there
-        if input_file_name[:8] != self.INPUT_FILE_PATH:
+        # add Self.Input_file_path to the beginning of the file name if it is not there
+        if input_file_name[:len(self.INPUT_FILE_PATH)] != self.INPUT_FILE_PATH:
             input_file_name = self.INPUT_FILE_PATH + input_file_name
         # do the same for the output file
-        if output_file_name[:8] != self.OUTPUT_FILE_PATH:
+        if output_file_name[:len(self.INPUT_FILE_PATH)] != self.OUTPUT_FILE_PATH:
             output_file_path_and_name = self.OUTPUT_FILE_PATH + output_file_name
 
+        # if the output file already exists, return the name of the file
+        if os.path.exists(output_file_path_and_name):
+            print("Output file already exists.")
+            return output_file_name
+        
         # check if that file exists
         if os.path.exists(input_file_name):
             print("Input file exists.")
@@ -147,13 +137,7 @@ class VideoResizer:
                             output_file_path_and_name,
                             new_width,
                             new_height)
-
-        # crop the sides of the video to fill the bottom half of the tiktok/short video
-        # if curr_width != new_width:
-        #     self.crop_mp4(temp_file,
-        #                   output_file_name,
-        #                   1080,
-        #                   new_height)
+    
         # delete the temp files if they exist
         if os.path.exists(temp_file):
             os.remove(temp_file)

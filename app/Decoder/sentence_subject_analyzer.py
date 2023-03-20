@@ -1,63 +1,125 @@
-import nltk
-import numpy as np
-from nltk import word_tokenize, pos_tag
+import openai
+import os
+from math import ceil
+import logging
+import re
 
+logging.basicConfig(level=logging.INFO)
 
 class SentenceSubjectAnalyzer:
     def __init__(self):
-        print("SubjectAnalyzer created")
-        nltk.download('punkt')
-        nltk.download('averaged_perceptron_tagger')
-        nltk.download('maxent_ne_chunker')
-        nltk.download('words')
-        nltk.download('wordnet')
-        print("NLTK downloaded")
+        logging.info("SubjectAnalyzer created")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+    def process_transcription(self, transcription, transcription_length_sec, seconds_per_query):
+        logging.info("Processing transcription")
+        query_list = []
+        sentence_list = []
+
+        # Create sentence_list
+        for time_chunk_start in range(0, ceil(transcription_length_sec), seconds_per_query):
+            time_chunk_end = time_chunk_start + seconds_per_query
+            sentence = ""
+
+            for text_segment in transcription:
+                if ((text_segment['start'] >= time_chunk_start and text_segment['start'] <= time_chunk_end)
+                    or (text_segment['end'] >= time_chunk_start and text_segment['end'] <= time_chunk_end)
+                    or (text_segment['start'] <= time_chunk_start and text_segment['end'] >= time_chunk_end)):
+                    sentence += text_segment['text'] + " "
+
+            sentence_list.append(sentence)
+
+        # Create query_list using sentence_list
+        for i, sentence in enumerate(sentence_list):
+            time_chunk_start = i * seconds_per_query
+            time_chunk_end = time_chunk_start + seconds_per_query
+
+            if sentence == "":
+                continue
+
+            query = self.assign_query_to_time_chunk(sentence_list, i)
+            query_list.append({'query': query, 'start': time_chunk_start, 'end': time_chunk_end})
+            logging.info(f"Time chunk: {time_chunk_start}-{time_chunk_end}, Query: {query}")
+
+        query_list = self.create_queries_for_null_time_chunks(query_list)
+        self.save_queries(query_list)
+        return query_list
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def assign_query_to_time_chunk(self, sentence_list, i):
+        current_sentence = sentence_list[i]
+        query = self.parse_sentence_subject(current_sentence)
+
+        j = 1
+        while query is None and (i - j >= 0 or i + j < len(sentence_list)):
+            if i - j >= 0:
+                current_sentence = sentence_list[i - j] + " " + current_sentence
+                query = self.parse_sentence_subject(current_sentence)
+
+            if query is None and i + j < len(sentence_list):
+                current_sentence += " " + sentence_list[i + j]
+                query = self.parse_sentence_subject(current_sentence)
+
+            j += 1
+
+        return query
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def save_queries(self, query_list):
+        logging.info("Saving queries to file")
+        with open('queries.csv', 'w+') as csv_file:
+            csv_file.write("query,start,end\n")
+            for query in query_list:
+                csv_file.write(query['query'] + "," + str(query['start']) + "," + str(query['end']) + "\n")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def create_queries_for_null_time_chunks(self, query_list):
+        logging.info("Creating queries for null time chunks")
+        closest_right_non_null_query = ""
+        for i in range(len(query_list)):
+            if query_list[i]['query'] == None:
+                if i == 0:
+                    if query_list[i]['query'] != None:
+                            closest_right_non_null_query = query_list[j]['query']
+                    query_list[i]['query'] = closest_right_non_null_query
+                elif i == len(query_list) - 1:
+                    query_list[i]['query'] = query_list[i-1]['query']
+                else:
+                    for j in range(i+1, len(query_list)):
+                        if query_list[j]['query'] != None:
+                            closest_right_non_null_query = query_list[j]['query']
+                            break
+                    query_list[i]['query'] = query_list[i-1]['query'] + " " + closest_right_non_null_query
+        return query_list
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~          
+    def remove_repeated_phrases(self, text):
+        pattern = re.compile(r'\b(\w[\w\s]*\w)\b(?=.*\b\1\b)')
+        cleaned_text = re.sub(pattern, '', text)
+        return cleaned_text.strip()
 
     def parse_sentence_subject(self, sentence):
-        # Tokenize the sentence
-        tokens = nltk.word_tokenize(sentence)
+        cleaned_sentence = self.remove_repeated_phrases(sentence)
+        logging.info(f"Parsing sentence subject: {cleaned_sentence}")
 
-        # Tag the tokens with their part of speech
-        tags = nltk.pos_tag(tokens)
+        openai.api_key = os.getenv("OPENAI_API_KEY")
 
-        # Extract the nouns, named entities, and adjectives
-        relevant_words = []
-        for token, tag in tags:
-            # TODO if two nnp's are next to each other than make them one entity
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": """You are a google images search query generator.
+                    Use the text that you are given to generate a google image search query that if put directly into google, will pull up a relevant and interesting photo of what the speakers are discussing.
+                    Prioritize bringing up any proper nouns.
+                    Do not return anything other than the search query.
+                    If you cannot come up with a query, return the words "null query" and nothing else."""},
+                {"role": "user", "content": f"""Here is the text: {cleaned_sentence}. Reply with only the search query."""},
+            ]
+        )
+        logging.info(f"Response: {response['choices'][0]['message']['content']}")
 
-            if (tag.startswith("NN") 
-                or tag.startswith("NNP") 
-                or tag.startswith("JJ")):
-                relevant_words.append(token)
+        if (("null" in response['choices'][0]['message']['content'] or "Null" in response['choices'][0]['message']['content'])
+            and ("query" in response['choices'][0]['message']['content'] or "Query" in response['choices'][0]['message']['content'])):
+            logging.info("Received null query")
+            return None
 
-        # Remove duplicates from the lists
-        # relevant_words = list(set(relevant_words))
+        query = response['choices'][0]['message']['content'].replace('"', '')
+        logging.info(f"Generated query: {query}")
 
-        # Return the nouns, verbs, and entities in the order they appeared
-        
-        #make a string out of the list
-        newSetence = ""
-        
-        for word in relevant_words:
-            newSetence = newSetence + word + " "
-        
-        return newSetence
+        return query
 
-
-
-# Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# analyzer = SentenceSubjectAnalyzer()
-
-# sentenceContent = analyzer.parse_sentence_subject("The night of christmas eve, all the children prepare cookies for Santa Claus because its a western tradition.")
-# print(sentenceContent)
-# newSetence = ""
-
-# for word in sentenceContent:
-#     newSetence = newSetence + word + " "
-
-# print(newSetence)
-       
-# print(analyzer.parse_sentence_subject("The quick brown fox jumps over the lazy dog."))
-
-# print(analyzer.parse_sentence_subject("Um I of course celebrate Quanza but for today I'm making um, and we have all of this. I am Jewish. I am Jewish and muslim."))
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
