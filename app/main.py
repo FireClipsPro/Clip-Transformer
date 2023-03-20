@@ -1,6 +1,6 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper
 from content_generator import ImageScraper, ImageToVideoCreator
-from decoder import SentenceSubjectAnalyzer
+from Decoder import SentenceSubjectAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder
@@ -46,7 +46,7 @@ def main():
     raw_videos = get_raw_videos()
   
     print(raw_videos)
-    
+
     # loop through the files
     for raw_video in raw_videos:
         
@@ -63,7 +63,7 @@ def main():
                                                     "resized_" + clipped_video['file_name'],
                                                     video_resizer.YOUTUBE_SHORT_WIDTH, 
                                                     video_resizer.YOUTUBE_SHORT_HEIGHT)
-        
+
         audio_extractor = AudioExtractor(INPUT_FILE_PATH,
                                         AUDIO_EXTRACTIONS_PATH)
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])

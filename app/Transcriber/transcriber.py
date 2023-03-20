@@ -2,7 +2,8 @@ import google.cloud.exceptions
 import os
 
 print(os.sys.path)
-os.sys.path.append("/Users/alexander/Documents/Clip_Transformer/Clip-Transformer/app/Transcriber")
+os.sys.path.append(os.path.abspath('../Transcriber'))
+print(os.sys.path)
 
 from storage_manager import GCStorageManager
 from mutagen.mp3 import MP3
@@ -21,7 +22,8 @@ class Transcriber:
         # print(os.sys.path)
         print(os.getcwd())
         print("-----------------------\n\n\n\n\n")
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../helpful-symbol-374005-f716a7246dc4.json'
+        credential_path = transcriber_utils.get_absolute_path(__file__, '../../helpful-symbol-374005-f716a7246dc4.json')
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
     def transcribe_audio_file(self, path, chunk_length):
         audio = MP3(path)
@@ -70,30 +72,32 @@ class Transcriber:
         absolute_path = transcriber_utils.get_absolute_path(__file__, file_path)
         return self.transcribe_audio_file(file_path, chunk_length)
 
-# transcriber = Transcriber()
-# chunk_length = 6
+'''
+transcriber = Transcriber()
+chunk_length = 6
 
-# joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
-# joe_elon_tesla_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
-#transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path, chunk_length)
-# path_to_joe_elon_tesla_mp3_clip = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeElonTesla.txt')
-# transcriber_utils.store_data(transcription, path_to_joe_elon_tesla_mp3_clip)
-# transcription = transcriber_utils.load_transcription(path_to_joe_elon_tesla_mp3_clip)
-# transcriber_utils.print_transcription(transcription)
+joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
+joe_elon_tesla_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_elon_tesla_mp3_clip)
+transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_absolute_path, chunk_length)
+path_to_joe_elon_tesla_mp3_clip = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeElonTesla.txt')
+transcriber_utils.store_data(transcription, path_to_joe_elon_tesla_mp3_clip)
+transcription = transcriber_utils.load_transcription(path_to_joe_elon_tesla_mp3_clip)
+transcriber_utils.print_transcription(transcription)
 
-# joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
-# joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
-# # transcription, stamped_texts = transcriber.transcribe_audio_file(joe_long_absolute_path, chunk_length)
-# path_to_joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeLong_long.txt')
-# transcriber_utils.store_transcription(transcription, path_to_joe_long_absolute_path)
-# transcription = transcriber_utils.load_transcription(path_to_joe_long_absolute_path)
-# transcriber_utils.print_transcription(transcription)
+joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
+joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
+transcription, stamped_texts = transcriber.transcribe_audio_file(joe_long_absolute_path, chunk_length)
+path_to_joe_long_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/JoeLong_long.txt')
+transcriber_utils.store_transcription(transcription, path_to_joe_long_absolute_path)
+transcription = transcriber_utils.load_transcription(path_to_joe_long_absolute_path)
+transcriber_utils.print_transcription(transcription)
 
-# mnm_rapgod_mp3_clip = '../videos/RAP-GOD-FAST.mp3'
-# mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, mnm_rapgod_mp3_clip)
-# # transcription, stamped_texts = transcriber.transcribe_audio_file(mnm_rapgod_absolute_path, chunk_length)
-# path_to_mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/RAP-GOD-FAST.txt')
-# # out_path = transcriber_utils.store_transcription(transcription, path_to_mnm_rapgod_absolute_path)
-# # transcription = transcriber_utils.load_transcription(path_to_mnm_rapgod_absolute_path)
-# # transcriber_utils.print_transcription(transcription)
+mnm_rapgod_mp3_clip = '../videos/RAP-GOD-FAST.mp3'
+mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, mnm_rapgod_mp3_clip)
+transcription, stamped_texts = transcriber.transcribe_audio_file(mnm_rapgod_absolute_path, chunk_length)
+path_to_mnm_rapgod_absolute_path = transcriber_utils.get_absolute_path(__file__, '../Vault/RAP-GOD-FAST.txt')
+out_path = transcriber_utils.store_transcription(transcription, path_to_mnm_rapgod_absolute_path)
+transcription = transcriber_utils.load_transcription(path_to_mnm_rapgod_absolute_path)
+transcriber_utils.print_transcription(transcription)
 
+'''

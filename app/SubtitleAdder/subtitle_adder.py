@@ -20,8 +20,8 @@ from audio_adder import AudioAdder
 class SubtitleAdder:
 
     TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
-    FONT_SCALE = 1
-    TEXT_THICKNESS = 2
+    FONT_SCALE = 2
+    TEXT_THICKNESS = 3
     TEXT_COLOUR = (255, 255, 255)
     TEXT_BLACK_COLOUR = (0, 0, 0)
     SUBTITLE_LENGTH = 1
@@ -281,7 +281,7 @@ class SubtitleAdder:
 
 
 
-transcriber = Transcriber()
+transcriber = Transcriber('temp1')
 chunk_length = 6
 
 joe_elon_tesla_mp3_clip = '../videos/JoeElonTesla.mp3'
@@ -291,20 +291,21 @@ joe_elon_tesla_mp3_json_absolute_path = transcriber_utils.get_absolute_path(__fi
 # transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_mp3_absolute_path, chunk_length)
 # transcription = transcriber_utils.load_transcription(joe_elon_tesla_mp3_json_absolute_path)
 
-joe_long_mp3_clip = '../videos/TestAudioExtraction.mp3'
-joe_long_mp3_clip_json = '../Vault/JoeLong_long.txt'
+joe_long_mp3_clip = '../audio_extractions/JordanClip.mp3'
+joe_long_mp3_clip_json = '../Vault/JordanClip_short.txt'
 joe_long_mp3_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip)
 joe_long_mp3_json_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp3_clip_json)
-# transcription, stamped_texts = transcriber.transcribe_audio_file(joe_elon_tesla_mp3_absolute_path, chunk_length)
-transcription = transcriber_utils.load_transcription(joe_long_mp3_json_absolute_path)
+# transcription, stamped_texts = transcriber.transcribe_audio_file(joe_long_mp3_absolute_path, chunk_length)
+# output_path_json = transcriber_utils.store_transcription(transcription, joe_long_mp3_clip_json)
+# transcription = transcriber_utils.load_transcription(joe_long_mp3_clip_json)
 
 
-joe_long_mp4_clip = '../videos/ResizedJoeRoganClip.mp4'
+joe_long_mp4_clip = '../OutputVideos/JordanClipResized.mp4'
 joe_long_mp4_absolute_path = transcriber_utils.get_absolute_path(__file__, joe_long_mp4_clip)
-white_screen_mp4_clip = '../videos/Full-white-screen.mp4'
-white_screen_mp4_absolute_path = transcriber_utils.get_absolute_path(__file__, white_screen_mp4_clip)
+# white_screen_mp4_clip = '../videos/Full-white-screen.mp4'
+# white_screen_mp4_absolute_path = transcriber_utils.get_absolute_path(__file__, white_screen_mp4_clip)
 sub_adder = SubtitleAdder()
-output_file_path = sub_adder.add_subtitles(white_screen_mp4_absolute_path, transcription)
-audio_adder = AudioAdder()
+# output_file_path = sub_adder.add_subtitles(joe_long_mp4_absolute_path, transcription)
+# audio_adder = AudioAdder('temp1', 'temp2')
 # output_final_file_path = audio_adder.add_audio_to_video(joe_long_mp3_absolute_path, output_file_path)
 # print(output_final_file_path)

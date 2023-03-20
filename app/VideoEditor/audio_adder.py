@@ -4,9 +4,9 @@ import os
 import sys
 
 current_path = Path(os.path.abspath(__file__)).resolve()
+sys.path.append(str(current_path.parent))
 transcriber_path = os.path.join(current_path.parent.parent, 'Transcriber')
 sys.path.append(transcriber_path)
-os.sys.path.append('../Transcriber')
 import transcriber_utils as utils
 
 class AudioAdder:
@@ -15,9 +15,9 @@ class AudioAdder:
         self.video_files_path = video_files_path
         self.audio_files_path = audio_files_path
 
-    def add_audio_to_video(self, audio_file_path, video_file_path):
+    def add_audio_to_video(self, video_file_path, audio_file_path):
         video = VideoFileClip(video_file_path)
-        audio = AudioFileClip(audio_file_path)
+        audio = AudioFileClip(os.path.join(self.audio_files_path, audio_file_path))
         # audio = audio.set_duration(video.duration)
         final_video = video.set_audio(audio)
         output_video_path = self.get_output_video_path(video_file_path)
@@ -45,9 +45,10 @@ class AudioAdder:
         temp_audio_video_path = os.path.join(audio_file_path_obj.parent, audio_temp_file_name)
         return temp_audio_video_path
 
-# audio_adder = AudioAdder()
-# video_file = utils.get_absolute_path(__file__, '../videos/ResizedJoeRoganClip-out.mp4')
-# audio_file = utils.get_absolute_path(__file__, '../videos/JoeRoganClip.mp3')
-# audio_adder.add_audio_to_video(audio_file, video_file)
 
-
+'''
+audio_adder = AudioAdder()
+video_file = utils.get_absolute_path(__file__, '../videos/ResizedJoeRoganClip-out.mp4')
+audio_file = utils.get_absolute_path(__file__, '../videos/JoeRoganClip.mp3')
+audio_adder.add_audio_to_video(audio_file, video_file)
+'''
