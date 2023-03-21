@@ -116,7 +116,7 @@ class SentenceSubjectAnalyzer:
             and ("query" in response['choices'][0]['message']['content'] or "Query" in response['choices'][0]['message']['content'])):
             logging.info("Received null query")
             return None
-
+ 
         query = response['choices'][0]['message']['content'].replace('"', '')
         logging.info(f"Generated query: {query}")
 

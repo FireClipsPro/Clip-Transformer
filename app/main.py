@@ -1,6 +1,6 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper
 from content_generator import ImageScraper, ImageToVideoCreator
-from Decoder import SentenceSubjectAnalyzer
+from decoder import SentenceSubjectAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder

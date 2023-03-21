@@ -3,7 +3,7 @@ import random
 import os
 
 MUSIC_CATEGORY_LIST = ['funny', 'cute', 'motivational', 'fascinating', 'conspiracy', 'angry']
-MUSIC_VOLUME_FACTOR = 0.1
+MUSIC_VOLUME_FACTOR = 0.2
 
 class MusicAdder:
     
