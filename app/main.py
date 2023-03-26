@@ -1,6 +1,6 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper
-from content_generator import ImageScraper, ImageToVideoCreator
-from Decoder import SentenceSubjectAnalyzer
+from content_generator import ImageScraper, ImageToVideoCreator, DALL_E
+from decoder import SentenceSubjectAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder
@@ -9,13 +9,14 @@ import math
 import logging
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
+root = "./"
 
-ANGRY_MUSIC_FILE_PATH = '../media_storage/songs/angry/'
-CUTE_MUSIC_FILE_PATH = '../media_storage/songs/cute/'
-FUNNY_MUSIC_FILE_PATH = '../media_storage/songs/funny/'
-MOTIVATIONAL_MUSIC_FILE_PATH = '../media_storage/songs/motivational/'
-INTRIGUING_MUSIC_FILE_PATH = '../media_storage/songs/fascinating/'
-CONSPIRACY_MUSIC_FILE_PATH = '../media_storage/songs/conspiracy/'
+ANGRY_MUSIC_FILE_PATH = f'{root}media_storage/songs/angry/'
+CUTE_MUSIC_FILE_PATH = f'{root}media_storage/songs/cute/'
+FUNNY_MUSIC_FILE_PATH = f'{root}media_storage/songs/funny/'
+MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}media_storage/songs/motivational/'
+INTRIGUING_MUSIC_FILE_PATH = f'{root}media_storage/songs/fascinating/'
+CONSPIRACY_MUSIC_FILE_PATH = f'{root}media_storage/songs/conspiracy/'
 
 MUSIC_CATEGORY_PATH_DICT = {
     'funny': FUNNY_MUSIC_FILE_PATH,
@@ -26,20 +27,22 @@ MUSIC_CATEGORY_PATH_DICT = {
     'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
 }
 
-RAW_VIDEO_FILE_PATH = "./media_storage/raw_videos/"
-INPUT_FILE_PATH = "./media_storage/InputVideos/"
-AUDIO_EXTRACTIONS_PATH = "./media_storage/audio_extractions/"
-IMAGE_FILE_PATH = "./media_storage/images/"
-IMAGE_2_VIDEOS_FILE_PATH = "./media_storage/videos_made_from_images/"
-OUTPUT_FILE_PATH = "./media_storage/OutputVideos/"
-ORIGINAL_INPUT_FILE_PATH = "./media_storage/InputVideos/"
-CHROME_DRIVER_PATH = "./content_generator/chromedriver.exe"
-RESIZED_FILE_PATH = "./media_storage/resized_original_videos/"
-VIDEOS_WITH_OVERLAYED_MEDIA_PATH = "./media_storage/media_added_videos/"
+RAW_VIDEO_FILE_PATH = f"{root}media_storage/raw_videos/"
+INPUT_FILE_PATH = f"{root}media_storage/InputVideos/"
+AUDIO_EXTRACTIONS_PATH = f"{root}media_storage/audio_extractions/"
+IMAGE_FILE_PATH = f"{root}media_storage/images/"
+IMAGE_2_VIDEOS_FILE_PATH = f"{root}media_storage/videos_made_from_images/"
+OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
+ORIGINAL_INPUT_FILE_PATH = f"{root}media_storage/InputVideos/"
+CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
+RESIZED_FILE_PATH = f"{root}media_storage/resized_original_videos/"
+VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_storage/media_added_videos/"
+QUERY_FILE_PATH = f'{root}media_storage/queries/'
+INPUT_INFO_FILE_LOCATION = f'{root}media_storage/input_info.csv'
 
 def main():
     file_deleter = FileDeleter()
-    # print(os.getcwd())
+    print(os.getcwd())
     
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
@@ -60,9 +63,9 @@ def main():
         video_resizer = VideoResizer(INPUT_FILE_PATH,
                                     RESIZED_FILE_PATH)
         resized_video_name = video_resizer.resize_video(clipped_video['file_name'],
-                                                    "resized_" + clipped_video['file_name'],
-                                                    video_resizer.YOUTUBE_SHORT_WIDTH, 
-                                                    video_resizer.YOUTUBE_SHORT_HEIGHT)
+                                                        clipped_video['file_name'],
+                                                        video_resizer.YOUTUBE_SHORT_WIDTH, 
+                                                        video_resizer.YOUTUBE_SHORT_HEIGHT)
 
         audio_extractor = AudioExtractor(INPUT_FILE_PATH,
                                         AUDIO_EXTRACTIONS_PATH)
@@ -74,25 +77,31 @@ def main():
         
         print(transcription)
         
-        analyzer = SentenceSubjectAnalyzer()
+        analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
         image_scraper = ImageScraper(CHROME_DRIVER_PATH,
                                     IMAGE_FILE_PATH)
         print("Initialized the sentence subject analyzer and image scraper")
         query_list = analyzer.process_transcription(transcription['segments'],
                                                     transcription['segments'][-1]['end'],
-                                                    6)
+                                                    6,
+                                                    raw_video['raw_video_name'])
         
         time_stamped_images = []
         for query in query_list:
             image_id = image_scraper.search_and_download(query['query'], 1)
             
             if image_id == None:
-                print("No Image found. Skipping.")
-                continue
-            
-            time_stamped_images.append({'start_time': query['start'],
-                                        'end_time': query['end'], 
-                                        'image': image_id + '.jpg'})
+                time_stamped_images.append({'start_time': query['start'],
+                                            'end_time': query['end'], 
+                                            'image': '_Nothing_Found_' + query['query']})
+            else:
+                time_stamped_images.append({'start_time': query['start'],
+                                            'end_time': query['end'], 
+                                            'image': image_id.replace(" ", "_") + '.jpg'})
+        
+        # where images could not be found, DALL-E will be used to generate images
+        dall_e = DALL_E(IMAGE_FILE_PATH)
+        time_stamped_images = dall_e.generate_images(time_stamped_images)
         
         # print the _time_stamped_images array
         print(time_stamped_images)
@@ -123,13 +132,13 @@ def main():
                           video_files_path=OUTPUT_FILE_PATH,
                           output_path=OUTPUT_FILE_PATH)
         myMusicAdder.add_music_to_video(music_category=raw_video['music_category'],
-                                        video_name=final_video['file_name'],
+                                        video_name=final_video,
                                         video_length=math.ceil(float(clipped_video['end_time_sec']) - float(clipped_video['start_time_sec'])))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_raw_videos():
     raw_videos = []
-    with open('./media_storage/input_info.csv', 'r') as csv_file:
+    with open(INPUT_INFO_FILE_LOCATION, 'r') as csv_file:
         for line in csv_file:
             # skip the first line
             if line == "raw_video_name,start_time,end_time,music_category\n":

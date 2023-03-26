@@ -3,6 +3,10 @@ import torch
 import os
 import json
 
+SMALL_MODEL_SIZE = "small"
+MEDIUM_MODEL_SIZE = "medium"
+LARGE_MODEL_SIZE = "large"
+
 class WhisperTranscriber:
     def __init__(self, audio_files_path):
         print("WhisperTranscriber created")
@@ -26,7 +30,7 @@ class WhisperTranscriber:
             device = "cuda"
         else:
             device = "cpu"
-        model = whisperx.load_model("small", device=device)
+        model = whisperx.load_model(SMALL_MODEL_SIZE, device=device)
 
         result = model.transcribe(self.audio_files_path + audio_file)
 
