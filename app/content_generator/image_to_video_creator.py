@@ -26,8 +26,6 @@ class ImageToVideoCreator:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # takes in the file name (with extension) of the image and the start and end time of the image in the video
 # make the video slowly zooming in on the center of the picture
-# if the image is too small, add black bars to the sides
-# do not stretch the image
     def convert_images_to_videos(self, images):
         for image in images:
             # initialize the input and output file paths
