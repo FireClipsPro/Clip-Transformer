@@ -3,14 +3,27 @@ import os
 from math import ceil
 import logging
 import re
+import json
 
 logging.basicConfig(level=logging.INFO)
 
 class SentenceSubjectAnalyzer:
-    def __init__(self):
+    def __init__(self,
+                 queries_folder_path):
+        self.queries_folder_path = queries_folder_path
         logging.info("SubjectAnalyzer created")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
-    def process_transcription(self, transcription, transcription_length_sec, seconds_per_query):
+    def process_transcription(self, 
+                              transcription,
+                              transcription_length_sec,
+                              seconds_per_query,
+                              output_file_name="queries.json"):
+        
+        if os.path.exists(self.queries_folder_path + output_file_name[:-4] + '.json'):
+            with open(self.queries_folder_path + output_file_name[:-4] + '.json', "r") as f:
+                query_list = json.load(f)
+            return query_list
+        
         logging.info("Processing transcription")
         query_list = []
         sentence_list = []
@@ -41,7 +54,7 @@ class SentenceSubjectAnalyzer:
             logging.info(f"Time chunk: {time_chunk_start}-{time_chunk_end}, Query: {query}")
 
         query_list = self.create_queries_for_null_time_chunks(query_list)
-        self.save_queries(query_list)
+        self.save_queries(query_list, output_file_name)
         return query_list
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def assign_query_to_time_chunk(self, sentence_list, i):
@@ -62,12 +75,11 @@ class SentenceSubjectAnalyzer:
 
         return query
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def save_queries(self, query_list):
+    def save_queries(self, query_list, file_name="queries.json"):
         logging.info("Saving queries to file")
-        with open('queries.csv', 'w+') as csv_file:
-            csv_file.write("query,start,end\n")
-            for query in query_list:
-                csv_file.write(query['query'] + "," + str(query['start']) + "," + str(query['end']) + "\n")
+        print(os.getcwd())
+        with open(self.queries_folder_path + file_name[:-4] + '.json', "w") as f:
+            json.dump(query_list, f)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def create_queries_for_null_time_chunks(self, query_list):
         logging.info("Creating queries for null time chunks")

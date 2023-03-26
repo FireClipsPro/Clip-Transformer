@@ -1,6 +1,9 @@
 import os
 import subprocess
 from moviepy.editor import *
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 class MediaAdder:
     def __init__(self,
@@ -42,7 +45,15 @@ class MediaAdder:
                                     overlay_zone_height,
                                     overlay_zone_x,
                                     overlay_zone_y):
-        
+        self.log_parameters(original_clip,
+                            videos,
+                            original_clip_width,
+                            original_clip_height,
+                            overlay_zone_width,
+                            overlay_zone_height,
+                            overlay_zone_x,
+                            overlay_zone_y)
+
         # Initialize the input video path
         input_video = self.input_videos_file_path + original_clip
         if not os.path.exists(input_video):
@@ -83,8 +94,18 @@ class MediaAdder:
         if output_video is not None:
             os.rename(output_video, self.final_output_file_path + original_clip)
         
-        
         return original_clip[:-4] + f'_{len(videos)}.mp4'
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def log_parameters(self, original_clip, videos, original_clip_width, original_clip_height, overlay_zone_width, overlay_zone_height, overlay_zone_x, overlay_zone_y):
+        logging.info("Logging parameters...")
+        logging.info(f"Original clip: {original_clip}")
+        logging.info(f"Videos: {videos}")
+        logging.info(f"Original clip width: {original_clip_width}")
+        logging.info(f"Original clip height: {original_clip_height}")
+        logging.info(f"Overlay zone width: {overlay_zone_width}")
+        logging.info(f"Overlay zone height: {overlay_zone_height}")
+        logging.info(f"Overlay zone X position: {overlay_zone_x}")
+        logging.info(f"Overlay zone Y position: {overlay_zone_y}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def remove_audio(self, original_clip, index):
@@ -130,5 +151,3 @@ class MediaAdder:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-
-    

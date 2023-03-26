@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
@@ -109,7 +110,10 @@ class VideoResizer:
 
         # if video is already correct size do nothing
         if curr_width == new_width and curr_height == new_height:
-            return
+            # duplicate the file and add it to the output folder
+            output_file_path = os.path.join(self.OUTPUT_FILE_PATH, output_file_name)
+            shutil.copy2(input_file_name, output_file_path)
+            return output_file_path
         
         #make an output file for the first resize
         temp_file = os.path.splitext(output_file_path_and_name)[0] + "_temp" + os.path.splitext(output_file_path_and_name)[1]
@@ -145,6 +149,9 @@ class VideoResizer:
             os.remove(temp_file_2)
         
         print("Resized video " + input_file_name + " to " + output_file_path_and_name)
+        
+        if(output_file_name == None):
+            raise Exception("Error: Video was not resized. Stopping program.")
         
         return output_file_name;
         

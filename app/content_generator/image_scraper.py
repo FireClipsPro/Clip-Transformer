@@ -91,7 +91,7 @@ class ImageScraper:
             _image_id = search_term
             
             # file_path = os.path.join(folder_path, hashlib.sha1(image_content).hexdigest()[:10] + '.jpg')
-            file_path = os.path.join(folder_path, search_term + '.jpg')
+            file_path = os.path.join(folder_path, search_term.replace(" ", "_") + '.jpg')
             
             with open(file_path, 'wb') as f:
                 image.save(f, "JPEG", quality=85)
