@@ -30,9 +30,10 @@ class SubtitleAdderMv:
         param = self.get_parameters()
         text_per_subtitle_length = get_text_per_subtitle_length(self.SUBTITLE_LENGTH, transcript, fps)
         subtitles = configure_subtitles_to_frames(text_per_subtitle_length, max_text_width, fps, param)
+        synchronize_durations(subtitles, param)
         increment = int(video_height / self.LINE_SPACING)
-        text_top = create_text_obj('', self.FONT_SIZE, 0, 0)
-        text_bottom = create_text_obj('', self.FONT_SIZE, 0, 0)
+        text_top = create_text_obj('', 0, 0, self.FONT_SIZE, 0, 0)
+        text_bottom = create_text_obj('', 0, 0, self.FONT_SIZE, 0, 0)
         composite_clips = [video_clip]
         current_text = text_top
         for subtitle in subtitles:
@@ -51,7 +52,8 @@ class SubtitleAdderMv:
         start = subtitle['start_time']
         duration = subtitle['duration']
         bottom_text = ' ' if text_bottom['text'] == '' else text_bottom['text']
-        top = TextClip(text_top['text'], fontsize=text_top['font_scale'], font=self.TEXT_FONT, color=self.TEXT_COLOUR)
+        top_text = ' ' if text_top['text'] == '' else text_top['text']
+        top = TextClip(top_text, fontsize=text_top['font_scale'], font=self.TEXT_FONT, color=self.TEXT_COLOUR)
         top_x = int((video_width - top.size[0]) / 2)
         top_y = int(video_height / 3) if text_bottom['text'] == '' else int(video_height / 3) - increment
         top = top.set_position((top_x, top_y)).set_duration(duration).set_start(start)
@@ -67,6 +69,7 @@ class SubtitleAdderMv:
             new_text = f'{subtitle["text"]}'
         else:
             new_text = f'{current_text["text"]} {subtitle["text"]}'
+        new_text = ' ' if new_text == '' else new_text
         new_text_size = TextClip(new_text, fontsize=self.FONT_SIZE, font=self.TEXT_FONT, color=self.TEXT_COLOUR).size
         new_text_width = new_text_size[0]
         new_text_height = new_text_size[1]
