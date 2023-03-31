@@ -7,10 +7,11 @@ from music_adder import MusicAdder
 import os
 import math
 import logging
+from dotenv import load_dotenv
+load_dotenv(os.path.abspath('../../.env.openai'))
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 root = "./"
-
 ANGRY_MUSIC_FILE_PATH = f'{root}media_storage/songs/angry/'
 CUTE_MUSIC_FILE_PATH = f'{root}media_storage/songs/cute/'
 FUNNY_MUSIC_FILE_PATH = f'{root}media_storage/songs/funny/'
