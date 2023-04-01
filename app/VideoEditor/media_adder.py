@@ -73,7 +73,7 @@ class MediaAdder:
             if os.path.exists(output_video):
                 os.remove(output_video)
             
-            overlay_top_left, overlay_top_right = self.calculate_top_left_right(video['width'],
+            overlay_top_left_x, overlay_top_left_y = self.calculate_top_left_xy(video['width'],
                                                                                 video['height'],
                                                                                 overlay_zone_width,
                                                                                 overlay_zone_height,
@@ -83,7 +83,7 @@ class MediaAdder:
             background_video = VideoFileClip(input_video)
             overlay_video = VideoFileClip(overlay_video_file_name)
             overlay_video = overlay_video.set_start(video['start_time']).set_end(video['end_time'])
-            overlay_video = overlay_video.set_position((overlay_top_left, overlay_top_right))
+            overlay_video = overlay_video.set_position((overlay_top_left_x, overlay_top_left_y))
             final_video = CompositeVideoClip([background_video, overlay_video])
             final_video.write_videofile(output_video)
              
@@ -128,7 +128,7 @@ class MediaAdder:
         os.rename(overlay_video_no_audio, original_clip)
         
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
-    def calculate_top_left_right(self,
+    def calculate_top_left_xy(self,
                                  overlay_video_width,
                                  overlay_video_height,
                                  overlay_zone_width,
