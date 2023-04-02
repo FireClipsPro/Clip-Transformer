@@ -116,6 +116,7 @@ class SentenceSubjectAnalyzer:
             messages=[
                 {"role": "system", "content": """You are a google images search query generator.
                     Use the text that you are given to generate a google image search query that if put directly into google, will pull up a relevant and interesting photo of what the speakers are discussing.
+                    If the speakers are discussing a conept rather than something concrete, make a google search of a nice image to display that relates to the concept.
                     Prioritize bringing up any proper nouns.
                     Do not return anything other than the search query.
                     If you cannot come up with a query, return the words "null query" and nothing else."""},

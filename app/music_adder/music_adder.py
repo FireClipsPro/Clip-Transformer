@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 MUSIC_CATEGORY_LIST = ['funny', 'cute', 'motivational', 'fascinating', 'conspiracy', 'angry']
-MUSIC_VOLUME_FACTOR = 0.3
+MUSIC_VOLUME_FACTOR = 0.2
 
 class MusicAdder:
     
