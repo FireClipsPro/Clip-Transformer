@@ -19,7 +19,7 @@ def test_full_usage():
 
     image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
                                                 IMAGE_2_VIDEOS_FILE_PATH)
-    time_stamped_images = [{'start_time': 0, 'end_time': 5, 'image': 'Kid.jpg'}]
+    time_stamped_images = [{'start_time': 0, 'end_time': 5, 'image': 'jump.jpg'}]
     
     
     video_data = image_to_video_creator.process_images(time_stamped_images)
@@ -34,7 +34,7 @@ def test_full_usage():
                              IMAGE_2_VIDEOS_FILE_PATH,
                              FINAL_OUTPUT_FILE_PATH)
     
-    media_adder.add_videos_to_original_clip(original_clip='Woody_(0, 0)_(0, 10).mp4',
+    output = media_adder.add_videos_to_original_clip(original_clip='Woody_(0, 0)_(0, 10).mp4',
                                        videos=video_data,
                                        original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                        original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
@@ -42,6 +42,8 @@ def test_full_usage():
                                        overlay_zone_height=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_HEIGHT,
                                        overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
                                        overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
+    
+    print(str(output))
 
 
 # def test_cropped_images_are_correct_sizes():

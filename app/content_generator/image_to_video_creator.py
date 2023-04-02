@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 YOUTUBE_SHORT_HALF_HEIGHT = 960
 YOUTUBE_SHORT_WIDTH = 1080
-PERCENT_OF_DISPLAY_SCREEN = 0.8
+PERCENT_OF_DISPLAY_SCREEN = 0.95
 ZOOM_EFFECT = 'zoom'
 HORIZONTAL_SCROLL_EFFECT = 'horizontal_scroll'
 VERTICAL_SCROLL_EFFECT = 'vertical_scroll'
@@ -208,11 +208,11 @@ class ImageToVideoCreator:
         new_height = image['height']
 
         if new_width > frame_width:
-            new_width = frame_width
+            new_width = frame_width * PERCENT_OF_DISPLAY_SCREEN
             new_height = int(image['height'] * (frame_width / image['width']))
             
         if new_height > frame_height:
-            new_height = frame_height
+            new_height = frame_height * PERCENT_OF_DISPLAY_SCREEN
             new_width = int(image['width'] * (frame_height / image['height']))
         
         # Create and Run the command to shrink the image

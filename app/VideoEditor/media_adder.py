@@ -94,7 +94,7 @@ class MediaAdder:
         if output_video is not None:
             os.rename(output_video, self.final_output_file_path + original_clip)
         
-        return original_clip[:-4] + f'_{len(videos)}.mp4'
+        return original_clip
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def log_parameters(self, original_clip, videos, original_clip_width, original_clip_height, overlay_zone_width, overlay_zone_height, overlay_zone_x, overlay_zone_y):
         logging.info("Logging parameters...")
@@ -144,10 +144,6 @@ class MediaAdder:
         
         return overlay_video_top_left_x, overlay_video_top_left_y
         
-
-
-
-            
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
