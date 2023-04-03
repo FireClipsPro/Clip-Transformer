@@ -64,8 +64,6 @@ class WhisperTranscriber:
             word_segment['text'] = word_segment['text'].lower()
             word_segment['text'] = word_segment['text'].replace(".", "")
             word_segment['text'] = word_segment['text'].replace(",", "")
-            word_segment['text'] = word_segment['text'].replace("?", "")
-            word_segment['text'] = word_segment['text'].replace("!", "")
             word_segment['text'] = word_segment['text'].replace(";", "")
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

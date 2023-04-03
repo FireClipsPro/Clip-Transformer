@@ -23,7 +23,7 @@ class SubtitleAdderMv:
         pass
 
     # y_percent = 0 is bottom, y_percent = 100 is top
-    def subtitle_adder(self, file_name, transcript, y_percent=50, font='Arial', text_colour='white'):
+    def subtitle_adder(self, file_name, transcript, y_percent=50, font='Arial', text_colour='grey'):
         self.TEXT_FONT = font
         self.TEXT_COLOUR = text_colour
         # Load the video clip and get its dimensions

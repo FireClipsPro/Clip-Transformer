@@ -118,7 +118,7 @@ def main():
         if video_data == None:
             raise Exception("Error: Images were not found. Stopping program.")
         
-        video_with_media = media_adder.add_videos_to_original_clip(original_clip=video_with_subtitles_name,
+        video_with_media = media_adder.add_videos_to_original_clip(original_clip=resized_video_name,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                         original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
@@ -130,7 +130,7 @@ def main():
         video_with_subtitles_name = subtitle_adder.subtitle_adder(video_with_media, transcription, 50, 'Tahoma-Bold')
 
         music_adder.add_music_to_video(music_category=raw_video['music_category'],
-                                        video_name=video_with_media,
+                                        video_name=video_with_subtitles_name,
                                         video_length=math.ceil(float(clipped_video['end_time_sec']) - float(clipped_video['start_time_sec'])))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
