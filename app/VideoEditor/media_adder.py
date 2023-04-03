@@ -62,6 +62,9 @@ class MediaAdder:
         
         output_video = None
         
+        background_video = VideoFileClip(input_video)
+        composite_clips = [background_video]
+        
         for index, video in enumerate(videos):
             # initialize the overlay video path
             overlay_video_file_name = self.image_videos_file_path + video['video_file_name']
@@ -80,15 +83,13 @@ class MediaAdder:
                                                                                 overlay_zone_x,
                                                                                 overlay_zone_y)
             
-            background_video = VideoFileClip(input_video)
             overlay_video = VideoFileClip(overlay_video_file_name)
             overlay_video = overlay_video.set_start(video['start_time']).set_end(video['end_time'])
             overlay_video = overlay_video.set_position((overlay_top_left_x, overlay_top_left_y))
-            final_video = CompositeVideoClip([background_video, overlay_video])
-            final_video.write_videofile(output_video)
-             
-            # set the input video to the output video
-            input_video = output_video
+            composite_clips.append(overlay_video)
+        
+        final_video = CompositeVideoClip(composite_clips)
+        final_video.write_videofile(output_video)
         
         # move output video to final output file path
         if output_video is not None:
