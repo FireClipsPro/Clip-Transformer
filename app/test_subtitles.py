@@ -1,5 +1,5 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper
-from content_generator import ImageScraper, ImageToVideoCreator, DALL_E
+
 from decoder import SentenceSubjectAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
@@ -36,7 +36,7 @@ def main():
                             RESIZED_FILE_PATH)
     audio_extractor = AudioExtractor(INPUT_FILE_PATH,
                                     AUDIO_EXTRACTIONS_PATH)
-    transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH, CLEAN_SUBTITLES=True)
+    transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
     subtitle_adder = SubtitleAdderMv(RESIZED_FILE_PATH,
                                         OUTPUT_FILE_PATH)
     
@@ -67,7 +67,7 @@ def main():
         transcription = transcriber.transcribe(audio_extraction_file_name)
         
         
-        
+        video_with_subtitles_name = subtitle_adder.add_subtitles(resized_video_name, transcription, 50, 'Tahoma-Bold')
         
         
 
@@ -89,10 +89,6 @@ def get_raw_videos():
     return raw_videos
 
  
-# main()
-from moviepy.editor import TextClip
-print ( TextClip.list("font") )
-# save the contents of the list to a file called "fonts.txt"
-with open("fonts.txt", "w") as f:
-    for font in TextClip.list("color"):
-        f.write(font + "\n")
+main()
+# from moviepy.editor import TextClip
+# print ( TextClip.list("color") )

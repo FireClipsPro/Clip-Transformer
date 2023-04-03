@@ -1,6 +1,7 @@
 from moviepy.editor import *
 import os
 from pathlib import Path
+import math
 
 current_path = Path(os.path.abspath(__file__)).resolve()
 sys.path.append(str(current_path.parent))
@@ -21,11 +22,12 @@ class SubtitleAdderMv:
         self.INPUT_DIR_PATH = input_dir_path
         self.OUTPUT_DIR_PATH = output_dir_path
         pass
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # y_percent = 0 is bottom, y_percent = 100 is top
-    def subtitle_adder(self, file_name, transcript, y_percent=50, font='Arial', text_colour='grey'):
+    def add_subtitles(self, file_name, transcript, y_percent=50, font='Arial', text_colour='white', font_size=65):
         self.TEXT_FONT = font
         self.TEXT_COLOUR = text_colour
+        self.FONT_SIZE = font_size
         # Load the video clip and get its dimensions
         video_clip = VideoFileClip(os.path.join(self.INPUT_DIR_PATH, file_name))
         video_width, video_height = get_video_dimensions(video_clip)
@@ -48,14 +50,14 @@ class SubtitleAdderMv:
         current_text = text_top
         for subtitle in subtitles:
             current_text = self.update_text_objs(current_text, text_top, text_bottom, subtitle, max_text_width)
-            top, bottom = self.get_top_bottom_clips(subtitle,
+            text_clips = self.get_top_bottom_clips(subtitle,
                                                     text_top,
                                                     text_bottom,
                                                     video_width,
                                                     video_height,
                                                     increment,
                                                     y_percent)
-            composite_clips += [top, bottom]
+            composite_clips += text_clips
 
         # Create the final result and save it to a file
         result = CompositeVideoClip(composite_clips)
@@ -64,7 +66,7 @@ class SubtitleAdderMv:
         result.write_videofile(output_file_path, fps=fps)
 
         return output_file_name
-    
+ #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   
     def get_top_bottom_clips(self,
                              subtitle,
                              text_top,
@@ -77,26 +79,36 @@ class SubtitleAdderMv:
         start = subtitle['start_time']
         duration = subtitle['duration']
 
-        # Get the text for the top and bottom clips, and create the text objects
-        top_text = ' ' if text_top['text'] == '' else text_top['text']
-        bottom_text = ' ' if text_bottom['text'] == '' else text_bottom['text']
-        top = TextClip(top_text, fontsize=text_top['font_scale'], font=self.TEXT_FONT, color=self.TEXT_COLOUR)
-        bottom = TextClip(bottom_text, fontsize=text_bottom['font_scale'], font=self.TEXT_FONT, color=self.TEXT_COLOUR)
+        def create_text_clip_with_background(text, fontsize, font, color):
+            if text.strip() == '':
+                return None
+
+            text_clip = TextClip(text, fontsize=fontsize, font=font, color=color)
+            bg_color = (0, 0, 0)
+            bg_opacity = 0.5
+            bg_clip = ColorClip(size=text_clip.size, color=bg_color).set_opacity(bg_opacity)
+            return CompositeVideoClip([bg_clip, text_clip.set_position("center")])
+
+        # Create top and bottom text clips with backgrounds only when there is text
+        top = create_text_clip_with_background(text_top['text'], text_top['font_scale'], self.TEXT_FONT, self.TEXT_COLOUR)
+        bottom = create_text_clip_with_background(text_bottom['text'], text_bottom['font_scale'], self.TEXT_FONT, self.TEXT_COLOUR)
 
         # Calculate the base y_position using the y_percent
         y_position = int(video_height * (1 - y_percent / 100))
 
         # Position the top and bottom text objects
-        top_x = int((video_width - top.size[0]) / 2)
-        top_y = y_position if text_bottom['text'] == '' else y_position - increment
-        bottom_x = int((video_width - bottom.size[0]) / 2)
-        bottom_y = y_position + top.size[1] + increment
-        top = top.set_position((top_x, top_y)).set_duration(duration).set_start(start)
-        bottom = bottom.set_position((bottom_x, bottom_y)).set_duration(duration).set_start(start)
+        if top is not None:
+            top_x = int((video_width - top.size[0]) / 2)
+            top_y = y_position if text_bottom['text'] == '' else y_position - increment
+            top = top.set_position((top_x, top_y)).set_duration(duration).set_start(start)
+        if bottom is not None:
+            bottom_x = int((video_width - bottom.size[0]) / 2)
+            bottom_y = y_position + (top.size[1] if top is not None else 0) + increment
+            bottom = bottom.set_position((bottom_x, bottom_y)).set_duration(duration).set_start(start)
 
-        # Return the top and bottom clips
-        return top, bottom
-
+        # Return the top and bottom clips as a list, filtering out any None values
+        return [clip for clip in (top, bottom) if clip is not None]
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def update_text_objs(self, current_text, text_top, text_bottom, subtitle, max_text_width):
         if current_text['text'] == '':
             new_text = f'{subtitle["text"]}'
@@ -121,7 +133,7 @@ class SubtitleAdderMv:
             else:
                 modify_text_obj(text_bottom, new_text, self.FONT_SIZE, new_text_width, new_text_height)
                 return text_bottom
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_parameters(self):
         param = {}
         param['SUBTITLE_LENGTH'] = self.SUBTITLE_LENGTH
@@ -130,13 +142,4 @@ class SubtitleAdderMv:
         param['TEXT_COLOUR'] = self.TEXT_COLOUR
         param['SUBTITLE_SIZE'] = 0.6
         return param
-
-'''
-input_dir = os.path.abspath('../InputVideos')
-output_dir = os.path.abspath('../OutputVideos')
-subtitler = SubtitleAdderMv(input_dir, output_dir)
-file_name = 'JordanClipResized.mp4_6.mp4'
-transcription = transcriber_utils.load_transcription(os.path.abspath('../Vault/JordanClip_short.txt'))
-transcriber_utils.print_transcription(transcription)
-subtitler.subtitle_adder(file_name, transcription)
-'''
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
