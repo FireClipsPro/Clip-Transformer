@@ -30,7 +30,7 @@ class WhisperTranscriber:
             device = "cuda"
         else:
             device = "cpu"
-        model = whisperx.load_model(SMALL_MODEL_SIZE, device=device)
+        model = whisperx.load_model(MEDIUM_MODEL_SIZE, device=device)
 
         result = model.transcribe(self.audio_files_path + audio_file)
 
@@ -50,7 +50,7 @@ class WhisperTranscriber:
         
         transcription = self.parse_transcription(result_aligned)
         
-        if self.CLEAN_SUBTITLES:
+        if REMOVE_PUNCTUATION:
             transcription = self.clean_transcription(transcription)
         
         self.store_transcription(audio_file, transcription)
