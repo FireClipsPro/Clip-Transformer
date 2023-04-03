@@ -127,7 +127,7 @@ def main():
                                         overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
                                         overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
         
-        video_with_subtitles_name = subtitle_adder.subtitle_adder(video_with_media, transcription, 50, 'Tahoma-Bold')
+        video_with_subtitles_name = subtitle_adder.add_subtitles(video_with_media, transcription, 50, 'Tahoma-Bold')
 
         music_adder.add_music_to_video(music_category=raw_video['music_category'],
                                         video_name=video_with_subtitles_name,
