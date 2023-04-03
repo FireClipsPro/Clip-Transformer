@@ -1,4 +1,5 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper
+from VideoEditor.audio_adder import AudioAdder
 from content_generator import ImageScraper, ImageToVideoCreator, DALL_E
 from decoder import SentenceSubjectAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
@@ -8,6 +9,7 @@ from subtitle_adder import SubtitleAdderMv
 import os
 import math
 import logging
+from dotenv import load_dotenv
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 root = "./"
@@ -42,6 +44,8 @@ QUERY_FILE_PATH = f'{root}media_storage/queries/'
 INPUT_INFO_FILE_LOCATION = f'{root}media_storage/input_info.csv'
 
 def main():
+    load_dotenv('../../.env.openai')
+
     video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FILE_PATH,
                                     output_file_path=INPUT_FILE_PATH)
     video_resizer = VideoResizer(INPUT_FILE_PATH,
@@ -61,6 +65,8 @@ def main():
                     OUTPUT_FILE_PATH)
     subtitle_adder = SubtitleAdderMv(OUTPUT_FILE_PATH,
                                     OUTPUT_FILE_PATH)
+
+    audio_adder = AudioAdder(OUTPUT_FILE_PATH, AUDIO_EXTRACTIONS_PATH)
     music_adder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
                         video_files_path=OUTPUT_FILE_PATH,
                         output_path=OUTPUT_FILE_PATH)
@@ -128,9 +134,9 @@ def main():
                                         overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
         
         video_with_subtitles_name = subtitle_adder.subtitle_adder(video_with_media, transcription, 50, 'Tahoma-Bold')
-
+        video_with_audio_name = audio_adder.add_audio_to_video(video_with_subtitles_name, audio_extraction_file_name)
         music_adder.add_music_to_video(music_category=raw_video['music_category'],
-                                        video_name=video_with_subtitles_name,
+                                        video_name=video_with_audio_name,
                                         video_length=math.ceil(float(clipped_video['end_time_sec']) - float(clipped_video['start_time_sec'])))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
