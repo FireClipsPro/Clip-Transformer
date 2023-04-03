@@ -12,7 +12,7 @@ class WhisperTranscriber:
         print("WhisperTranscriber created")
         self.audio_files_path = audio_files_path
     
-    def transcribe(self, audio_file):
+    def transcribe(self, audio_file, REMOVE_PUNCTUATION=True):
         # check if file exists
         if not os.path.exists(self.audio_files_path + audio_file):
             raise Exception('Audio file does not exist')
@@ -50,8 +50,23 @@ class WhisperTranscriber:
         
         transcription = self.parse_transcription(result_aligned)
         
+        if self.CLEAN_SUBTITLES:
+            transcription = self.clean_transcription(transcription)
+        
         self.store_transcription(audio_file, transcription)
         
+        return transcription
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def clean_transcription(self, transcription):
+        for word_segment in transcription['word_segments']:
+            #make all caps
+            # remove punctuation
+            word_segment['text'] = word_segment['text'].lower()
+            word_segment['text'] = word_segment['text'].replace(".", "")
+            word_segment['text'] = word_segment['text'].replace(",", "")
+            word_segment['text'] = word_segment['text'].replace("?", "")
+            word_segment['text'] = word_segment['text'].replace("!", "")
+            word_segment['text'] = word_segment['text'].replace(";", "")
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def parse_transcription(self, result_aligned):
