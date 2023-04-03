@@ -94,5 +94,5 @@ from moviepy.editor import TextClip
 print ( TextClip.list("font") )
 # save the contents of the list to a file called "fonts.txt"
 with open("fonts.txt", "w") as f:
-    for font in TextClip.list("font"):
+    for font in TextClip.list("color"):
         f.write(font + "\n")
