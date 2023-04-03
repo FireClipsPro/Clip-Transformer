@@ -49,8 +49,6 @@ def main():
     audio_extractor = AudioExtractor(INPUT_FILE_PATH,
                                     AUDIO_EXTRACTIONS_PATH)
     transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
-    subtitle_adder = SubtitleAdderMv(RESIZED_FILE_PATH,
-                                    RESIZED_FILE_PATH)
     analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
     image_scraper = ImageScraper(CHROME_DRIVER_PATH,
                                 IMAGE_FILE_PATH)
@@ -61,6 +59,8 @@ def main():
                     VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
                     IMAGE_2_VIDEOS_FILE_PATH,
                     OUTPUT_FILE_PATH)
+    subtitle_adder = SubtitleAdderMv(OUTPUT_FILE_PATH,
+                                    OUTPUT_FILE_PATH)
     music_adder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
                         video_files_path=OUTPUT_FILE_PATH,
                         output_path=OUTPUT_FILE_PATH)
@@ -88,7 +88,6 @@ def main():
         # Transcribe the audio file
         transcription = transcriber.transcribe(audio_extraction_file_name)
         
-        video_with_subtitles_name = subtitle_adder.subtitle_adder(resized_video_name, transcription, 50, 'Tahoma-Bold')
         
         print("Initialized the sentence subject analyzer and image scraper")
         query_list = analyzer.process_transcription(transcription['segments'],
@@ -119,7 +118,7 @@ def main():
         if video_data == None:
             raise Exception("Error: Images were not found. Stopping program.")
         
-        final_video = media_adder.add_videos_to_original_clip(original_clip=video_with_subtitles_name,
+        video_with_media = media_adder.add_videos_to_original_clip(original_clip=video_with_subtitles_name,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                         original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
@@ -127,9 +126,11 @@ def main():
                                         overlay_zone_height=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_HEIGHT,
                                         overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
                                         overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
+        
+        video_with_subtitles_name = subtitle_adder.subtitle_adder(video_with_media, transcription, 50, 'Tahoma-Bold')
 
         music_adder.add_music_to_video(music_category=raw_video['music_category'],
-                                        video_name=final_video,
+                                        video_name=video_with_media,
                                         video_length=math.ceil(float(clipped_video['end_time_sec']) - float(clipped_video['start_time_sec'])))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
