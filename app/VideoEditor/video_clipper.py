@@ -38,7 +38,7 @@ class VideoClipper:
         
         # clip the video (min, sec), in (hour, min, sec)
         video_clip = VideoFileClip(input_video).subclip(start_time, end_time)
-        video_clip.write_videofile(output_video)
+        video_clip.write_videofile(output_video, threads=4, preset='ultrafast')
         
         return {'file_name': video_name[:-4] + f'_{start_time}_{end_time}.mp4', 'start_time_sec': start_time_sec, 'end_time_sec': end_time_sec}
 

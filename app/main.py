@@ -1,4 +1,4 @@
-from VideoEditor import MediaAdder, VideoResizer, VideoClipper
+from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper
 from content_generator import ImageScraper, ImageToVideoCreator, DALL_E
 from decoder import SentenceSubjectAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
@@ -9,6 +9,10 @@ import os
 import math
 import logging
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+VERTICAL_VIDEO_HEIGHT = 1920
+VERTICAL_VIDEO_WIDTH = 1080
+HEAD_TRACKING_ENABLED = True    
 
 root = "./"
 
@@ -46,6 +50,8 @@ def main():
                                     output_file_path=INPUT_FILE_PATH)
     video_resizer = VideoResizer(INPUT_FILE_PATH,
                                 RESIZED_FILE_PATH)
+    head_tracker = HeadTrackingCropper(INPUT_FILE_PATH,
+                                       RESIZED_FILE_PATH)
     audio_extractor = AudioExtractor(INPUT_FILE_PATH,
                                     AUDIO_EXTRACTIONS_PATH)
     transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
@@ -78,16 +84,21 @@ def main():
                                                  raw_video['start_time'],
                                                  raw_video['end_time'])
         
-        resized_video_name = video_resizer.resize_video(clipped_video['file_name'],
-                                                        clipped_video['file_name'],
-                                                        video_resizer.YOUTUBE_SHORT_WIDTH, 
-                                                        video_resizer.YOUTUBE_SHORT_HEIGHT)
+        cropped_video_clip = None
+        if HEAD_TRACKING_ENABLED:
+            cropped_video_clip = head_tracker.crop_video_to_face_center(clipped_video['file_name'],
+                                                                        VERTICAL_VIDEO_WIDTH,
+                                                                        VERTICAL_VIDEO_HEIGHT)
+        else:
+            cropped_video_clip = video_resizer.resize_video(clipped_video['file_name'],
+                                                clipped_video['file_name'],
+                                                video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
+                                                video_resizer.YOUTUBE_VIDEO_HEIGHT) 
 
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
         # Transcribe the audio file
         transcription = transcriber.transcribe(audio_extraction_file_name)
-        
         
         print("Initialized the sentence subject analyzer and image scraper")
         query_list = analyzer.process_transcription(transcription['segments'],
@@ -118,7 +129,7 @@ def main():
         if video_data == None:
             raise Exception("Error: Images were not found. Stopping program.")
         
-        video_with_media = media_adder.add_videos_to_original_clip(original_clip=resized_video_name,
+        video_with_media = media_adder.add_videos_to_original_clip(original_clip=cropped_video_clip,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                         original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
