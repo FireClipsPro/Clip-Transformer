@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import collections
 from moviepy.editor import *
+# from video_clipper import VideoClipper
 import logging
 import time
 
@@ -176,6 +177,11 @@ class HeadTrackingCropper:
         return cropped_frame
     
     def crop_video_to_face_center(self, input_video, cropped_width, cropped_height):
+        #if the video already exists, return it
+        output_video = input_video[:-4] + "_centered.mp4"
+        if os.path.exists(self.OUTPUT_FILE_PATH + output_video):
+            return output_video
+        
         start_time = time.time()
         print("Beginning crop calculation...")
 
@@ -336,8 +342,8 @@ class HeadTrackingCropper:
 # clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
 # clip = clipper.clip_video("Eliezer.mp4", "1:10", "1:40")
 # print("clip is " + str(clip))
-# cropped_video_clip = cropper.crop_video_to_face_center_with_profile(clip['file_name'],
-                                                                    # cropped_width,
-                                                                    # cropped_height)
+# cropped_video_clip = cropper.crop_video_to_face_center(clip['file_name'],
+#                                                                     cropped_width,
+#                                                                     cropped_height)
 
 
