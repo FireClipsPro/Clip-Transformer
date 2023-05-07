@@ -153,7 +153,7 @@ class VideoResizer:
         if(output_file_name == None):
             raise Exception("Error: Video was not resized. Stopping program.")
         
-        return output_file_name;
+        return output_file_name
         
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

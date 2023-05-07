@@ -1,6 +1,6 @@
-from VideoEditor import MediaAdder, VideoResizer, VideoClipper
-from content_generator import ImageScraper, ImageToVideoCreator, DALL_E
-from decoder import SentenceSubjectAnalyzer
+from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper
+from content_generation import ImageScraper, ImageToVideoCreator, DALL_E
+from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder
@@ -9,6 +9,11 @@ import os
 import math
 import logging
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+VERTICAL_VIDEO_HEIGHT = 1920
+VERTICAL_VIDEO_WIDTH = 1080
+HEAD_TRACKING_ENABLED = True
+SECONDS_PER_PHOTO = 6
 
 root = "./"
 
@@ -39,33 +44,52 @@ CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
 RESIZED_FILE_PATH = f"{root}media_storage/resized_original_videos/"
 VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_storage/media_added_videos/"
 QUERY_FILE_PATH = f'{root}media_storage/queries/'
-INPUT_INFO_FILE_LOCATION = f'{root}media_storage/input_info.csv'
+INPUT_INFO_FILE_PATH = f'{root}media_storage/input_info.csv'
+VIDEO_INFO_FILE_PATH = f"{root}media_storage/video_info/"
+GENERATED_PROMPTS_FILE_PATH = f"{root}media_storage/generated_prompts/"
 
 def main():
     video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FILE_PATH,
-                                    output_file_path=INPUT_FILE_PATH)
+                                 output_file_path=INPUT_FILE_PATH)
+    
     video_resizer = VideoResizer(INPUT_FILE_PATH,
-                                RESIZED_FILE_PATH)
+                                 RESIZED_FILE_PATH)
+    
+    head_tracker = HeadTrackingCropper(INPUT_FILE_PATH,
+                                       RESIZED_FILE_PATH)
+    
     audio_extractor = AudioExtractor(INPUT_FILE_PATH,
-                                    AUDIO_EXTRACTIONS_PATH)
+                                     AUDIO_EXTRACTIONS_PATH)
+
     transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
-    analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
+
+    transcription_analyzer = TranscriptAnalyzer(VIDEO_INFO_FILE_PATH,
+                                                MUSIC_CATEGORY_PATH_DICT)
+
+    sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
+
     image_scraper = ImageScraper(CHROME_DRIVER_PATH,
-                                IMAGE_FILE_PATH)
-    dall_e = DALL_E(IMAGE_FILE_PATH)
+                                 IMAGE_FILE_PATH)
+
+    dall_e = DALL_E(IMAGE_FILE_PATH,
+                    GENERATED_PROMPTS_FILE_PATH)
+
     image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
-                                                IMAGE_2_VIDEOS_FILE_PATH)
+                                                 IMAGE_2_VIDEOS_FILE_PATH)
+
     media_adder = MediaAdder(RESIZED_FILE_PATH,
                     VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
                     IMAGE_2_VIDEOS_FILE_PATH,
                     OUTPUT_FILE_PATH)
+
     subtitle_adder = SubtitleAdderMv(OUTPUT_FILE_PATH,
                                     OUTPUT_FILE_PATH)
+
     music_adder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
                         video_files_path=OUTPUT_FILE_PATH,
-                        output_path=OUTPUT_FILE_PATH)
+                        output_path=OUTPUT_FILE_PATH,
+                        music_categories=MUSIC_CATEGORY_PATH_DICT)
 
-    
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
     raw_videos = get_raw_videos()
@@ -78,34 +102,48 @@ def main():
                                                  raw_video['start_time'],
                                                  raw_video['end_time'])
         
-        resized_video_name = video_resizer.resize_video(clipped_video['file_name'],
-                                                        clipped_video['file_name'],
-                                                        video_resizer.YOUTUBE_SHORT_WIDTH, 
-                                                        video_resizer.YOUTUBE_SHORT_HEIGHT)
+        cropped_video_clip = None
+        if HEAD_TRACKING_ENABLED:
+            cropped_video_clip = head_tracker.crop_video_to_face_center(clipped_video['file_name'],
+                                                                        VERTICAL_VIDEO_WIDTH,
+                                                                        VERTICAL_VIDEO_HEIGHT)
+        else:
+            cropped_video_clip = video_resizer.resize_video(clipped_video['file_name'],
+                                                clipped_video['file_name'],
+                                                video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
+                                                video_resizer.YOUTUBE_VIDEO_HEIGHT) 
 
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
-        # Transcribe the audio file
         transcription = transcriber.transcribe(audio_extraction_file_name)
         
+        clipped_video = transcription_analyzer.get_info(clipped_video, transcription)
         
         print("Initialized the sentence subject analyzer and image scraper")
-        query_list = analyzer.process_transcription(transcription['segments'],
+        query_list = sentence_analyzer.process_transcription(transcription['segments'],
                                                     transcription['segments'][-1]['end'],
-                                                    6,
-                                                    raw_video['raw_video_name'])
+                                                    SECONDS_PER_PHOTO,
+                                                    clipped_video['transcription_info']['description'],
+                                                    clipped_video['file_name'])
         
         time_stamped_images = []
         for query in query_list:
+            # if image already exists, use that image
+            if os.path.exists(f'{IMAGE_FILE_PATH}{query["query"].replace(" ", "_")}.jpg'):
+                time_stamped_images.append({'start_time': query['start'],
+                                            'end_time': query['end'],
+                                            'image': query['query'].replace(" ", "_") + '.jpg'})
+                continue
+            
             image_id = image_scraper.search_and_download(query['query'], 1)
             
             if image_id == None:
                 time_stamped_images.append({'start_time': query['start'],
-                                            'end_time': query['end'], 
+                                            'end_time': query['end'],
                                             'image': '_Nothing_Found_' + query['query']})
             else:
                 time_stamped_images.append({'start_time': query['start'],
-                                            'end_time': query['end'], 
+                                            'end_time': query['end'],
                                             'image': image_id.replace(" ", "_") + '.jpg'})
         
         # where images could not be found, DALL-E will be used to generate images
@@ -118,7 +156,7 @@ def main():
         if video_data == None:
             raise Exception("Error: Images were not found. Stopping program.")
         
-        video_with_media = media_adder.add_videos_to_original_clip(original_clip=resized_video_name,
+        video_with_media = media_adder.add_videos_to_original_clip(original_clip=cropped_video_clip,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                         original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
@@ -127,16 +165,23 @@ def main():
                                         overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
                                         overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
         
-        video_with_subtitles_name = subtitle_adder.add_subtitles(video_with_media, transcription, 50, 'Tahoma-Bold')
+        video_with_subtitles_name = subtitle_adder.add_subtitles(video_with_media,
+                                                                 transcription,
+                                                                 50,
+                                                                 'Tahoma-Bold')
 
         music_adder.add_music_to_video(music_category=raw_video['music_category'],
                                         video_name=video_with_subtitles_name,
-                                        video_length=math.ceil(float(clipped_video['end_time_sec']) - float(clipped_video['start_time_sec'])))
+                                        output_video_name=clipped_video['transcription_info']['title'],
+                                        video_length=math.ceil(
+                                            float(
+                                                clipped_video['end_time_sec']) 
+                                                - float(clipped_video['start_time_sec'])))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_raw_videos():
     raw_videos = []
-    with open(INPUT_INFO_FILE_LOCATION, 'r') as csv_file:
+    with open(INPUT_INFO_FILE_PATH, 'r') as csv_file:
         for line in csv_file:
             # skip the first line
             if line == "raw_video_name,start_time,end_time,music_category\n":
