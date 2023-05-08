@@ -64,9 +64,9 @@ class TranscriptAnalyzer:
         )
         logging.info(f"Response: {response['choices'][0]['message']['content']}")
  
-        json_sring = response['choices'][0]['message']['content']
+        json_string = response['choices'][0]['message']['content']
         
-        video_info_dictionary = self.parse_json_string(json_sring)
+        video_info_dictionary = self.parse_json_string(json_string)
         
         logging.info(f"Generated dictionary: {str(video_info_dictionary)}")
 
