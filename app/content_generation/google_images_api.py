@@ -36,7 +36,7 @@ class GoogleImagesAPI:
         if "items" in results:
             for i, item in enumerate(results["items"]):
                 url = item["link"]
-                output_path = f"{self.IMAGE_FILE_PATH}/{query.replace(' ', '_')}_{i}.jpg"
+                output_path = f"{self.IMAGE_FILE_PATH}{query.replace(' ', '_')}_{i}.jpg"
                 self.download_image(url, output_path)
                 print(f"Downloaded image {i + 1}: {url}")
             return True
