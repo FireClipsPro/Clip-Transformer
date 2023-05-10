@@ -91,7 +91,7 @@ class ImageGetter:
 
 # query_list = [
 #     {
-#         'query': 'pee pee playdo',
+#         'query': 'majestic dragon',
 #         'start': 0,
 #         'end': 10
 #     },
