@@ -18,11 +18,11 @@ class ImageScraper:
         self.chrome_driver_path = chrome_driver_path
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def fetch_image_urls(self, query:str, max_links_to_fetch:int, wd:webdriver, sleep_between_interactions:int=1):
+    def fetch_image_urls(self, query:str, max_links_to_fetch:int, wd:webdriver, sleep_between_interactions:int=0):
         def scroll_to_end(wd):
             wd.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             #generate random sleep duration to look more 'natural'
-            time.sleep(random.random())
+            # time.sleep(random.random())
         
         # build the google query
         search_url = "https://www.google.com/search?safe=off&site=&tbm=isch&source=hp&q={q}&oq={q}&gs_l=img"
@@ -63,7 +63,7 @@ class ImageScraper:
                     break
             else:
                 print("Found:", len(image_urls), "image links, looking for more ...")
-                time.sleep(30)
+                time.sleep(0)
                 return
                 load_more_button = wd.find_element(".mye4qd")
                 if load_more_button:
@@ -102,7 +102,7 @@ class ImageScraper:
             print(f"ERROR - Could not save {url} - {e}")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def search_and_download(self, search_term, number_images):
+    def get_image_from_google(self, search_term, number_images):
         
         target_folder = os.path.join(self.output_path)
         
@@ -116,7 +116,7 @@ class ImageScraper:
         
         # create a new chrome session
         with webdriver.Remote(service.service_url) as wd:
-            res = self.fetch_image_urls(search_term, number_images, wd=wd, sleep_between_interactions=0.5)
+            res = self.fetch_image_urls(search_term, number_images, wd=wd, sleep_between_interactions=0)
         
         _photo_id = 0
         
@@ -139,8 +139,12 @@ class ImageScraper:
             
 
 # Testing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# root = "../"
 
-# scraper = ImageScraper()
+# CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
+# IMAGE_FILE_PATH = f"{root}media_storage/images/"
 
-# print(scraper.search_and_download("Africa", PATH))
+# scraper = ImageScraper(CHROME_DRIVER_PATH, IMAGE_FILE_PATH)
 
+# # print(scraper.search_and_download("Africa", PATH))
+# scraper.get_image_from_google("walrus", 1)

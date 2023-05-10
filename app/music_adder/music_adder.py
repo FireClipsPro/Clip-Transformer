@@ -88,9 +88,11 @@ class MusicAdder:
 # OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
 
 # myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
-#                           video_files_path=OUTPUT_FILE_PATH,
-#                           output_path=OUTPUT_FILE_PATH)
-# myMusicAdder.add_music_to_video(music_category='conspiracy',
-#                                         video_name="resized_palestine.mp4",
-#                                         video_length=300)
+#                         video_files_path=OUTPUT_FILE_PATH,
+#                         output_path=OUTPUT_FILE_PATH,
+#                         music_categories=MUSIC_CATEGORY_PATH_DICT)
 
+# myMusicAdder.add_music_to_video(music_category='fascinating',
+#                                         video_name="Jaguar_story_(0, 27)_(2, 11)_centered_sub.mp4",
+#                                         output_video_name="output.mp4",
+#                                         video_length=108)

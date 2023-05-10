@@ -119,7 +119,7 @@ class ImageToVideoCreator:
 
         return clip.fl(effect)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    def process_images(self, images):
+    def convert_to_videos(self, images):
         if images == None:
             return None
         

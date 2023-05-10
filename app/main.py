@@ -1,5 +1,5 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper
-from content_generation import ImageScraper, ImageToVideoCreator, DALL_E
+from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI
 from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
@@ -68,8 +68,9 @@ def main():
 
     sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
 
-    image_scraper = ImageScraper(CHROME_DRIVER_PATH,
-                                 IMAGE_FILE_PATH)
+    image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH)
+    
+    image_getter = ImageGetter(IMAGE_FILE_PATH, image_scraper)
 
     dall_e = DALL_E(IMAGE_FILE_PATH,
                     GENERATED_PROMPTS_FILE_PATH)
@@ -119,42 +120,21 @@ def main():
         
         clipped_video = transcription_analyzer.get_info(clipped_video, transcription)
         
-        print("Initialized the sentence subject analyzer and image scraper")
         query_list = sentence_analyzer.process_transcription(transcription['segments'],
                                                     transcription['segments'][-1]['end'],
                                                     SECONDS_PER_PHOTO,
                                                     clipped_video['transcription_info']['description'],
                                                     clipped_video['file_name'])
         
-        time_stamped_images = []
-        for query in query_list:
-            # if image already exists, use that image
-            if os.path.exists(f'{IMAGE_FILE_PATH}{query["query"].replace(" ", "_")}.jpg'):
-                time_stamped_images.append({'start_time': query['start'],
-                                            'end_time': query['end'],
-                                            'image': query['query'].replace(" ", "_") + '.jpg'})
-                continue
-            
-            image_id = image_scraper.search_and_download(query['query'], 1)
-            
-            if image_id == None:
-                time_stamped_images.append({'start_time': query['start'],
-                                            'end_time': query['end'],
-                                            'image': '_Nothing_Found_' + query['query']})
-            else:
-                time_stamped_images.append({'start_time': query['start'],
-                                            'end_time': query['end'],
-                                            'image': image_id.replace(" ", "_") + '.jpg'})
-        
+        time_stamped_images = image_getter.get_images(query_list)
+                
         # where images could not be found, DALL-E will be used to generate images
         time_stamped_images = dall_e.generate_images(time_stamped_images)
         
         # print the _time_stamped_images array
         print(time_stamped_images)
         
-        video_data = image_to_video_creator.process_images(time_stamped_images)
-        if video_data == None:
-            raise Exception("Error: Images were not found. Stopping program.")
+        video_data = image_to_video_creator.convert_to_videos(time_stamped_images)
         
         video_with_media = media_adder.add_videos_to_original_clip(original_clip=cropped_video_clip,
                                         videos=video_data,
