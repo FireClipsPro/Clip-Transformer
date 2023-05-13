@@ -24,9 +24,9 @@ class HeadTrackingCropper:
         return width, height
     
     def crop_sides_of_video_to_remove_jre_logo(self, input_video):
-        video = VideoFileClip(self.INPUT_FILE_PATH + input_video)
+        video = VideoFileClip(self.INPUT_FILE_PATH + input_video['file_name'])
         video = video.crop(x1=0, y1=0, x2=video.w - 100, y2=video.h)
-        output_video = input_video[:-4] + "_cropped.mp4"
+        output_video = input_video['file_name'][:-4] + "_cropped.mp4"
         video.write_videofile(self.INPUT_FILE_PATH + output_video, threads=4, preset="ultrafast")
         return output_video
 
@@ -178,18 +178,18 @@ class HeadTrackingCropper:
     
     def crop_video_to_face_center(self, input_video, cropped_width, cropped_height):
         #if the video already exists, return it
-        output_video = input_video[:-4] + "_centered.mp4"
+        output_video = input_video['file_name'][:-4] + "_centered.mp4"
         if os.path.exists(self.OUTPUT_FILE_PATH + output_video):
-            return output_video
+            input_video['file_name'] = output_video
+            return input_video
         
         start_time = time.time()
         print("Beginning crop calculation...")
 
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         profile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
-        output_video = input_video[:-4] + "_centered.mp4"
 
-        video_clip = VideoFileClip(self.INPUT_FILE_PATH + input_video)
+        video_clip = VideoFileClip(self.INPUT_FILE_PATH + input_video['file_name'])
         original_fps = video_clip.fps
         reduced_fps = 5
         video_width, video_height = video_clip.size
@@ -229,8 +229,9 @@ class HeadTrackingCropper:
         
         #print the dimensions of the cropped video
         print("Cropped video dimensions: ", cropped_video_clip.size)
-
-        return output_video
+        
+        input_video['file_name'] = output_video
+        return input_video
 
     def calculate_face_centers(self, face_cascade, profile_cascade, video_width, reduced_fps_video_clip, x_positions, y_positions):
         face_centers = []

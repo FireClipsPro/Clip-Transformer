@@ -55,7 +55,7 @@ class MediaAdder:
                             overlay_zone_y)
 
         # Initialize the input video path
-        input_video = self.input_videos_file_path + original_clip
+        input_video = self.input_videos_file_path + original_clip['file_name']
         if not os.path.exists(input_video):
             print(f'Input video {input_video} does not exist')
             return None
@@ -65,16 +65,17 @@ class MediaAdder:
         background_video = VideoFileClip(input_video)
         composite_clips = [background_video]
         
-        for index, video in enumerate(videos):
+        # initialize the output video path
+        output_video = self.final_output_file_path + original_clip['file_name']
+        if os.path.exists(output_video):
+            os.remove(output_video)
+        
+        for video in videos:
             # initialize the overlay video path
             overlay_video_file_name = self.image_videos_file_path + video['video_file_name']
             if not os.path.exists(overlay_video_file_name):
                 print(f'Overlay video {overlay_video_file_name} does not exist')
                 return None
-            # initialize the output video path
-            output_video = self.output_file_path + original_clip[:-4] + f'_{index - 1}.mp4'
-            if os.path.exists(output_video):
-                os.remove(output_video)
             
             overlay_top_left_x, overlay_top_left_y = self.calculate_top_left_xy(video['width'],
                                                                                 video['height'],
@@ -84,22 +85,28 @@ class MediaAdder:
                                                                                 overlay_zone_y)
             
             overlay_video = VideoFileClip(overlay_video_file_name)
-            overlay_video = overlay_video.set_start(video['start_time']).set_end(video['end_time'])
+            
+            end_time = self.get_end_time(original_clip, video)
+            
+            overlay_video = overlay_video.set_start(video['start_time']).set_end(end_time)
             overlay_video = overlay_video.set_position((overlay_top_left_x, overlay_top_left_y))
             composite_clips.append(overlay_video)
         
         final_video = CompositeVideoClip(composite_clips)
         final_video.write_videofile(output_video)
         
-        # move output video to final output file path
-        if output_video is not None:
-            os.rename(output_video, self.final_output_file_path + original_clip)
-        
         return original_clip
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def get_end_time(self, original_clip, video):
+        if video['end_time'] > original_clip['end_time_sec']:
+            end_time = original_clip['end_time_sec']
+        else:
+            end_time = video['end_time']
+        return end_time
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def log_parameters(self, original_clip, videos, original_clip_width, original_clip_height, overlay_zone_width, overlay_zone_height, overlay_zone_x, overlay_zone_y):
         logging.info("Logging parameters...")
-        logging.info(f"Original clip: {original_clip}")
+        logging.info(f"Original clip: {original_clip['file_name']}")
         logging.info(f"Videos: {videos}")
         logging.info(f"Original clip width: {original_clip_width}")
         logging.info(f"Original clip height: {original_clip_height}")
@@ -110,23 +117,23 @@ class MediaAdder:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def remove_audio(self, original_clip, index):
-        overlay_video_no_audio = original_clip + f'_{index}_no_audio.mp4'
+        overlay_video_no_audio = original_clip['file_name'] + f'_{index}_no_audio.mp4'
         if os.path.exists(overlay_video_no_audio):
             os.remove(overlay_video_no_audio)
         
         command = [
             "ffmpeg",
-            "-i", original_clip,
+            "-i", original_clip['file_name'],
             "-an",
             overlay_video_no_audio
         ]
         subprocess.run(command)
         
         # delete the original video
-        os.remove(original_clip)
+        os.remove(original_clip['file_name'])
         
         # change the name of the video to the one without audio
-        os.rename(overlay_video_no_audio, original_clip)
+        os.rename(overlay_video_no_audio, original_clip['file_name'])
         
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
     def calculate_top_left_xy(self,

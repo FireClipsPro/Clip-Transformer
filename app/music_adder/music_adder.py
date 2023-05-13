@@ -60,6 +60,9 @@ class MusicAdder:
         # Combine the original video audio with the music audio
         video_clip = video_clip.set_audio(CompositeAudioClip([video_clip.audio, audio_clip]))
 
+        #if output_video_name does not end with .mp4, add it
+        if output_video_name[-4:] != '.mp4':
+            output_video_name += '.mp4'
         # Write the video with music to the output path
         video_clip.write_videofile(self.output_path + output_video_name)
 

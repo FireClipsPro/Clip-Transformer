@@ -2,6 +2,7 @@ import whisperx
 import torch
 import os
 import json
+from better_profanity import profanity
 
 SMALL_MODEL_SIZE = "small"
 MEDIUM_MODEL_SIZE = "medium"
@@ -11,8 +12,8 @@ class WhisperTranscriber:
     def __init__(self, audio_files_path):
         print("WhisperTranscriber created")
         self.audio_files_path = audio_files_path
-    
-    def transcribe(self, audio_file, REMOVE_PUNCTUATION=True):
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    def transcribe(self, audio_file, REMOVE_PUNCTUATION=True, CENSOR_PROFANITY=True):
         # check if file exists
         if not os.path.exists(self.audio_files_path + audio_file):
             raise Exception('Audio file does not exist')
@@ -47,24 +48,33 @@ class WhisperTranscriber:
         print("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(result_aligned["word_segments"]) # after alignment 
 
-        
         transcription = self.parse_transcription(result_aligned)
         
-        if REMOVE_PUNCTUATION:
-            transcription = self.clean_transcription(transcription)
+        transcription = self.clean_transcription(transcription, REMOVE_PUNCTUATION, CENSOR_PROFANITY)
         
         self.store_transcription(audio_file, transcription)
         
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def clean_transcription(self, transcription):
+    def clean_transcription(self, transcription, remove_punctuation=True, censor_profanity=True):
         for word_segment in transcription['word_segments']:
             #make all caps
             # remove punctuation
+            if remove_punctuation:
+                word_segment['text'] = word_segment['text'].replace(".", "")
+                word_segment['text'] = word_segment['text'].replace(",", "")
+                word_segment['text'] = word_segment['text'].replace(";", "")
+                
             word_segment['text'] = word_segment['text'].lower()
-            word_segment['text'] = word_segment['text'].replace(".", "")
-            word_segment['text'] = word_segment['text'].replace(",", "")
-            word_segment['text'] = word_segment['text'].replace(";", "")
+            # capitalize i 
+            word_segment['text'] = word_segment['text'].replace(" i ", " I ")
+
+            if censor_profanity:
+                first_letter = word_segment['text'][0]
+                word_segment['text'] = profanity.censor(word_segment['text'])
+                # replace the first letter with first_letter to make shit = s***
+                word_segment['text'] = first_letter + word_segment['text'][1:]
+            
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def parse_transcription(self, result_aligned):
@@ -86,5 +96,13 @@ class WhisperTranscriber:
         with open(self.audio_files_path + audio_file + ".json", "w+") as file:
             json.dump(result_aligned, file)
 
+# Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            
+# root = "../../media_storage/"
+# AUDIO_EXTRACTIONS_PATH = f"{root}audio_extractions/"
+# transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
+
+# transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
+
+# transcript = transcriber.clean_transcription(transcriber.transcribe("vikings_(0, 46)_(1, 44).mp3"))
+# print (transcript)

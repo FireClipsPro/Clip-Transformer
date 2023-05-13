@@ -81,7 +81,8 @@ class VideoResizer:
                       input_file_name, 
                       output_file_name, 
                       new_width, 
-                      new_height):
+                      new_height,
+                      clipped_video):
         # add Self.Input_file_path to the beginning of the file name if it is not there
         if input_file_name[:len(self.INPUT_FILE_PATH)] != self.INPUT_FILE_PATH:
             input_file_name = self.INPUT_FILE_PATH + input_file_name
@@ -153,7 +154,8 @@ class VideoResizer:
         if(output_file_name == None):
             raise Exception("Error: Video was not resized. Stopping program.")
         
-        return output_file_name
+        clipped_video['file_name'] = output_file_name
+        return clipped_video
         
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

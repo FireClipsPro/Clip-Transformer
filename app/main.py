@@ -15,14 +15,14 @@ VERTICAL_VIDEO_WIDTH = 1080
 HEAD_TRACKING_ENABLED = True
 SECONDS_PER_PHOTO = 6
 
-root = "./"
+root = "../media_storage/"
 
-ANGRY_MUSIC_FILE_PATH = f'{root}media_storage/songs/angry/'
-CUTE_MUSIC_FILE_PATH = f'{root}media_storage/songs/cute/'
-FUNNY_MUSIC_FILE_PATH = f'{root}media_storage/songs/funny/'
-MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}media_storage/songs/motivational/'
-INTRIGUING_MUSIC_FILE_PATH = f'{root}media_storage/songs/fascinating/'
-CONSPIRACY_MUSIC_FILE_PATH = f'{root}media_storage/songs/conspiracy/'
+ANGRY_MUSIC_FILE_PATH = f'{root}songs/angry/'
+CUTE_MUSIC_FILE_PATH = f'{root}songs/cute/'
+FUNNY_MUSIC_FILE_PATH = f'{root}songs/funny/'
+MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}songs/motivational/'
+INTRIGUING_MUSIC_FILE_PATH = f'{root}songs/fascinating/'
+CONSPIRACY_MUSIC_FILE_PATH = f'{root}songs/conspiracy/'
 
 MUSIC_CATEGORY_PATH_DICT = {
     'funny': FUNNY_MUSIC_FILE_PATH,
@@ -33,20 +33,20 @@ MUSIC_CATEGORY_PATH_DICT = {
     'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
 }
 
-RAW_VIDEO_FILE_PATH = f"{root}media_storage/raw_videos/"
-INPUT_FILE_PATH = f"{root}media_storage/InputVideos/"
-AUDIO_EXTRACTIONS_PATH = f"{root}media_storage/audio_extractions/"
-IMAGE_FILE_PATH = f"{root}media_storage/images/"
-IMAGE_2_VIDEOS_FILE_PATH = f"{root}media_storage/videos_made_from_images/"
-OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
-ORIGINAL_INPUT_FILE_PATH = f"{root}media_storage/InputVideos/"
+RAW_VIDEO_FILE_PATH = f"{root}raw_videos/"
+INPUT_FILE_PATH = f"{root}InputVideos/"
+AUDIO_EXTRACTIONS_PATH = f"{root}audio_extractions/"
+IMAGE_FILE_PATH = f"{root}images/"
+IMAGE_2_VIDEOS_FILE_PATH = f"{root}videos_made_from_images/"
+OUTPUT_FILE_PATH = f"{root}OutputVideos/"
+ORIGINAL_INPUT_FILE_PATH = f"{root}InputVideos/"
 CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
-RESIZED_FILE_PATH = f"{root}media_storage/resized_original_videos/"
-VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_storage/media_added_videos/"
-QUERY_FILE_PATH = f'{root}media_storage/queries/'
-INPUT_INFO_FILE_PATH = f'{root}media_storage/input_info.csv'
-VIDEO_INFO_FILE_PATH = f"{root}media_storage/video_info/"
-GENERATED_PROMPTS_FILE_PATH = f"{root}media_storage/generated_prompts/"
+RESIZED_FILE_PATH = f"{root}resized_original_videos/"
+VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_added_videos/"
+QUERY_FILE_PATH = f'{root}queries/'
+INPUT_INFO_FILE_PATH = f'{root}input_info.csv'
+VIDEO_INFO_FILE_PATH = f"{root}video_info/"
+GENERATED_PROMPTS_FILE_PATH = f"{root}generated_prompts/"
 
 def main():
     video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FILE_PATH,
@@ -58,7 +58,7 @@ def main():
     head_tracker = HeadTrackingCropper(INPUT_FILE_PATH,
                                        RESIZED_FILE_PATH)
     
-    audio_extractor = AudioExtractor(INPUT_FILE_PATH,
+    audio_extractor = AudioExtractor(RESIZED_FILE_PATH,
                                      AUDIO_EXTRACTIONS_PATH)
 
     transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
@@ -103,16 +103,17 @@ def main():
                                                  raw_video['start_time'],
                                                  raw_video['end_time'])
         
-        cropped_video_clip = None
+
         if HEAD_TRACKING_ENABLED:
-            cropped_video_clip = head_tracker.crop_video_to_face_center(clipped_video['file_name'],
-                                                                        VERTICAL_VIDEO_WIDTH,
-                                                                        VERTICAL_VIDEO_HEIGHT)
+            clipped_video = head_tracker.crop_video_to_face_center(clipped_video,
+                                                                    VERTICAL_VIDEO_WIDTH,
+                                                                    VERTICAL_VIDEO_HEIGHT)
         else:
-            cropped_video_clip = video_resizer.resize_video(clipped_video['file_name'],
-                                                clipped_video['file_name'],
-                                                video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
-                                                video_resizer.YOUTUBE_VIDEO_HEIGHT) 
+            clipped_video = video_resizer.resize_video(clipped_video['file_name'],
+                                                        clipped_video['file_name'],
+                                                        video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
+                                                        video_resizer.YOUTUBE_VIDEO_HEIGHT,
+                                                        clipped_video) 
 
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
@@ -136,7 +137,7 @@ def main():
         
         video_data = image_to_video_creator.convert_to_videos(time_stamped_images)
         
-        video_with_media = media_adder.add_videos_to_original_clip(original_clip=cropped_video_clip,
+        video_with_media = media_adder.add_videos_to_original_clip(original_clip=clipped_video,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
                                         original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
@@ -145,18 +146,17 @@ def main():
                                         overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
                                         overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
         
-        video_with_subtitles_name = subtitle_adder.add_subtitles(video_with_media,
+        video_with_subtitles_name = subtitle_adder.add_subtitles(video_with_media['file_name'],
                                                                  transcription,
                                                                  50,
                                                                  'Tahoma-Bold')
 
-        music_adder.add_music_to_video(music_category=raw_video['music_category'],
+        music_adder.add_music_to_video(music_category=clipped_video['transcription_info']['category'],
                                         video_name=video_with_subtitles_name,
                                         output_video_name=clipped_video['transcription_info']['title'],
-                                        video_length=math.ceil(
-                                            float(
-                                                clipped_video['end_time_sec']) 
-                                                - float(clipped_video['start_time_sec'])))
+                                        video_length=math.ceil(float(
+                                                                    clipped_video['end_time_sec']) 
+                                                                    - float(clipped_video['start_time_sec'])))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_raw_videos():
@@ -164,14 +164,13 @@ def get_raw_videos():
     with open(INPUT_INFO_FILE_PATH, 'r') as csv_file:
         for line in csv_file:
             # skip the first line
-            if line == "raw_video_name,start_time,end_time,music_category\n":
+            if line == "raw_video_name,start_time,end_time\n":
                 continue
             line = line.strip()
             line = line.split(',')
             raw_videos.append({'raw_video_name': str(line[0]),
                                 'start_time': str(line[1]),
-                                'end_time': str(line[2]),
-                                'music_category': str(line[3])})
+                                'end_time': str(line[2])})
             
     return raw_videos
 

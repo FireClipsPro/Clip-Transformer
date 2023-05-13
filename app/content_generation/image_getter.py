@@ -1,5 +1,5 @@
 import os
-from google_images_api import GoogleImagesAPI
+# from google_images_api import GoogleImagesAPI
 import logging
 
 
@@ -21,23 +21,23 @@ class ImageGetter:
         logging.info('Starting get_images method')
 
         time_stamped_images = []
-        queries_and_file_names = self.clean_query_list(query_list)
-        logging.info(f'Cleaned query list: {queries_and_file_names}')
-
-        for query in queries_and_file_names:
-            # if image already exists, use that image
+        query_file_list = self.clean_query_list(query_list)
+        logging.info(f'Cleaned query list: {query_file_list}')
+        
+        for query in query_file_list:
             if os.path.exists(self.IMAGE_FILE_PATH + query['image_file_name']):
-                logging.info(f"Image found for query: {query['query']}")
+                logging.info(f"Download unecessary: Image file already exists: {self.IMAGE_FILE_PATH + query['image_file_name']}.")
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
                                             'image': query['image_file_name']})
                 continue
             
-            logging.info(f"Image not found for query: {query['query']}, using image_scraper")
+            # TODO: fix this shithow at the fuck factory
+            logging.info(f"Download required for query: {query['query']}, using image_scraper")
             image_found = self.image_scraper.get_image_from_google(query['query'],
-                                                    query['query_count'])
+                                                                   query['image_file_name'])
             
-            if image_found == False:
+            if not image_found:
                 logging.info(f"No image found for query: {query['query']}")
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
@@ -47,6 +47,8 @@ class ImageGetter:
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
                                             'image': query['image_file_name']})
+        
+        self.image_scraper.tear_down()
         
         logging.info('Ending get_images method')
         return time_stamped_images
@@ -78,7 +80,8 @@ class ImageGetter:
                 'start': start,
                 'end': end,
                 'image_file_name': image_file_name,
-                'query_count': query_count
+                'query_count': query_count,
+                'is_found': False
             })
 
         return result_list
@@ -86,7 +89,7 @@ class ImageGetter:
 
 #tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# root = "../"
+# root = "../../"
 # IMAGE_FILE_PATH = f"{root}media_storage/images/"
 
 # query_list = [
