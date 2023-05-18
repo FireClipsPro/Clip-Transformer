@@ -25,7 +25,7 @@ class HeadTrackingCropper:
     
     def crop_sides_of_video_to_remove_jre_logo(self, input_video):
         video = VideoFileClip(self.INPUT_FILE_PATH + input_video['file_name'])
-        video = video.crop(x1=0, y1=0, x2=video.w - 100, y2=video.h)
+        video = video.crop(x1=0, y1=0, x2=video.w - 250, y2=video.h)
         output_video = input_video['file_name'][:-4] + "_cropped.mp4"
         video.write_videofile(self.INPUT_FILE_PATH + output_video, threads=4, preset="ultrafast")
         return output_video

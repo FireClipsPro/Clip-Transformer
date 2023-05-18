@@ -1,6 +1,9 @@
 import requests
 import os
 import logging
+import cv2
+import numpy as np
+from PIL import Image
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,10 +15,13 @@ logging.basicConfig(
 )
 
 class GoogleImagesAPI:
-    def __init__(self, image_file_path):
+    def __init__(self, image_file_path, image_classifier, image_evaluator):
         self.IMAGE_FILE_PATH = image_file_path
         self.used_links = []
         self.num_links_per_query = {}
+        self.image_classifier = image_classifier
+        self.IMAGE_CLASSIFIER_THRESHOLD = 6.5
+        self.image_evaluator = image_evaluator
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_image_link(self, query, api_key, cx, link_needed):
         url = "https://www.googleapis.com/customsearch/v1"
@@ -53,6 +59,15 @@ class GoogleImagesAPI:
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
 
+            # Check if the image is openable
+            try:
+                img = Image.open(output_path)
+                img.verify()  # verify that it is, in fact an image
+            except (IOError, SyntaxError) as e:
+                print('Bad file:', output_path)  # print out the names of corrupt files
+                os.remove(output_path)
+                return False
+
         except requests.exceptions.HTTPError as err:
             print(f"HTTP error occurred: {err}")
             return False
@@ -61,6 +76,7 @@ class GoogleImagesAPI:
             return False
         
         return True
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_image_from_google(self, query, output_file_name):
         api_key = "AIzaSyDq--kNy4Vot0SGaSRtbJ-CKDAa2qhOlrc"
@@ -83,10 +99,19 @@ class GoogleImagesAPI:
                 continue
             
             logging.info(f"Found image link for query: {query}. Trying download.")
+            
             if self.download_image(fetched_link, self.IMAGE_FILE_PATH + output_file_name):
                 logging.info(f"Downloaded image {fetched_link}")
                 self.used_links.append(fetched_link)
-                return True
+                
+                is_classified_and_colorful, link_needed = self.image_is_relevant_and_colorful(fetched_link,
+                                                       output_file_name,
+                                                       query,
+                                                       link_needed)
+                
+                if is_classified_and_colorful:
+                    return True
+                
             else:
                 logging.info(f"Could not download image {fetched_link}. Trying again.")
                 self.used_links.append(fetched_link)
@@ -95,6 +120,30 @@ class GoogleImagesAPI:
         self.num_links_per_query[query] = link_needed
                     
         return False
+    
+    def image_is_relevant_and_colorful(self, fetched_link, output_file_name, query, link_needed):
+        # Classify image
+        if self.image_classifier.classify(output_file_name, query) < self.IMAGE_CLASSIFIER_THRESHOLD:
+            logging.info(f"Image {fetched_link} was not classified as {query}. Trying again.")
+            # delete image
+            os.remove(self.IMAGE_FILE_PATH + output_file_name)
+            self.used_links.append(fetched_link)
+            link_needed += 1
+            return False, link_needed
+        else:
+            logging.info(f"Image {fetched_link} was classified as {query}.")
+        # Evaluate image
+        if not self.image_evaluator.is_colorful_enough(output_file_name):
+            logging.info(f"Image {fetched_link} is not colorful enough. Trying again.")
+            # delete image
+            os.remove(self.IMAGE_FILE_PATH + output_file_name)
+            self.used_links.append(fetched_link)
+            link_needed += 1
+            return False, link_needed
+        else:
+            logging.info(f"Image {fetched_link} was colorful enough.")
+        
+        return True, link_needed
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def tear_down(self):
         self.used_links = []

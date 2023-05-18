@@ -1,5 +1,5 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper
-from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI
+from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator
 from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
@@ -8,6 +8,7 @@ from subtitle_adder import SubtitleAdderMv
 import os
 import math
 import logging
+import time
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 VERTICAL_VIDEO_HEIGHT = 1920
@@ -67,8 +68,14 @@ def main():
                                                 MUSIC_CATEGORY_PATH_DICT)
 
     sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
+    
+    image_classifier = ImageClassifier(IMAGE_FILE_PATH)
+    
+    image_evaluator = ImageEvaluator(IMAGE_FILE_PATH)
 
-    image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH)
+    image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH,
+                                    image_classifier,
+                                    image_evaluator)
     
     image_getter = ImageGetter(IMAGE_FILE_PATH, image_scraper)
 

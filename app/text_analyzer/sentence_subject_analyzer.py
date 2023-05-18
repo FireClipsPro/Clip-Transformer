@@ -118,7 +118,7 @@ class SentenceSubjectAnalyzer:
                 {"role": "system", "content": """You are a google images search query generator.
                     Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description.
                     Generate a relevant and interesting query for Google Images based on the main subject or object from the excerpt.
-                    If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions or expressions.
+                    If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text.
                     If the excerpt is about a concrete subject or object, prioritize it.
                     Reply only with the search query or 'null query' if you need more context.
                     """},
@@ -127,7 +127,7 @@ class SentenceSubjectAnalyzer:
                 Transcript excerpt: {cleaned_sentence}"""}
             ]
         )
-        logging.info(f"Response: {response['choices'][0]['message']['content']}")
+        logging.info(f"Response: {response['choices'][0]['message']['content']}") 
 
         if (("null" in response['choices'][0]['message']['content'] or "Null" in response['choices'][0]['message']['content'])
             and ("query" in response['choices'][0]['message']['content'] or "Query" in response['choices'][0]['message']['content'])):
