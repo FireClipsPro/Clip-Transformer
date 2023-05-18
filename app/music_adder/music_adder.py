@@ -35,15 +35,12 @@ class MusicAdder:
 
         if video_length <= full_audio_clip.duration:
             logging.info('Video is shorter than the song')
-            # Calculate the midpoints
-            video_midpoint = video_length / 2
-            music_midpoint = full_audio_clip.duration / 2
 
             # Set the starting point for the music
-            music_start = max(0, music_midpoint - video_midpoint)
+            music_start = 0
 
             # Trim the music clip according to the starting point and the video length
-            audio_clip = full_audio_clip.subclip(music_start, music_start + video_length)
+            audio_clip = full_audio_clip.subclip(0, music_start + video_length)
         else:
             logging.info('Video is longer than the song')
             # If the video is longer than the song, concatenate the audio until it covers the video length
@@ -71,31 +68,31 @@ class MusicAdder:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Tests:
+root = "../../"
 
-# ANGRY_MUSIC_FILE_PATH = '../media_storage/songs/angry/'
-# CUTE_MUSIC_FILE_PATH = '../media_storage/songs/cute/'
-# FUNNY_MUSIC_FILE_PATH = '../media_storage/songs/funny/'
-# MOTIVATIONAL_MUSIC_FILE_PATH = '../media_storage/songs/motivational/'
-# INTRIGUING_MUSIC_FILE_PATH = '../media_storage/songs/fascinating/'
-# CONSPIRACY_MUSIC_FILE_PATH = '../media_storage/songs/conspiracy/'
+ANGRY_MUSIC_FILE_PATH = f'{root}media_storage/songs/angry/'
+CUTE_MUSIC_FILE_PATH = f'{root}media_storage/songs/cute/'
+FUNNY_MUSIC_FILE_PATH = f'{root}media_storage/songs/funny/'
+MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}media_storage/songs/motivational/'
+INTRIGUING_MUSIC_FILE_PATH = f'{root}media_storage/songs/fascinating/'
+CONSPIRACY_MUSIC_FILE_PATH = f'{root}media_storage/songs/conspiracy/'
 
-# MUSIC_CATEGORY_PATH_DICT = {
-#     'funny': FUNNY_MUSIC_FILE_PATH,
-#     'cute': CUTE_MUSIC_FILE_PATH,
-#     'motivational': MOTIVATIONAL_MUSIC_FILE_PATH,
-#     'fascinating': INTRIGUING_MUSIC_FILE_PATH,
-#     'angry': ANGRY_MUSIC_FILE_PATH,
-#     'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
-# }
-# root = "../"
-# OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
+MUSIC_CATEGORY_PATH_DICT = {
+    'funny': FUNNY_MUSIC_FILE_PATH,
+    'cute': CUTE_MUSIC_FILE_PATH,
+    'motivational': MOTIVATIONAL_MUSIC_FILE_PATH,
+    'fascinating': INTRIGUING_MUSIC_FILE_PATH,
+    'angry': ANGRY_MUSIC_FILE_PATH,
+    'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
+}
+OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
 
-# myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
-#                         video_files_path=OUTPUT_FILE_PATH,
-#                         output_path=OUTPUT_FILE_PATH,
-#                         music_categories=MUSIC_CATEGORY_PATH_DICT)
+myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
+                        video_files_path=OUTPUT_FILE_PATH,
+                        output_path=OUTPUT_FILE_PATH,
+                        music_categories=MUSIC_CATEGORY_PATH_DICT)
 
-# myMusicAdder.add_music_to_video(music_category='fascinating',
-#                                         video_name="Jaguar_story_(0, 27)_(2, 11)_centered_sub.mp4",
-#                                         output_video_name="output.mp4",
-#                                         video_length=108)
+myMusicAdder.add_music_to_video(music_category='motivational',
+                                video_name="technology_(0, 0)_(0, 59)_centered.mp4",
+                                output_video_name="Ancient Technology.mp4",
+                                video_length=59)

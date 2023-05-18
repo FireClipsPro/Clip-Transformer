@@ -1,7 +1,6 @@
 import os
-# from google_images_api import GoogleImagesAPI
 import logging
-
+import json
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,7 +31,6 @@ class ImageGetter:
                                             'image': query['image_file_name']})
                 continue
             
-            # TODO: fix this shithow at the fuck factory
             logging.info(f"Download required for query: {query['query']}, using image_scraper")
             image_found = self.image_scraper.get_image_from_google(query['query'],
                                                                    query['image_file_name'])
@@ -60,6 +58,10 @@ class ImageGetter:
         query_count_dict = {}
         result_list = []
 
+        # make all queries lower case
+        for query_dict in query_list:
+            query_dict['query'] = query_dict['query'].lower()
+        
         for query_dict in query_list:
             query = query_dict['query']
             if query in query_count_dict:
@@ -89,32 +91,21 @@ class ImageGetter:
 
 #tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# from image_classifier import ImageClassifier
+# from google_images_api import GoogleImagesAPI
+# from image_evaluator import ImageEvaluator
 # root = "../../"
 # IMAGE_FILE_PATH = f"{root}media_storage/images/"
 
-# query_list = [
-#     {
-#         'query': 'majestic dragon',
-#         'start': 0,
-#         'end': 10
-#     },
-#     {
-#         'query': 'majestic dragon',
-#         'start': 10,
-#         'end': 20
-#     },
-#     {   
-#         'query': 'majestic dragon',
-#         'start': 20,
-#         'end': 30
-#     },
-#     {
-#         'query': 'penguin skiing',
-#         'start': 30,
-#         'end': 40
-#     }
-# ]
+# # get the queries from the json file
+# with open(f"{root}media_storage/queries/JordanClip_(0, 0)_(0, 54)_centered.json", 'r') as f:
+#     query_list = json.load(f)
+    
+# image_classifier = ImageClassifier(IMAGE_FILE_PATH)
+# image_evaluator = ImageEvaluator(IMAGE_FILE_PATH)
 
-# image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH)
+# image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH,
+#                                 image_classifier,
+#                                 image_evaluator)
 # image_getter = ImageGetter(IMAGE_FILE_PATH, image_scraper)
 # time_stamped_images = image_getter.get_images(query_list)
