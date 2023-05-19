@@ -5,9 +5,10 @@ import math
 from PIL import Image
 import numpy
 import logging
-from moviepy.video.fx.all import *
+import moviepy.video.fx.all as vfx
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import shutil
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,7 +19,8 @@ PERCENT_OF_DISPLAY_SCREEN = 0.95
 ZOOM_EFFECT = 'zoom'
 HORIZONTAL_SCROLL_EFFECT = 'horizontal_scroll'
 VERTICAL_SCROLL_EFFECT = 'vertical_scroll'
-SPEED_COEFFICIENT = 0.1
+HORIZONTAL_SPEED_COEFFICIENT = .714
+VERTICAL_SPEED_COEFFICIENT = .6
 
 
 class ImageToVideoCreator:
@@ -34,60 +36,56 @@ class ImageToVideoCreator:
         self.frame_height = frame_height
         self.x_scroll_speed = 200
         self.y_scroll_speed = 200
-        print("ImageToVideoCreator created")
+        logging.info("ImageToVideoCreator created")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# takes in the file name (with extension) of the image and the start and end time of the image in the video
-# make the video slowly zooming in on the center of the picture
-    def animate_image(self, image, input_file, output_file, effect):
-        input_file_path = input_file
-        
-        output_file_path = self.video_2_image_file_path + output_file
-        # throw error if the input file does not exist
-        if not os.path.exists(input_file_path):
-            print("Input file does not exist")
-            return
-        
+    def initialize_output_path(self, output_file):
         # delete the output file if it exists
         if os.path.exists(output_file):
             os.remove(output_file)
         
-        if image is None:
-            # throw error
-            print("Image is None")
+        return os.path.abspath(self.video_2_image_file_path + output_file)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def animate_image(self, image, input_file_path, output_file, effect):
+        logging.info(f'Animating {image["image"]}')
+        
+        output_file_path = self.initialize_output_path(output_file)
+
+        if self.files_do_not_exist(input_file_path, output_file, image):
             return
-        else:
-            size = (image["width"], image["height"])
             
         duration = image["end_time"] - image["start_time"]
         
-        #todo expirement with removing resize
         slide = mp.ImageClip(input_file_path).set_fps(25).set_duration(duration)
         
         # if effect is zoom in
         if effect == ZOOM_EFFECT:
+            logging.info(f'Zooming in on {image["image"]}')
             slide = self.zoom_in_effect(slide, 0.05)
-        if effect == VERTICAL_SCROLL_EFFECT:
-            slide = self.vertical_scroll(slide, image, self.frame_height)
-            slide = crop(slide, x_center=0.5 * image['width'],
-                     y_center=0.5 * image['height'],
-                     width=image['width'],
-                     height=self.frame_height)
-        if effect == HORIZONTAL_SCROLL_EFFECT:
-            slide = self.horizontal_scroll(slide, image, self.frame_width)
-            slide = crop(slide, x_center=0.5 * image['width'],
-                     y_center=0.5 * image['height'],
-                     width=self.frame_width,
-                     height=image['height'])
-        
+
         slide.write_videofile(output_file_path)
+        
+        #check if the output file exists
+        if not os.path.exists(os.path.abspath(output_file_path)):
+            raise Exception("Output file was not created")
         
         # find the dimensions of the output file
         image['width'], image['height'] = self.get_image_dimensions(output_file_path)
         
-        print(f'Created video for {image["image"]}')
-        print(f'Dimensions: {image["width"]}x{image["height"]}')
+        logging.info(f'Created video for {image["image"]}')
+        logging.info(f'Dimensions: {image["width"]}x{image["height"]}')
         image['video_file_name'] = output_file
         return image
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def files_do_not_exist(self, input_file_path, output_file, image):
+        # throw error if the input file does not exist
+        if not os.path.exists(input_file_path):
+            logging.info("Input file does not exist")
+            return True
+        
+        if image is None:
+            # throw error
+            logging.info("Image is None")
+            return True
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def zoom_in_effect(self, clip, zoom_ratio=0.04):
         def effect(get_frame, t):
@@ -125,7 +123,6 @@ class ImageToVideoCreator:
         
         #for each image in the list of images
         for image in images:
-            #todo make each one a png
             image = self.record_image_size(image)
             image = self.resize_and_animate_image(image, YOUTUBE_SHORT_WIDTH, YOUTUBE_SHORT_HALF_HEIGHT)
             image = self.add_border(image)
@@ -139,7 +136,7 @@ class ImageToVideoCreator:
 
         border_size = 10
         border_color = (255, 255, 0)  # Yellow color in RGB format
-        bordered_clip = margin(clip,
+        bordered_clip = vfx.margin(clip,
                                left=border_size, 
                                right=border_size, 
                                top=border_size, 
@@ -170,7 +167,8 @@ class ImageToVideoCreator:
         
         if os.path.exists(resized_image_path):
             os.remove(resized_image_path)
-        
+            
+        logging.info(f'image dimensions: {image["width"]}x{image["height"]}')
         # if the image is already the correct size, don't crop it
         if image['width'] == frame_width and image['height'] == frame_height:
             logging.info(f'Image {image["image"]} is already the correct size.')
@@ -181,15 +179,15 @@ class ImageToVideoCreator:
             image = self.enlarge_image(image, image_path, resized_image_path, frame_width, frame_height)
             image = self.animate_image(image, resized_image_path, animated_image_filename, ZOOM_EFFECT)
         # if the image is too tall use a vertical scroll
-        elif image['width'] * 3 <= image['height']:
+        elif image['width'] * 2 <= image['height']:
             logging.info(f'Image {image["image"]} is too tall to crop. scrolling instead.')
-            image = self.shrink_image(image, image_path, resized_image_path, frame_width, frame_height)
-            image = self.animate_image(image, resized_image_path, animated_image_filename, VERTICAL_SCROLL_EFFECT)
+            image = self.shrink_image_width(image, image_path, resized_image_path, frame_width, frame_height)
+            image = self.scroll_image_vertically(image, resized_image_path, animated_image_filename, VERTICAL_SCROLL_EFFECT)
         # if the image is too wide use a horizontal scroll
-        elif image['height'] * 3 <= image['width']:
+        elif image['height'] * 2.5 <= image['width']:
             logging.info(f'Image {image["image"]} is too wide to crop. scrolling instead.')
-            image = self.shrink_image(image, image_path, resized_image_path, frame_width, frame_height)
-            image = self.animate_image(image, resized_image_path, animated_image_filename, HORIZONTAL_SCROLL_EFFECT)
+            image = self.shrink_image_height(image, image_path, resized_image_path, frame_width, frame_height)
+            image = self.scroll_image_horizontally(image, resized_image_path, animated_image_filename, HORIZONTAL_SCROLL_EFFECT)
         # if the image is too tall and too wide shrink it
         else:
             logging.info(f'Image {image["image"]} is too large to crop. Shrinking instead.')
@@ -197,9 +195,55 @@ class ImageToVideoCreator:
             image = self.animate_image(image, resized_image_path, animated_image_filename, ZOOM_EFFECT)
         
         return image
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    def scroll_image_horizontally(self, image, resized_image_path, animated_image_filename, HORIZONTAL_SCROLL_EFFECT):
+        image_duration = image["end_time"] - image["start_time"]
+        # speed is pixels / 0.1 * second (centisecond)
+        scroll_speed = math.ceil(HORIZONTAL_SPEED_COEFFICIENT * image["width"] / image_duration)
+        
+        image_clip = mp.ImageClip(resized_image_path, duration=image_duration)
+        image_clip = image_clip.set_position(lambda t: (t * (-scroll_speed), 'center'))
+        image_clip.fps = 30
+        composite = mp.CompositeVideoClip([image_clip], size=image_clip.size)
+        # Crop the composite clip
+        composite = composite.fx(vfx.crop, x1=0, y1=0, width=self.frame_width, height=image["height"])
+
+        output_path = self.initialize_output_path(animated_image_filename)
+        composite.write_videofile(output_path)
+        
+        # find the dimensions of the output file
+        image['width'], image['height'] = self.get_image_dimensions(output_path)
+        
+        logging.info(f'Created video for {image["image"]}')
+        logging.info(f'Dimensions: {image["width"]}x{image["height"]}')
+        image['video_file_name'] = animated_image_filename
+        return image
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def scroll_image_vertically(self, image, resized_image_path, animated_image_filename, VERTICAL_SCROLL_EFFECT):
+        image_duration = image["end_time"] - image["start_time"]
+
+        scroll_speed = math.ceil(VERTICAL_SPEED_COEFFICIENT * image["height"] / image_duration)
+        
+        image_clip = mp.ImageClip(resized_image_path, duration=image_duration)
+        image_clip = image_clip.set_position(lambda t: ('center', t * (-scroll_speed)))
+        image_clip.fps = 30
+        composite = mp.CompositeVideoClip([image_clip], size=image_clip.size)
+        # Crop the composite clip
+        composite = composite.fx(vfx.crop, x1=0, y1=0, width=image["width"], height=self.frame_height)
+
+        output_path = self.initialize_output_path(animated_image_filename)
+        composite.write_videofile(output_path)
+        
+        # find the dimensions of the output file
+        image['width'], image['height'] = self.get_image_dimensions(output_path)
+        
+        logging.info(f'Created video for {image["image"]}')
+        logging.info(f'Dimensions: {image["width"]}x{image["height"]}')
+        image['video_file_name'] = animated_image_filename
+        return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def shrink_image(self, image, input_file, output_file, frame_width, frame_height):
-        print(f'Image {image["image"]} is too large to crop. Shrinking instead.')
+        logging.info(f'Shrinking image.')
         # delete output file if it exists
         if os.path.exists(output_file):
             os.remove(output_file)
@@ -225,14 +269,82 @@ class ImageToVideoCreator:
         ]
         subprocess.run(command)
         
+        logging.info(f'new image dimensions: {new_width}x{new_height}')
+        logging.info(f'saved image to: {output_file}')
+        
         # replace the old image widths and heights
         image['width'] = new_width
         image['height'] = new_height
         
         return image
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def shrink_image_width(self, image, input_file, output_file, frame_width, frame_height):
+        logging.info(f'Shrinking image width.')
+        # delete output file if it exists
+        if os.path.exists(output_file):
+            os.remove(output_file)
+        
+        new_width = image['width']
+        new_height = image['height']
+
+        if new_width > frame_width:
+            new_width = frame_width * PERCENT_OF_DISPLAY_SCREEN
+            new_height = int(image['height'] * (frame_width / image['width']))
+        
+        # Create and Run the command to shrink the image
+        command = [
+            'ffmpeg',
+            '-i', input_file,
+            '-vf', f'scale={new_width}:{new_height}',
+            '-c:a', 'copy',
+            output_file
+        ]
+        subprocess.run(command)
+        
+        logging.info(f'new image dimensions: {new_width}x{new_height}')
+        logging.info(f'saved image to: {output_file}')
+        
+        # replace the old image widths and heights
+        image['width'] = new_width
+        image['height'] = new_height
+        
+        return image
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def shrink_image_height(self, image, input_file, output_file, frame_width, frame_height):
+        logging.info(f'Shrinking image height to fit in frame.')
+        # delete output file if it exists
+        if os.path.exists(output_file):
+            os.remove(output_file)
+        
+        new_width = int(image['width'])
+        new_height = int(image['height'])
+            
+        if new_height > frame_height:
+            new_height = int(math.floor(frame_height * PERCENT_OF_DISPLAY_SCREEN))
+            new_width = int(math.floor(image['width'] * (frame_height / image['height'])))
+        
+        # Create and Run the command to shrink the image
+        command = [
+            'ffmpeg',
+            '-i', input_file,
+            '-vf', f'scale={new_width}:{new_height}',
+            '-c:a', 'copy',
+            output_file
+        ]
+        subprocess.run(command)
+        
+        logging.info(f'new image dimensions: {new_width}x{new_height}')
+        logging.info(f'saved image to: {output_file}')
+        
+        # replace the old image widths and heights
+        image['width'] = new_width
+        image['height'] = new_height
+        
+        return image
+        
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def enlarge_image(self, image, image_path, enlarged_image_path, frame_width, frame_height):
-        print(f'Image {image["image"]} is too small to crop. enlarging instead.')
+        logging.info(f'Image {image["image"]} is too small to crop. enlarging instead.')
         
         scale_factor = 1
         if image['width'] > image['height']:
@@ -258,49 +370,14 @@ class ImageToVideoCreator:
         image['height'] = new_height
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def horizontal_scroll(self, slide, image, frame_width):
-    # Retrieve image dimensions
-        img_height = image["height"]
-        image_duration = image["end_time"] - image["start_time"]
-        # speed is pixels / 0.1 * second (centisecond)
-        scroll_speed = SPEED_COEFFICIENT * image["width"] / image_duration
-        
-        # Apply the scroll effect with the desired width and height
-        modified_slide = scroll(
-            slide,
-            h=img_height,
-            w=frame_width,
-            x_speed=scroll_speed,
-            y_speed=0,
-            x_start=0,
-            y_start=0,
-            apply_to='mask'
-        )
-
-        return modified_slide
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def vertical_scroll(self, slide, image, frame_height):
-    # Retrieve image dimensions
-        img_width = image["width"]
-        image_duration = image["end_time"] - image["start_time"]
-        # speed is pixels / 0.1 * second (centisecond)
-        scroll_speed = SPEED_COEFFICIENT * image["width"] / image_duration
-        
-        # Apply the scroll effect with the desired width and height
-        modified_slide = scroll(
-            slide,
-            h=frame_height,
-            w=img_width,
-            x_speed=0,
-            y_speed=scroll_speed,  # Set y_speed to a non-zero value for vertical scrolling
-            x_start=0,
-            y_start=0,
-            apply_to='mask'
-        )
-
-        return modified_slide
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def record_image_size(self, image):
+        #log working directory
+        directory = os.getcwd()
+        logging.info(directory)
+        # ensure that the file exists
+        if not os.path.exists(self.image_file_path + image['image']):
+            logging.info(f'ERROR: File {self.image_file_path + image["image"]} does not exist')
+            
         image['width'], image['height'] = self.get_image_dimensions(self.image_file_path + image['image'])
         logging.info(f'Image {image["image"]} is {image["width"]}x{image["height"]}')
         return image
@@ -316,12 +393,14 @@ class ImageToVideoCreator:
         ]
         # if file does not exist, skip it
         if not os.path.exists(f'{file_path}'):
-            print(f'ERROR: File {file_path} does not exist')
+            logging.info(f'ERROR: File {file_path} does not exist')
             return None
-            
+        
         output = subprocess.run(command, stdout=subprocess.PIPE)
         output = output.stdout.decode('utf-8').split('x')
+        
         return int(output[0]), int(output[1])
+    
        
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # root = "./app/"
