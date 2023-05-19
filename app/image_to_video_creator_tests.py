@@ -1,49 +1,55 @@
 from VideoEditor import MediaAdder
-from content_generator import ImageToVideoCreator
+from content_generation import ImageToVideoCreator
 
 import unittest
 import os
 import subprocess
 
-root = "./app/"
-IMAGE_FILE_PATH = f"{root}media_storage/images/"
-IMAGE_2_VIDEOS_FILE_PATH = f"{root}media_storage/videos_made_from_images/"
+root = "../media_storage/"
 
-IMAGE_FILE_PATH = f'{root}media_storage/images/'
-IMAGE_2_IVDEOS_FILE_PATH = f'{root}media_storage/videos_made_from_images/'
-OUTPUT_FILE_PATH = f"{root}media_storage/media_added_videos/"
-ORIGINAL_INPUT_FILE_PATH = f"{root}media_storage/resized_original_videos/"
-FINAL_OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
+RAW_VIDEO_FILE_PATH = f"{root}raw_videos/"
+INPUT_FILE_PATH = f"{root}InputVideos/"
+AUDIO_EXTRACTIONS_PATH = f"{root}audio_extractions/"
+IMAGE_FILE_PATH = f"{root}images/"
+IMAGE_2_VIDEOS_FILE_PATH = f"{root}videos_made_from_images/"
+OUTPUT_FILE_PATH = f"{root}OutputVideos/"
+ORIGINAL_INPUT_FILE_PATH = f"{root}InputVideos/"
+CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
+RESIZED_FILE_PATH = f"{root}resized_original_videos/"
+VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_added_videos/"
+QUERY_FILE_PATH = f'{root}queries/'
+INPUT_INFO_FILE_PATH = f'{root}input_info.csv'
+VIDEO_INFO_FILE_PATH = f"{root}video_info/"
+GENERATED_PROMPTS_FILE_PATH = f"{root}generated_prompts/"
        
 def test_full_usage():
 
     image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
                                                 IMAGE_2_VIDEOS_FILE_PATH)
-    time_stamped_images = [{'start_time': 0, 'end_time': 5, 'image': 'jump.jpg'}]
+    time_stamped_images = [
+                           {'start_time': 15, 'end_time': 20, 'image': 'tall.jpg'}]
     
     
-    video_data = image_to_video_creator.process_images(time_stamped_images)
+    video_data = image_to_video_creator.convert_to_videos(time_stamped_images)
     if video_data == None:
         print("Error: Images were not found. Stopping program.")
         return
-    
-    
         
-    media_adder = MediaAdder(ORIGINAL_INPUT_FILE_PATH,
-                             OUTPUT_FILE_PATH,
-                             IMAGE_2_VIDEOS_FILE_PATH,
-                             FINAL_OUTPUT_FILE_PATH)
+    # media_adder = MediaAdder(ORIGINAL_INPUT_FILE_PATH,
+    #                          OUTPUT_FILE_PATH,
+    #                          IMAGE_2_VIDEOS_FILE_PATH,
+    #                          OUTPUT_FILE_PATH)
     
-    output = media_adder.add_videos_to_original_clip(original_clip='Woody_(0, 0)_(0, 10).mp4',
-                                       videos=video_data,
-                                       original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
-                                       original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
-                                       overlay_zone_width=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_WIDTH,
-                                       overlay_zone_height=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_HEIGHT,
-                                       overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
-                                       overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
+    # output = media_adder.add_videos_to_original_clip(original_clip='JordanClip_(0, 0)_(0, 10)_centered.mp4',
+    #                                    videos=video_data,
+    #                                    original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
+    #                                    original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
+    #                                    overlay_zone_width=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_WIDTH,
+    #                                    overlay_zone_height=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_HEIGHT,
+    #                                    overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
+    #                                    overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
     
-    print(str(output))
+    # print(str(output))
 
 
 # def test_cropped_images_are_correct_sizes():
