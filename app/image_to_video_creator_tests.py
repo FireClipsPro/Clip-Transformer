@@ -5,7 +5,7 @@ import unittest
 import os
 import subprocess
 
-root = "../media_storage/"
+root = "./media_storage/"
 
 RAW_VIDEO_FILE_PATH = f"{root}raw_videos/"
 INPUT_FILE_PATH = f"{root}InputVideos/"
@@ -27,7 +27,7 @@ def test_full_usage():
     image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
                                                 IMAGE_2_VIDEOS_FILE_PATH)
     time_stamped_images = [
-                           {'start_time': 15, 'end_time': 20, 'image': 'tall.jpg'}]
+                           {'start_time': 15, 'end_time': 20, 'image': 'ancient_egyptian_lifting_techniques_0.jpg'}]
     
     
     video_data = image_to_video_creator.convert_to_videos(time_stamped_images)

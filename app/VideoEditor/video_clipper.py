@@ -61,18 +61,48 @@ class VideoClipper:
         else:
             raise ValueError("Invalid time format")
 
+    def clip_song(self, song_name, start_time, end_time):
+        start_time = self.format_time_string(start_time)
+        end_time = self.format_time_string(end_time)
+
+        start_time_sec = 0
+        for i in range(len(start_time)):
+            start_time_sec += start_time[i] * (60 ** (len(start_time) - i - 1))
+        end_time_sec = 0
+        for i in range(len(end_time)):
+            end_time_sec += end_time[i] * (60 ** (len(end_time) - i - 1))
+
+        # if the song has already been clipped, return the file name
+        if os.path.exists(self.output_file_path + song_name[:-4] + f'_{start_time}_{end_time}.mp3'):
+            return {'file_name': song_name[:-4] + f'_{start_time}_{end_time}.mp3', 'start_time_sec': start_time_sec, 'end_time_sec': end_time_sec} 
+
+        # initialize the input song path
+        input_song = self.input_video_file_path + song_name
+        if not os.path.exists(input_song):
+            print(f'Input song {input_song} does not exist')
+            return None
+
+        # initialize the output song path
+        output_song = self.output_file_path + song_name[:-4] + f'_{start_time}_{end_time}.mp3'
+        if os.path.exists(output_song):
+            os.remove(output_song)
+
+        # clip the song (min, sec), in (hour, min, sec)
+        song_clip = AudioFileClip(input_song).subclip(start_time, end_time)
+        song_clip.write_audiofile(output_song)
+
+        return {'file_name': song_name[:-4] + f'_{start_time}_{end_time}.mp3', 'start_time_sec': start_time_sec, 'end_time_sec': end_time_sec}
+
 
 
 #Testing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# RAW_VIDEO_FILE_PATH = "../media_storage/OutputVideos/"
-# INPUT_FILE_PATH = "../media_storage/OutputVideos/"
-# clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
+# RAW_VIDEO_FILE_PATH = "../../media_storage/OutputVideos/"
+# INPUT_FILE_PATH = "../../media_storage/OutputVideos/"
 
 # # # clipper.clip_video("Woody.mp4", "0", "1:00")
-# clipper.clip_video("resized_palestine_(0, 52)_(2, 24).mp4", "12", "1:11")
-
-# print(clipper.format_time_string("40"))
-# print(clipper.format_time_string("11:40.5"))
-# print(clipper.format_time_string("1:11:40"))
 
 
+# RAW_VIDEO_FILE_PATH = "../../media_storage/songs/motivational/"
+# INPUT_FILE_PATH = "../../media_storage/songs/motivational/"
+# clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
+# clipper.clip_song("Vide.mp3", "38", "4:10")

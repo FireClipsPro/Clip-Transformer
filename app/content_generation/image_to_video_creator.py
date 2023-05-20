@@ -182,12 +182,12 @@ class ImageToVideoCreator:
         elif image['width'] * 2 <= image['height']:
             logging.info(f'Image {image["image"]} is too tall to crop. scrolling instead.')
             image = self.shrink_image_width(image, image_path, resized_image_path, frame_width, frame_height)
-            image = self.scroll_image_vertically(image, resized_image_path, animated_image_filename, VERTICAL_SCROLL_EFFECT)
+            image = self.scroll_image_vertically(image, resized_image_path, animated_image_filename)
         # if the image is too wide use a horizontal scroll
         elif image['height'] * 2.5 <= image['width']:
             logging.info(f'Image {image["image"]} is too wide to crop. scrolling instead.')
             image = self.shrink_image_height(image, image_path, resized_image_path, frame_width, frame_height)
-            image = self.scroll_image_horizontally(image, resized_image_path, animated_image_filename, HORIZONTAL_SCROLL_EFFECT)
+            image = self.scroll_image_horizontally(image, resized_image_path, animated_image_filename)
         # if the image is too tall and too wide shrink it
         else:
             logging.info(f'Image {image["image"]} is too large to crop. Shrinking instead.')
@@ -196,17 +196,17 @@ class ImageToVideoCreator:
         
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
-    def scroll_image_horizontally(self, image, resized_image_path, animated_image_filename, HORIZONTAL_SCROLL_EFFECT):
+    def scroll_image_horizontally(self, image, resized_image_path, animated_image_filename):
         image_duration = image["end_time"] - image["start_time"]
         # speed is pixels / 0.1 * second (centisecond)
-        scroll_speed = math.ceil(HORIZONTAL_SPEED_COEFFICIENT * image["width"] / image_duration)
+        scroll_speed = math.ceil((image["width"] - self.frame_width * PERCENT_OF_DISPLAY_SCREEN) / image_duration) 
         
         image_clip = mp.ImageClip(resized_image_path, duration=image_duration)
         image_clip = image_clip.set_position(lambda t: (t * (-scroll_speed), 'center'))
         image_clip.fps = 30
         composite = mp.CompositeVideoClip([image_clip], size=image_clip.size)
         # Crop the composite clip
-        composite = composite.fx(vfx.crop, x1=0, y1=0, width=self.frame_width, height=image["height"])
+        composite = composite.fx(vfx.crop, x1=0, y1=0, width=(self.frame_width * PERCENT_OF_DISPLAY_SCREEN), height=image["height"])
 
         output_path = self.initialize_output_path(animated_image_filename)
         composite.write_videofile(output_path)
@@ -219,17 +219,17 @@ class ImageToVideoCreator:
         image['video_file_name'] = animated_image_filename
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def scroll_image_vertically(self, image, resized_image_path, animated_image_filename, VERTICAL_SCROLL_EFFECT):
+    def scroll_image_vertically(self, image, resized_image_path, animated_image_filename):
         image_duration = image["end_time"] - image["start_time"]
 
-        scroll_speed = math.ceil(VERTICAL_SPEED_COEFFICIENT * image["height"] / image_duration)
+        scroll_speed = math.ceil((image["height"] - self.frame_height * PERCENT_OF_DISPLAY_SCREEN) / image_duration)
         
         image_clip = mp.ImageClip(resized_image_path, duration=image_duration)
         image_clip = image_clip.set_position(lambda t: ('center', t * (-scroll_speed)))
         image_clip.fps = 30
         composite = mp.CompositeVideoClip([image_clip], size=image_clip.size)
         # Crop the composite clip
-        composite = composite.fx(vfx.crop, x1=0, y1=0, width=image["width"], height=self.frame_height)
+        composite = composite.fx(vfx.crop, x1=0, y1=0, width=image["width"], height=(self.frame_height * PERCENT_OF_DISPLAY_SCREEN))
 
         output_path = self.initialize_output_path(animated_image_filename)
         composite.write_videofile(output_path)
