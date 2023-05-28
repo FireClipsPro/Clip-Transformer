@@ -134,7 +134,7 @@ class SentenceSubjectAnalyzer:
             logging.info("Received null query")
             return None
  
-        query = response['choices'][0]['message']['content'].replace('"', '').replace("query", "").replace("Query", "")
+        query = response['choices'][0]['message']['content'].replace('"', '').replace("query", "").replace("Query", "").replace("query:", "").replace("Query:", "")
         logging.info(f"Generated query: {query}")
 
         return query

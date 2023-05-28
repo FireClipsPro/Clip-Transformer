@@ -1,10 +1,10 @@
-from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper
-from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator
+from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper, ImageSpacer
+from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
 from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder
-from subtitle_adder import SubtitleAdderMv
+from subtitle_adder import SubtitleAdder
 import os
 import math
 import logging
@@ -15,93 +15,102 @@ VERTICAL_VIDEO_HEIGHT = 1920
 VERTICAL_VIDEO_WIDTH = 1080
 HEAD_TRACKING_ENABLED = True
 SECONDS_PER_PHOTO = 6
+PERECENT_OF_IMAGES_TO_BE_FULLSCREEN = 0.3
 
 root = "../media_storage/"
 
-ANGRY_MUSIC_FILE_PATH = f'{root}songs/angry/'
-CUTE_MUSIC_FILE_PATH = f'{root}songs/cute/'
-FUNNY_MUSIC_FILE_PATH = f'{root}songs/funny/'
-MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}songs/motivational/'
-INTRIGUING_MUSIC_FILE_PATH = f'{root}songs/fascinating/'
-CONSPIRACY_MUSIC_FILE_PATH = f'{root}songs/conspiracy/'
+ANGRY_MUSIC_FOLDER = f'{root}songs/angry/'
+CUTE_MUSIC_FOLDER = f'{root}songs/cute/'
+FUNNY_MUSIC_FOLDER = f'{root}songs/funny/'
+MOTIVATIONAL_MUSIC_FOLDER = f'{root}songs/motivational/'
+INTRIGUING_MUSIC_FOLDER = f'{root}songs/fascinating/'
+CONSPIRACY_MUSIC_FOLDER = f'{root}songs/conspiracy/'
 
 MUSIC_CATEGORY_PATH_DICT = {
-    'funny': FUNNY_MUSIC_FILE_PATH,
-    'cute': CUTE_MUSIC_FILE_PATH,
-    'motivational': MOTIVATIONAL_MUSIC_FILE_PATH,
-    'fascinating': INTRIGUING_MUSIC_FILE_PATH,
-    'angry': ANGRY_MUSIC_FILE_PATH,
-    'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
+    'funny': FUNNY_MUSIC_FOLDER,
+    'cute': CUTE_MUSIC_FOLDER,
+    'motivational': MOTIVATIONAL_MUSIC_FOLDER,
+    'fascinating': INTRIGUING_MUSIC_FOLDER,
+    'angry': ANGRY_MUSIC_FOLDER,
+    'conspiracy': CONSPIRACY_MUSIC_FOLDER
 }
 
-RAW_VIDEO_FILE_PATH = f"{root}raw_videos/"
-INPUT_FILE_PATH = f"{root}InputVideos/"
-AUDIO_EXTRACTIONS_PATH = f"{root}audio_extractions/"
-IMAGE_FILE_PATH = f"{root}images/"
-IMAGE_2_VIDEOS_FILE_PATH = f"{root}videos_made_from_images/"
-OUTPUT_FILE_PATH = f"{root}OutputVideos/"
-ORIGINAL_INPUT_FILE_PATH = f"{root}InputVideos/"
+RAW_VIDEO_FOLDER = f"{root}raw_videos/"
+INPUT_FOLDER = f"{root}InputVideos/"
+AUDIO_EXTRACTIONS_FOLDER = f"{root}audio_extractions/"
+IMAGE_FOLDER = f"{root}images/"
+IMAGE_2_VIDEOS_FOLDER = f"{root}videos_made_from_images/"
+OUTPUT_FOLDER = f"{root}OutputVideos/"
+ORIGINAL_INPUT_FOLDER = f"{root}InputVideos/"
 CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
-RESIZED_FILE_PATH = f"{root}resized_original_videos/"
+RESIZED_FOLDER = f"{root}resized_original_videos/"
 VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_added_videos/"
-QUERY_FILE_PATH = f'{root}queries/'
-INPUT_INFO_FILE_PATH = f'{root}input_info.csv'
-VIDEO_INFO_FILE_PATH = f"{root}video_info/"
-GENERATED_PROMPTS_FILE_PATH = f"{root}generated_prompts/"
+QUERY_FOLDER = f'{root}queries/'
+INPUT_INFO_FOLDER = f'{root}input_info.csv'
+VIDEO_INFO_FOLDER = f"{root}video_info/"
+GENERATED_PROMPTS_FOLDER = f"{root}generated_prompts/"
 
 def main():
-    video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FILE_PATH,
-                                 output_file_path=INPUT_FILE_PATH)
-    
-    video_resizer = VideoResizer(INPUT_FILE_PATH,
-                                 RESIZED_FILE_PATH)
-    
-    head_tracker = HeadTrackingCropper(INPUT_FILE_PATH,
-                                       RESIZED_FILE_PATH)
-    
-    audio_extractor = AudioExtractor(RESIZED_FILE_PATH,
-                                     AUDIO_EXTRACTIONS_PATH)
-
-    transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
-
-    transcription_analyzer = TranscriptAnalyzer(VIDEO_INFO_FILE_PATH,
-                                                MUSIC_CATEGORY_PATH_DICT)
-
-    sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FILE_PATH)
-    
-    image_classifier = ImageClassifier(IMAGE_FILE_PATH)
-    
-    image_evaluator = ImageEvaluator(IMAGE_FILE_PATH)
-
-    image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH,
-                                    image_classifier,
-                                    image_evaluator)
-    
-    image_getter = ImageGetter(IMAGE_FILE_PATH, image_scraper)
-
-    dall_e = DALL_E(IMAGE_FILE_PATH,
-                    GENERATED_PROMPTS_FILE_PATH)
-
-    image_to_video_creator = ImageToVideoCreator(IMAGE_FILE_PATH,
-                                                 IMAGE_2_VIDEOS_FILE_PATH)
-
-    media_adder = MediaAdder(RESIZED_FILE_PATH,
-                    VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
-                    IMAGE_2_VIDEOS_FILE_PATH,
-                    OUTPUT_FILE_PATH)
-
-    subtitle_adder = SubtitleAdderMv(OUTPUT_FILE_PATH,
-                                    OUTPUT_FILE_PATH)
-
-    music_adder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
-                        video_files_path=OUTPUT_FILE_PATH,
-                        output_path=OUTPUT_FILE_PATH,
-                        music_categories=MUSIC_CATEGORY_PATH_DICT)
-
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
     raw_videos = get_raw_videos()
     print(raw_videos)
+    
+    video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FOLDER,
+                                 output_file_path=INPUT_FOLDER)
+    
+    video_resizer = VideoResizer(INPUT_FOLDER,
+                                 RESIZED_FOLDER)
+    
+    head_tracker = HeadTrackingCropper(INPUT_FOLDER,
+                                       RESIZED_FOLDER)
+    
+    audio_extractor = AudioExtractor(RESIZED_FOLDER,
+                                     AUDIO_EXTRACTIONS_FOLDER)
+
+    transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_FOLDER)
+
+    transcription_analyzer = TranscriptAnalyzer(VIDEO_INFO_FOLDER,
+                                                MUSIC_CATEGORY_PATH_DICT)
+
+    sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FOLDER)
+    
+    image_spacer = ImageSpacer()
+    
+    image_classifier = ImageClassifier(IMAGE_FOLDER)
+    
+    image_evaluator = ImageEvaluator(IMAGE_FOLDER)
+
+    image_scraper = GoogleImagesAPI(IMAGE_FOLDER,
+                                    image_classifier,
+                                    image_evaluator)
+    
+    image_getter = ImageGetter(IMAGE_FOLDER,
+                               image_scraper,
+                               image_evaluator)
+
+    dall_e = DALL_E(IMAGE_FOLDER,
+                    GENERATED_PROMPTS_FOLDER)
+    
+    fullscreen_image_selector = FullScreenImageSelector(IMAGE_FOLDER,
+                                                        image_evaluator=image_evaluator)
+
+    image_to_video_creator = ImageToVideoCreator(IMAGE_FOLDER,
+                                                 IMAGE_2_VIDEOS_FOLDER,
+                                                 image_evaluator=image_evaluator)
+
+    media_adder = MediaAdder(RESIZED_FOLDER,
+                    VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
+                    IMAGE_2_VIDEOS_FOLDER,
+                    OUTPUT_FOLDER)
+
+    subtitle_adder = SubtitleAdder(OUTPUT_FOLDER,
+                                    OUTPUT_FOLDER)
+
+    music_adder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
+                        video_files_path=OUTPUT_FOLDER,
+                        output_path=OUTPUT_FOLDER,
+                        music_categories=MUSIC_CATEGORY_PATH_DICT)
 
     # loop through the files
     for raw_video in raw_videos:
@@ -109,7 +118,6 @@ def main():
         clipped_video = video_clipper.clip_video(raw_video['raw_video_name'],
                                                  raw_video['start_time'],
                                                  raw_video['end_time'])
-        
 
         if HEAD_TRACKING_ENABLED:
             clipped_video = head_tracker.crop_video_to_face_center(clipped_video,
@@ -122,6 +130,7 @@ def main():
                                                         video_resizer.YOUTUBE_VIDEO_HEIGHT,
                                                         clipped_video) 
 
+        
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
         transcription = transcriber.transcribe(audio_extraction_file_name)
@@ -134,6 +143,8 @@ def main():
                                                     clipped_video['transcription_info']['description'],
                                                     clipped_video['file_name'])
         
+        query_list = image_spacer.add_spacing_to_images(query_list, time_between_images=1)
+        
         time_stamped_images = image_getter.get_images(query_list)
                 
         # where images could not be found, DALL-E will be used to generate images
@@ -142,33 +153,48 @@ def main():
         # print the _time_stamped_images array
         print(time_stamped_images)
         
+        # add fullscreenimageselector here
+        time_stamped_images = fullscreen_image_selector.choose_fullscreen_images(time_stamped_images,
+                                                                                 VERTICAL_VIDEO_WIDTH,
+                                                                                 VERTICAL_VIDEO_HEIGHT,
+                                                                                 VERTICAL_VIDEO_WIDTH,
+                                                                                 int(VERTICAL_VIDEO_HEIGHT / 2),
+                                                                                 percent_of_images_to_be_fullscreen=PERECENT_OF_IMAGES_TO_BE_FULLSCREEN)
+        
         video_data = image_to_video_creator.convert_to_videos(time_stamped_images)
         
         video_with_media = media_adder.add_videos_to_original_clip(original_clip=clipped_video,
                                         videos=video_data,
                                         original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
-                                        original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2,
-                                        overlay_zone_width=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_WIDTH,
-                                        overlay_zone_height=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_HEIGHT,
-                                        overlay_zone_x=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_X,
-                                        overlay_zone_y=media_adder.YOUTUBE_SHORT_OVERLAY_ZONE_Y)
-        
-        video_with_subtitles_name = subtitle_adder.add_subtitles(video_with_media['file_name'],
-                                                                 transcription,
+                                        original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2)
+    
+        video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_with_media['file_name'],
+                                                                 transcription['word_segments'],
+                                                                 'sub_' + video_with_media['file_name'],
+                                                                 80,
+                                                                 'Tahoma Bold.ttf',
                                                                  50,
-                                                                 'Tahoma-Bold')
+                                                                 50,
+                                                                 1)
 
-        music_adder.add_music_to_video(music_category=clipped_video['transcription_info']['category'],
+        video_with_music_name = music_adder.add_music_to_video(music_category=clipped_video['transcription_info']['category'],
                                         video_name=video_with_subtitles_name,
                                         output_video_name=clipped_video['transcription_info']['title'],
                                         video_length=math.ceil(float(
                                                                     clipped_video['end_time_sec']) 
                                                                     - float(clipped_video['start_time_sec'])))
+        video_clipper.output_file_path = OUTPUT_FOLDER
+        video_clipper.input_video_folder_path = OUTPUT_FOLDER
+        video_clipper.clip_video(video_with_music_name,
+                                 str(clipped_video['start_time_sec']),
+                                 str(clipped_video['end_time_sec']))
+        video_clipper.input_video_folder_path = RAW_VIDEO_FOLDER
+        video_clipper.output_file_path = INPUT_FOLDER
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_raw_videos():
     raw_videos = []
-    with open(INPUT_INFO_FILE_PATH, 'r') as csv_file:
+    with open(INPUT_INFO_FOLDER, 'r') as csv_file:
         for line in csv_file:
             # skip the first line
             if line == "raw_video_name,start_time,end_time\n":

@@ -5,3 +5,4 @@ from .image_getter import ImageGetter
 from .google_images_api import GoogleImagesAPI
 from .image_classifier import ImageClassifier
 from .image_evaluator import ImageEvaluator
+from .fullscreen_image_selector import FullScreenImageSelector

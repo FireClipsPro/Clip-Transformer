@@ -25,18 +25,40 @@ VERTICAL_SPEED_COEFFICIENT = .6
 
 class ImageToVideoCreator:
     def __init__(self,
-                 image_file_path,
-                 video_2_image_file_path,
+                 image_folder,
+                 image_2_videos_folder,
+                 image_evaluator,
                  frame_width=YOUTUBE_SHORT_WIDTH,
                  frame_height=YOUTUBE_SHORT_HALF_HEIGHT):
 
-        self.image_file_path = image_file_path
-        self.video_2_image_file_path = video_2_image_file_path
+        self.image_file_path = image_folder
+        self.video_2_image_file_path = image_2_videos_folder
         self.frame_width = frame_width
         self.frame_height = frame_height
         self.x_scroll_speed = 200
         self.y_scroll_speed = 200
+        self.image_evaluator = image_evaluator
         logging.info("ImageToVideoCreator created")
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def convert_to_videos(self, images):
+        if images == None:
+            return None
+        
+        #for each image in the list of images
+        for image in images:
+            if os.path.exists(self.video_2_image_file_path + f'{image["image"][:-4]}.mp4'):
+                logging.info(f'Video for {image["image"]} already exists.')
+                image['width'], image['height'] = self.image_evaluator.get_video_dimensions(self.video_2_image_file_path + image["image"])
+                image['video_file_name'] = f'{image["image"][:-4]}.mp4'
+                continue
+            
+            image = self.record_image_size(image)
+            image = self.resize_and_animate_image(image,
+                                                  image['overlay_zone_width'],
+                                                  image['overlay_zone_height'])
+            image = self.add_border(image)
+            image = self.record_image_size(image)
+        return images
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def initialize_output_path(self, output_file):
         # delete the output file if it exists
@@ -69,7 +91,7 @@ class ImageToVideoCreator:
             raise Exception("Output file was not created")
         
         # find the dimensions of the output file
-        image['width'], image['height'] = self.get_image_dimensions(output_file_path)
+        image['width'], image['height'] = self.image_evaluator.get_video_dimensions(output_file_path)
         
         logging.info(f'Created video for {image["image"]}')
         logging.info(f'Dimensions: {image["width"]}x{image["height"]}')
@@ -117,17 +139,6 @@ class ImageToVideoCreator:
 
         return clip.fl(effect)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    def convert_to_videos(self, images):
-        if images == None:
-            return None
-        
-        #for each image in the list of images
-        for image in images:
-            image = self.record_image_size(image)
-            image = self.resize_and_animate_image(image, YOUTUBE_SHORT_WIDTH, YOUTUBE_SHORT_HALF_HEIGHT)
-            image = self.add_border(image)
-        return images
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def add_border(self, animated_image):
         animated_image_file = f'{self.video_2_image_file_path}{animated_image["video_file_name"]}'
         animated_image_output_file = f'{self.video_2_image_file_path}{animated_image["video_file_name"][:-4]}_border.mp4'
@@ -212,7 +223,7 @@ class ImageToVideoCreator:
         composite.write_videofile(output_path)
         
         # find the dimensions of the output file
-        image['width'], image['height'] = self.get_image_dimensions(output_path)
+        image['width'], image['height'] = self.image_evaluator.get_video_dimensions(output_path)
         
         logging.info(f'Created video for {image["image"]}')
         logging.info(f'Dimensions: {image["width"]}x{image["height"]}')
@@ -235,7 +246,7 @@ class ImageToVideoCreator:
         composite.write_videofile(output_path)
         
         # find the dimensions of the output file
-        image['width'], image['height'] = self.get_image_dimensions(output_path)
+        image['width'], image['height'] = self.image_evaluator.get_video_dimensions(output_path)
         
         logging.info(f'Created video for {image["image"]}')
         logging.info(f'Dimensions: {image["width"]}x{image["height"]}')
@@ -378,6 +389,7 @@ class ImageToVideoCreator:
         if not os.path.exists(self.image_file_path + image['image']):
             logging.info(f'ERROR: File {self.image_file_path + image["image"]} does not exist')
             
+            
         image['width'], image['height'] = self.get_image_dimensions(self.image_file_path + image['image'])
         logging.info(f'Image {image["image"]} is {image["width"]}x{image["height"]}')
         return image
@@ -391,10 +403,6 @@ class ImageToVideoCreator:
             '-of', 'csv=s=x:p=0',
             f'{file_path}'
         ]
-        # if file does not exist, skip it
-        if not os.path.exists(f'{file_path}'):
-            logging.info(f'ERROR: File {file_path} does not exist')
-            return None
         
         output = subprocess.run(command, stdout=subprocess.PIPE)
         output = output.stdout.decode('utf-8').split('x')

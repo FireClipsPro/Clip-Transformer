@@ -28,7 +28,7 @@ class TranscriptAnalyzer:
         for text_segment in transcription['segments']:
             transcription_text += text_segment['text']
             
-        transcription_info = self.query_gpt_for_json(transcription_text)
+        transcription_info = self.query_gpt_for_json(transcription_text, clipped_video)
         
         # add transcription_info dictionary to clipped_video dictionary
         clipped_video['transcription_info'] = transcription_info
@@ -38,8 +38,9 @@ class TranscriptAnalyzer:
             json.dump(transcription_info, f)
         
         return clipped_video
-        
-    def query_gpt_for_json(self, transcription_text):
+    
+    # TODO make this a while loop
+    def query_gpt_for_json(self, transcription_text, clipped_video):
         logging.info(f"Parsing sentence subject: {transcription_text}")
 
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -66,20 +67,21 @@ class TranscriptAnalyzer:
  
         json_string = response['choices'][0]['message']['content']
         
-        video_info_dictionary = self.parse_json_string(json_string)
+        video_info_dictionary = self.parse_json_string(json_string, clipped_video)
         
         logging.info(f"Generated dictionary: {str(video_info_dictionary)}")
 
         return video_info_dictionary
     
-    def parse_json_string(self, json_string):
+    # TODO Handle the case where the json string is not valid
+    def parse_json_string(self, json_string, clipped_video):
         try:
             json_dict = json.loads(json_string)
             json_dict = self.validate_dict(json_dict)
             return json_dict
         except ValueError as e:
             print(f"Error parsing JSON string: {e}")
-            return None
+            return [{"description": json_string, "hashtags": ["", ""], "title": clipped_video, "category": "fascinating"}]
         
     def validate_dict(self, json_dict):
         required_fields = ["description", "hashtags", "title", "category"]
