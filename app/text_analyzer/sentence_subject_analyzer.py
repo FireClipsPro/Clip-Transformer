@@ -9,8 +9,10 @@ logging.basicConfig(level=logging.INFO)
 
 class SentenceSubjectAnalyzer:
     def __init__(self,
-                 queries_folder_path):
+                 queries_folder_path,
+                 openai_api):
         self.queries_folder_path = queries_folder_path
+        self.openai_api = openai_api
         logging.info("SubjectAnalyzer created")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
     def process_transcription(self, 
@@ -34,11 +36,11 @@ class SentenceSubjectAnalyzer:
             time_chunk_end = time_chunk_start + seconds_per_query
             sentence = ""
 
-            for text_segment in transcription:
-                if ((text_segment['start'] >= time_chunk_start and text_segment['start'] <= time_chunk_end)
-                    or (text_segment['end'] >= time_chunk_start and text_segment['end'] <= time_chunk_end)
-                    or (text_segment['start'] <= time_chunk_start and text_segment['end'] >= time_chunk_end)):
-                    sentence += text_segment['text'] + " "
+            for word in transcription:
+                if ((word['start'] >= time_chunk_start and word['start'] <= time_chunk_end)
+                    or (word['end'] >= time_chunk_start and word['end'] <= time_chunk_end)
+                    or (word['start'] <= time_chunk_start and word['end'] >= time_chunk_end)):
+                    sentence += word['text'] + " "
 
             sentence_list.append(sentence)
 
@@ -110,31 +112,28 @@ class SentenceSubjectAnalyzer:
         cleaned_sentence = self.remove_repeated_phrases(sentence)
         logging.info(f"Parsing sentence subject: {cleaned_sentence}")
 
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        model = "gpt-3.5-turbo"
+        system_prompt = ("You are a google images search query generator. "
+                        "Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description. "
+                        "Generate a relevant and interesting query for Google Images based on the main subject or object from the excerpt. "
+                        "If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text. "
+                        "If the excerpt is about a concrete subject or object, prioritize it. "
+                        "Reply only with the search query or 'null query' if you need more context.")
+        user_prompt = ("Video description: " + video_description +
+                    " Make an image query that is relevant only to the transcript excerpt. " +
+                    "Transcript excerpt: " + cleaned_sentence)
 
-        response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-                {"role": "system", "content": """You are a google images search query generator.
-                    Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description.
-                    Generate a relevant and interesting query for Google Images based on the main subject or object from the excerpt.
-                    If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text.
-                    If the excerpt is about a concrete subject or object, prioritize it.
-                    Reply only with the search query or 'null query' if you need more context.
-                    """},
-                {"role": "user", "content": f"""Video description: {video_description}
-                Make an image query that is relevant only to the transcript excerpt.
-                Transcript excerpt: {cleaned_sentence}"""}
-            ]
-        )
-        logging.info(f"Response: {response['choices'][0]['message']['content']}") 
+        
+        response = self.openai_api.query(system_prompt, user_prompt, model)
+        
+        logging.info(f"Response: {response}") 
 
-        if (("null" in response['choices'][0]['message']['content'] or "Null" in response['choices'][0]['message']['content'])
-            and ("query" in response['choices'][0]['message']['content'] or "Query" in response['choices'][0]['message']['content'])):
+        if (("null" in response or "Null" in response)
+            and ("query" in response or "Query" in response)):
             logging.info("Received null query")
             return None
  
-        query = response['choices'][0]['message']['content'].replace('"', '').replace("query", "").replace("Query", "").replace("query:", "").replace("Query:", "")
+        query = response.replace('"', '').replace("query", "").replace("Query", "").replace("query:", "").replace("Query:", "")
         logging.info(f"Generated query: {query}")
 
         return query

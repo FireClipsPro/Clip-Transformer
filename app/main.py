@@ -1,6 +1,6 @@
-from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper, ImageSpacer
+from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper, ImageSpacer, PauseRemover
 from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
-from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer
+from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer, OpenaiApi
 from Transcriber import WhisperTranscriber, AudioExtractor
 from garbage_collection import FileDeleter
 from music_adder import MusicAdder
@@ -16,6 +16,8 @@ VERTICAL_VIDEO_WIDTH = 1080
 HEAD_TRACKING_ENABLED = True
 SECONDS_PER_PHOTO = 6
 PERECENT_OF_IMAGES_TO_BE_FULLSCREEN = 0.3
+MAXIMUM_PAUSE_LENGTH = 0.5
+TIME_BETWEEN_IMAGES = 1.5
 
 root = "../media_storage/"
 
@@ -59,21 +61,26 @@ def main():
     video_clipper = VideoClipper(input_video_file_path=RAW_VIDEO_FOLDER,
                                  output_file_path=INPUT_FOLDER)
     
-    video_resizer = VideoResizer(INPUT_FOLDER,
-                                 RESIZED_FOLDER)
-    
-    head_tracker = HeadTrackingCropper(INPUT_FOLDER,
-                                       RESIZED_FOLDER)
-    
-    audio_extractor = AudioExtractor(RESIZED_FOLDER,
+    audio_extractor = AudioExtractor(INPUT_FOLDER,
                                      AUDIO_EXTRACTIONS_FOLDER)
 
     transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_FOLDER)
+    
+    pause_remover = PauseRemover(INPUT_FOLDER, RESIZED_FOLDER)
+    
+    head_tracker = HeadTrackingCropper(RESIZED_FOLDER,
+                                       RESIZED_FOLDER)
+    video_resizer = VideoResizer(INPUT_FOLDER,
+                                 RESIZED_FOLDER)
+    
+    openai_api = OpenaiApi()
 
     transcription_analyzer = TranscriptAnalyzer(VIDEO_INFO_FOLDER,
-                                                MUSIC_CATEGORY_PATH_DICT)
+                                                MUSIC_CATEGORY_PATH_DICT,
+                                                openai_api)
 
-    sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FOLDER)
+    sentence_analyzer = SentenceSubjectAnalyzer(QUERY_FOLDER,
+                                                openai_api)
     
     image_spacer = ImageSpacer()
     
@@ -117,8 +124,17 @@ def main():
         
         clipped_video = video_clipper.clip_video(raw_video['raw_video_name'],
                                                  raw_video['start_time'],
-                                                 raw_video['end_time'])
-
+                                                 raw_video['end_time'],
+                                                 raw_video['tag'])
+        
+        audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
+        
+        transcription = transcriber.transcribe(audio_extraction_file_name)
+        
+        clipped_video, transcription['word_segments'] = pause_remover.remove_pauses(clipped_video,
+                                                                                    transcription['word_segments'],
+                                                                                    MAXIMUM_PAUSE_LENGTH)
+        
         if HEAD_TRACKING_ENABLED:
             clipped_video = head_tracker.crop_video_to_face_center(clipped_video,
                                                                     VERTICAL_VIDEO_WIDTH,
@@ -131,19 +147,16 @@ def main():
                                                         clipped_video) 
 
         
-        audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
-        
-        transcription = transcriber.transcribe(audio_extraction_file_name)
-        
         clipped_video = transcription_analyzer.get_info(clipped_video, transcription)
         
-        query_list = sentence_analyzer.process_transcription(transcription['segments'],
-                                                    transcription['segments'][-1]['end'],
+        query_list = sentence_analyzer.process_transcription(transcription['word_segments'],
+                                                    transcription['word_segments'][-1]['end'],
                                                     SECONDS_PER_PHOTO,
                                                     clipped_video['transcription_info']['description'],
                                                     clipped_video['file_name'])
         
-        query_list = image_spacer.add_spacing_to_images(query_list, time_between_images=1)
+        query_list = image_spacer.add_spacing_to_images(query_list,
+                                                        time_between_images=TIME_BETWEEN_IMAGES)
         
         time_stamped_images = image_getter.get_images(query_list)
                 
@@ -186,8 +199,8 @@ def main():
         video_clipper.output_file_path = OUTPUT_FOLDER
         video_clipper.input_video_folder_path = OUTPUT_FOLDER
         video_clipper.clip_video(video_with_music_name,
-                                 str(clipped_video['start_time_sec']),
-                                 str(clipped_video['end_time_sec']))
+                                 0,
+                                 clipped_video['end_time_sec'])
         video_clipper.input_video_folder_path = RAW_VIDEO_FOLDER
         video_clipper.output_file_path = INPUT_FOLDER
 
@@ -197,13 +210,19 @@ def get_raw_videos():
     with open(INPUT_INFO_FOLDER, 'r') as csv_file:
         for line in csv_file:
             # skip the first line
-            if line == "raw_video_name,start_time,end_time\n":
+            if line == "raw_video_name,start_time,end_time,tag\n":
                 continue
             line = line.strip()
             line = line.split(',')
+            if str(line[3]) == '-1':
+                tag = ""
+            else:
+                tag = str(line[3]) + "_"
+            
             raw_videos.append({'raw_video_name': str(line[0]),
                                 'start_time': str(line[1]),
-                                'end_time': str(line[2])})
+                                'end_time': str(line[2]),
+                                'tag': tag})
             
     return raw_videos
 
