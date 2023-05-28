@@ -8,9 +8,11 @@ import json
 class TranscriptAnalyzer:
     def __init__(self,
              AI_PARSED_INFORMATION_FILE_PATH,
-             CATEGORY_LIST):
+             CATEGORY_LIST,
+             openai_api):
         self.TRANSCRIPTION_INFO_FILE_PATH = AI_PARSED_INFORMATION_FILE_PATH
         self.CATEGORY_LIST_STRING = ""
+        self.openai_api = openai_api
         # get the keys from the dictionary category list
         CATEGORY_LIST.keys()
         for key in CATEGORY_LIST.keys():
@@ -25,7 +27,7 @@ class TranscriptAnalyzer:
             return clipped_video
         
         transcription_text = ""
-        for text_segment in transcription['segments']:
+        for text_segment in transcription['word_segments']:
             transcription_text += text_segment['text']
             
         transcription_info = self.query_gpt_for_json(transcription_text, clipped_video)
@@ -41,31 +43,20 @@ class TranscriptAnalyzer:
     
     # TODO make this a while loop
     def query_gpt_for_json(self, transcription_text, clipped_video):
-        logging.info(f"Parsing sentence subject: {transcription_text}")
+        logging.info("Querying openai for transcript info.")
+        model="gpt-3.5-turbo"
+        system_prompt = ("You will be given a transcript of a video. "
+                "Please return in json format, the following 3 things: "
+                "1. 'description': a 1 sentence description of the transcript "
+                "2. 'title': a title for the video that will grab peoples interest and make them want to watch it "
+                "3. 'category': for this transcript. Your options are: " + self.CATEGORY_LIST_STRING + ".")
+        user_prompt = "Here is the text: " + transcription_text + ". Reply with only the json and nothing else."
 
-        openai.api_key = os.getenv("OPENAI_API_KEY")
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"""You will be given a transcript of a video.
-                    Please return in json format, the following four things:
-                    1. 'description': a 1 sentence description of the transcript 
-                    2. 'hashtags': a list of tiktok hashtags to make the video go viral 
-                    3. 'title': a title for the video that will grab peoples interest and make them want to watch it
-                    4. 'category': for this transcript. Your options are: {self.CATEGORY_LIST_STRING}."""
-                },
-                {
-                    "role": "user",
-                    "content": f"""Here is the text: {transcription_text}. Reply with only the json and nothing else."""
-                },
-            ]
-        )
-        logging.info(f"Response: {response['choices'][0]['message']['content']}")
+        response = self.openai_api.query(system_prompt, user_prompt, model)
+               
+        logging.info(f"Response: {response}")
  
-        json_string = response['choices'][0]['message']['content']
+        json_string = response
         
         video_info_dictionary = self.parse_json_string(json_string, clipped_video)
         

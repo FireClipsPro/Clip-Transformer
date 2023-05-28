@@ -1,5 +1,12 @@
-raw_video_name,start_time,end_time
-Jordan_Rogan.mp4,1:47:42,1:48:33
-Jordan_Rogan.mp4,1:48:42,1:49:33
-Jordan_Rogan.mp4,1:56:30,1:57:30
-Jordan_Rogan.mp4,1:57:01,1:58:00
+raw_video_name,start_time,end_time,tag
+Joe_Elon_1.mp4,9:35,10:37,time_management
+Joe_Elon_1.mp4,12:05,13:26,ai_scary
+Joe_Elon_1.mp4,13:57,14:25,ai_weapon
+Joe_Elon_1.mp4,14:50,16:00,collective
+Joe_Elon_1.mp4,16:14,17:15,materialism
+Joe_Elon_1.mp4,17:16,18:46,bootloader
+Joe_Elon_1.mp4,20:37,22:06,ai_risk
+Joe_Elon_1.mp4,20:37,22:50,doomsday
+Joe_Elon_1.mp4,23:03,24:07,countdown
+Joe_Elon_1.mp4,24:21,25:22,neuralink
+Joe_Elon_1.mp4,25:36,27:01,merge
