@@ -1,6 +1,7 @@
 import os
 import logging
 import json
+import subprocess
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,10 +13,11 @@ logging.basicConfig(
 )
 
 class ImageGetter:
-    def __init__(self, image_file_path, image_scraper):
-        self.IMAGE_FILE_PATH = image_file_path
+    def __init__(self, image_file_path, image_scraper, image_evaluator):
+        self.image_file_path = image_file_path
         self.image_scraper = image_scraper
-
+        self.image_evaluator = image_evaluator
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_images(self, query_list):
         logging.info('Starting get_images method')
 
@@ -24,11 +26,14 @@ class ImageGetter:
         logging.info(f'Cleaned query list: {query_file_list}')
         
         for query in query_file_list:
-            if os.path.exists(self.IMAGE_FILE_PATH + query['image_file_name']):
-                logging.info(f"Download unecessary: Image file already exists: {self.IMAGE_FILE_PATH + query['image_file_name']}.")
+            if os.path.exists(self.image_file_path + query['image_file_name']):
+                logging.info(f"Download unecessary: Image file already exists: {self.image_file_path + query['image_file_name']}.")
+                image_width, image_height = self.image_evaluator.get_image_dimensions(self.image_file_path + query['image_file_name'])
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
-                                            'image': query['image_file_name']})
+                                            'image': query['image_file_name'],
+                                            'width': image_width,
+                                            'height': image_height})
                 continue
             
             logging.info(f"Download required for query: {query['query']}, using image_scraper")
@@ -42,16 +47,19 @@ class ImageGetter:
                                             'image': '_Nothing_Found_' + query['query']})
             else:
                 logging.info(f"Image found for query: {query['query']}")
+                image_width, image_height = self.image_evaluator.get_image_dimensions(self.image_file_path + query['image_file_name'])
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
-                                            'image': query['image_file_name']})
+                                            'image': query['image_file_name'],
+                                            'width': image_width,
+                                            'height': image_height})
         
         self.image_scraper.tear_down()
         
         logging.info('Ending get_images method')
         return time_stamped_images
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # this is super hacky and dependent on the implementation of the google images api
 # but it works for now
     def clean_query_list(self, query_list):
@@ -88,7 +96,6 @@ class ImageGetter:
 
         return result_list
 
-
 #tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # from image_classifier import ImageClassifier
@@ -97,7 +104,7 @@ class ImageGetter:
 # root = "../../"
 # IMAGE_FILE_PATH = f"{root}media_storage/images/"
 
-# # get the queries from the json file
+# get the queries from the json file
 # with open(f"{root}media_storage/queries/JordanClip_(0, 0)_(0, 54)_centered.json", 'r') as f:
 #     query_list = json.load(f)
     

@@ -65,9 +65,6 @@ class WhisperTranscriber:
                 word_segment['text'] = word_segment['text'].replace(",", "")
                 word_segment['text'] = word_segment['text'].replace(";", "")
                 
-            word_segment['text'] = word_segment['text'].lower()
-            # capitalize i 
-            word_segment['text'] = word_segment['text'].replace(" i ", " I ")
 
             if censor_profanity:
                 first_letter = word_segment['text'][0]

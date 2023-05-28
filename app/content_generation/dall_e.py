@@ -52,11 +52,16 @@ class DALL_E():
                 os.remove(file_name)
                 
                 image['image'] = f"{google_query.replace(' ', '_')}.png"
+                
+                image['width'] = 1024
+                image['height'] = 1024
+                
         # store the prompts in a json file
         with open(self.GENERATED_PROMPT_FOLDER_PATH + promps_log_file_name,
                   mode="w",
                   encoding="utf-8") as file:
             json.dump(dall_e_prompts, file)
+        
         
         return time_stamped_images
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

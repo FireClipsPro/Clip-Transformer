@@ -48,8 +48,6 @@ class HeadTrackingCropper:
     def euclidean_distance(self, p1, p2):
         return np.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
     
-    # todo concatenate these into one array that contains all faces and profiles
-    # todo then sort by area and take the largest one
     def detect_face(self, image, face_cascade, profile_cascade, video_width, video_height):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         face_size_proportion = 20

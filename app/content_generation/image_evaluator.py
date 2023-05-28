@@ -2,6 +2,10 @@ import time
 import cv2
 import numpy as np
 import logging
+import os
+import subprocess
+from moviepy.editor import VideoFileClip
+from PIL import Image
 
 logging.basicConfig(
     level=logging.INFO,
@@ -77,6 +81,24 @@ class ImageEvaluator:
         
         return color_count > MIN_COLOR_COUNT
     
+    def get_image_dimensions(self, file_path):
+        if not os.path.exists(file_path):
+            logging.error(f"Could not find image: {file_path}")
+            return 0, 0
+        
+        with Image.open(file_path) as img:
+            width, height = img.size
+        return width, height
+    
+    def get_video_dimensions(self, video_path):
+        if not os.path.exists(video_path):
+            logging.error(f"Could not find video: {video_path}")
+            return 0, 0
+    
+        clip = VideoFileClip(video_path)
+        width, height = clip.size
+        
+        return width, height
 # Test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # image_evaluator = ImageEvaluator("../../media_storage/images/")
