@@ -11,23 +11,28 @@ class VideoClipper:
         self.input_video_folder_path = input_video_file_path
         self.output_file_path = output_file_path
     
-     # time strings can be in the following formats:
-        # "1:11:40.5" or "1:11:40" or "1:11" or "1"
+    # time strings can be in the following formats:
+    # "1:11:40.5" or "1:11:40" or "1:11" or "1"
     def clip_video(self, video_name, start_time, end_time, tag=""):
+        end_time_sec = 0
+        start_time_sec = 0
         if isinstance(start_time, str) and isinstance(end_time, str):
             start_time = self.format_time_string(start_time)
             end_time = self.format_time_string(end_time)
+            start_time_sec = 0
+            for i in range(len(start_time)):
+                start_time_sec += start_time[i] * (60 ** (len(start_time) - i - 1))
+            end_time_sec = 0
+            for i in range(len(end_time)):
+                end_time_sec += end_time[i] * (60 ** (len(end_time) - i - 1))
+        else:
+            end_time_sec = end_time
+            start_time_sec = start_time
         
         if start_time > end_time:
             logging.info(f"Start time: {start_time} is after end time: {end_time}")
             raise ValueError("Start time must be before end time")
         
-        start_time_sec = 0
-        for i in range(len(start_time)):
-            start_time_sec += start_time[i] * (60 ** (len(start_time) - i - 1))
-        end_time_sec = 0
-        for i in range(len(end_time)):
-            end_time_sec += end_time[i] * (60 ** (len(end_time) - i - 1))
         
         # if the video has already been clipped, return the file name
         if os.path.exists(self.output_file_path + tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4'):

@@ -71,7 +71,7 @@ class MusicAdder:
         # Write the video with music to the output path
         video_clip.write_videofile(self.output_path + output_video_name, codec='libx264')
 
-        return self.output_path + output_video_name
+        return output_video_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def measure_loudness(self, filename):
         audio = AudioSegment.from_file(filename)
@@ -80,31 +80,31 @@ class MusicAdder:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Tests:
-root = "../../"
+# root = "../../"
 
-ANGRY_MUSIC_FILE_PATH = f'{root}media_storage/songs/angry/'
-CUTE_MUSIC_FILE_PATH = f'{root}media_storage/songs/cute/'
-FUNNY_MUSIC_FILE_PATH = f'{root}media_storage/songs/funny/'
-MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}media_storage/songs/motivational/'
-INTRIGUING_MUSIC_FILE_PATH = f'{root}media_storage/songs/fascinating/'
-CONSPIRACY_MUSIC_FILE_PATH = f'{root}media_storage/songs/conspiracy/'
+# ANGRY_MUSIC_FILE_PATH = f'{root}media_storage/songs/angry/'
+# CUTE_MUSIC_FILE_PATH = f'{root}media_storage/songs/cute/'
+# FUNNY_MUSIC_FILE_PATH = f'{root}media_storage/songs/funny/'
+# MOTIVATIONAL_MUSIC_FILE_PATH = f'{root}media_storage/songs/motivational/'
+# INTRIGUING_MUSIC_FILE_PATH = f'{root}media_storage/songs/fascinating/'
+# CONSPIRACY_MUSIC_FILE_PATH = f'{root}media_storage/songs/conspiracy/'
 
-MUSIC_CATEGORY_PATH_DICT = {
-    'funny': FUNNY_MUSIC_FILE_PATH,
-    'cute': CUTE_MUSIC_FILE_PATH,
-    'motivational': MOTIVATIONAL_MUSIC_FILE_PATH,
-    'fascinating': INTRIGUING_MUSIC_FILE_PATH,
-    'angry': ANGRY_MUSIC_FILE_PATH,
-    'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
-}
-OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
+# MUSIC_CATEGORY_PATH_DICT = {
+#     'funny': FUNNY_MUSIC_FILE_PATH,
+#     'cute': CUTE_MUSIC_FILE_PATH,
+#     'motivational': MOTIVATIONAL_MUSIC_FILE_PATH,
+#     'fascinating': INTRIGUING_MUSIC_FILE_PATH,
+#     'angry': ANGRY_MUSIC_FILE_PATH,
+#     'conspiracy': CONSPIRACY_MUSIC_FILE_PATH
+# }
+# OUTPUT_FILE_PATH = f"{root}media_storage/OutputVideos/"
 
-myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
-                        video_files_path=OUTPUT_FILE_PATH,
-                        output_path=OUTPUT_FILE_PATH,
-                        music_categories=MUSIC_CATEGORY_PATH_DICT)
+# myMusicAdder = MusicAdder(music_file_paths=MUSIC_CATEGORY_PATH_DICT,
+#                         video_files_path=OUTPUT_FILE_PATH,
+#                         output_path=OUTPUT_FILE_PATH,
+#                         music_categories=MUSIC_CATEGORY_PATH_DICT)
 
-myMusicAdder.add_music_to_video(music_category='fascinating',
-                                video_name="earth.mp4",
-                                output_video_name="eart_with_music.mp4",
-                                video_length=51)
+# myMusicAdder.add_music_to_video(music_category='fascinating',
+#                                 video_name="earth.mp4",
+#                                 output_video_name="eart_with_music.mp4",
+#                                 video_length=51)

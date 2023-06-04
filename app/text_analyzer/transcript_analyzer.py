@@ -18,7 +18,7 @@ class TranscriptAnalyzer:
         for key in CATEGORY_LIST.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
-    def get_info(self, clipped_video, transcription):
+    def get_info(self, clipped_video, transcription, speaker_name):
         # if the file already exists, then we don't need to query the AI
         if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json"):
             with open(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json", "r") as f:
@@ -30,7 +30,7 @@ class TranscriptAnalyzer:
         for text_segment in transcription['word_segments']:
             transcription_text += text_segment['text']
             
-        transcription_info = self.query_gpt_for_json(transcription_text, clipped_video)
+        transcription_info = self.query_gpt_for_json(transcription_text, clipped_video, speaker_name=speaker_name)
         
         # add transcription_info dictionary to clipped_video dictionary
         clipped_video['transcription_info'] = transcription_info
@@ -42,10 +42,13 @@ class TranscriptAnalyzer:
         return clipped_video
     
     # TODO make this a while loop
-    def query_gpt_for_json(self, transcription_text, clipped_video):
+    def query_gpt_for_json(self, transcription_text, clipped_video, speaker_name):
+        speaker_name = speaker_name.replace("_", " ")
+        
         logging.info("Querying openai for transcript info.")
         model="gpt-3.5-turbo"
         system_prompt = ("You will be given a transcript of a video. "
+                "The speaker is " + speaker_name + "."
                 "Please return in json format, the following 3 things: "
                 "1. 'description': a 1 sentence description of the transcript "
                 "2. 'title': a title for the video that will grab peoples interest and make them want to watch it "
@@ -72,7 +75,10 @@ class TranscriptAnalyzer:
             return json_dict
         except ValueError as e:
             print(f"Error parsing JSON string: {e}")
-            return [{"description": json_string, "hashtags": ["", ""], "title": clipped_video, "category": "fascinating"}]
+            return {"description": json_string, "hashtags": ["", ""], "title": clipped_video['file_name'], "category": "motivational"}
+        except TypeError as t:
+            print(f"Error parsing JSON string: {t}")
+            return {"description": json_string, "hashtags": ["", ""], "title": clipped_video['file_name'], "category": "motivational"}
         
     def validate_dict(self, json_dict):
         required_fields = ["description", "hashtags", "title", "category"]

@@ -15,7 +15,8 @@ class FullScreenImageSelector:
                                 screen_height,
                                 overlay_zone_width,
                                 overlay_zone_height,
-                                percent_of_images_to_be_fullscreen):
+                                percent_of_images_to_be_fullscreen,
+                                fullscreen_duration):
         # if percent_of_images_to_be_fullscreen <= 0:
         #     logging.info("No fullscreen images requested")
         #     return images
@@ -35,10 +36,21 @@ class FullScreenImageSelector:
                                                overlay_zone_height=overlay_zone_height,
                                                overlay_zone_width=overlay_zone_width)
         
+        images = self.set_image_duration(images, fullscreen_duration)
+        
         self.log_image_list(images)
         
         return images
     
+    def set_image_duration(self, images, fullscreen_duration):
+        for image in images:
+            if image['fullscreen']:
+                duration = image['end_time'] - image['start_time']
+                if duration > fullscreen_duration:
+                    image['end_time'] = image['end_time'] - (duration - fullscreen_duration)
+                
+        return images
+
     def log_image_list(self, images):
         for image in images:
             logging.info(str(image))

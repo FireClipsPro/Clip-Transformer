@@ -3,7 +3,7 @@ import os
 import logging
 import time
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 class OpenaiApi:
     def __init__(self):
@@ -47,9 +47,9 @@ class OpenaiApi:
                 logging.error(f"InvalidRequestError occurred: {e}. Please check your request parameters.")
                 break
                 
-            except openai.error.AuthenticationError as e:
-                logging.error(f"AuthenticationError occurred: {e}. Please check your API key or token.")
-                break
+            # except openai.error.AuthenticationError as e:
+            #     logging.error(f"AuthenticationError occurred: {e}. Please check your API key or token.")
+            #     break
 
             except openai.error.ServiceUnavailableError as e:
                 logging.info(f"ServiceUnavailableError occurred: {e}. Retrying in 5 seconds...")

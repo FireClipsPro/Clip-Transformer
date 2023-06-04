@@ -96,7 +96,13 @@ class HeadTrackingCropper:
                       cropped_height):
         frame = get_frame(t)
         frame_number = int(t * original_fps)
-        face_center = interpolated_face_centers[frame_number]
+        face_center = None
+        
+        if frame_number >= len(interpolated_face_centers):
+            # return the center of the last face
+            face_center = interpolated_face_centers[-1]
+        else:
+            face_center = interpolated_face_centers[frame_number]
         
         left = face_center[0] - cropped_width // 2
         top = face_center[1] - cropped_height // 2

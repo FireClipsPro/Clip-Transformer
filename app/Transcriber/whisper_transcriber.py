@@ -9,11 +9,12 @@ MEDIUM_MODEL_SIZE = "medium"
 LARGE_MODEL_SIZE = "large"
 
 class WhisperTranscriber:
-    def __init__(self, audio_files_path):
+    def __init__(self, audio_files_path, transcripts_folder):
         print("WhisperTranscriber created")
         self.audio_files_path = audio_files_path
+        self.transcripts_folder = transcripts_folder
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    def transcribe(self, audio_file, REMOVE_PUNCTUATION=True, CENSOR_PROFANITY=True):
+    def transcribe(self, audio_file, REMOVE_PUNCTUATION=False, CENSOR_PROFANITY=True):
         # check if file exists
         if not os.path.exists(self.audio_files_path + audio_file):
             raise Exception('Audio file does not exist')
@@ -21,9 +22,9 @@ class WhisperTranscriber:
             print("Audio file found, transcribing...")
             
         # check if json file exists
-        if os.path.exists(self.audio_files_path + audio_file + ".json"):
+        if os.path.exists(self.transcripts_folder + audio_file + ".json"):
             print("JSON file found, loading...")
-            with open(self.audio_files_path + audio_file + ".json", "r") as f:
+            with open(self.transcripts_folder + audio_file + ".json", "r") as f:
                 transcription = json.load(f)
             return transcription
         
@@ -52,11 +53,20 @@ class WhisperTranscriber:
         
         transcription = self.clean_transcription(transcription, REMOVE_PUNCTUATION, CENSOR_PROFANITY)
         
+        transcription = self.ensure_transcription_has_text(transcription)
+        
         self.store_transcription(audio_file, transcription)
         
         return transcription
+    
+    def ensure_transcription_has_text(self, transcription):
+        if (len(transcription['word_segments']) == 0
+            or len(transcription['segments']) == 0
+            or len(transcription['segments']) < 3):
+            transcription = None
+        return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def clean_transcription(self, transcription, remove_punctuation=True, censor_profanity=True):
+    def clean_transcription(self, transcription, remove_punctuation=False, censor_profanity=True):
         for word_segment in transcription['word_segments']:
             #make all caps
             # remove punctuation
@@ -90,7 +100,7 @@ class WhisperTranscriber:
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def store_transcription(self, audio_file, result_aligned):
-        with open(self.audio_files_path + audio_file + ".json", "w+") as file:
+        with open(self.transcripts_folder + audio_file + ".json", "w+") as file:
             json.dump(result_aligned, file)
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
