@@ -111,6 +111,8 @@ class SentenceSubjectAnalyzer:
     def parse_sentence_subject(self, sentence, video_description):
         cleaned_sentence = self.remove_repeated_phrases(sentence)
         logging.info(f"Parsing sentence subject: {cleaned_sentence}")
+        if cleaned_sentence == "" or cleaned_sentence == None:
+            return None
 
         model = "gpt-3.5-turbo"
         system_prompt = ("You are a google images search query generator. "
@@ -119,9 +121,10 @@ class SentenceSubjectAnalyzer:
                         "If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text. "
                         "If the excerpt is about a concrete subject or object, prioritize it. "
                         "Reply only with the search query or 'null query' if you need more context.")
-        user_prompt = ("Video description: " + video_description +
-                    " Make an image query that is relevant only to the transcript excerpt. " +
-                    "Transcript excerpt: " + cleaned_sentence)
+        # Add a check for NoneType before concatenation
+        user_prompt = ("Video description: " + (video_description if video_description is not None else "") +
+                    " Make an image query that is relevant only to the transcript excerpt. "
+                    "Transcript excerpt: " + (cleaned_sentence if cleaned_sentence is not None else ""))
 
         
         response = self.openai_api.query(system_prompt, user_prompt, model)
@@ -132,8 +135,8 @@ class SentenceSubjectAnalyzer:
             and ("query" in response or "Query" in response)):
             logging.info("Received null query")
             return None
- 
-        query = response.replace('"', '').replace("query", "").replace("Query", "").replace("query:", "").replace("Query:", "")
+
+        query = response.replace('"', '').replace("query", "").replace("Query", "").replace("query:", "").replace("Query:", "").replace("/", " or ")
         logging.info(f"Generated query: {query}")
 
         return query
