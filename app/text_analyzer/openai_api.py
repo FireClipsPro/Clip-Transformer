@@ -8,9 +8,20 @@ logging.basicConfig(level=logging.ERROR)
 class OpenaiApi:
     def __init__(self):
         logging.info("Created OpenaiApi object")
-        
+    
+    def get_api_key(self):
+        file_path = "../../OPENAI_API_KEY.txt"  # path to the file with the API key
+        try:
+            with open(file_path, 'r') as file:
+                api_key = file.readline().strip()  # Read the first line and remove any leading/trailing white spaces
+            return api_key
+        except FileNotFoundError:
+            print(f"API key file not found at {file_path}")
+            return None
+    
     def query(self, system_prompt, user_prompt, model):
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        # openai.api_key = os.getenv("OPENAI_API_KEY")
+        openai.api_key = self.get_api_key()
         
         num_retries = 50
         

@@ -5,7 +5,8 @@ from Transcriber import WhisperTranscriber, AudioExtractor
 from file_organisation import FileDeleter, FinishedVideoSorter
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder
-import directories
+import configuration.directories as directories
+import configuration.presets as presets
 import os
 import math
 import logging
@@ -94,11 +95,13 @@ def main():
 
     # loop through the files
     for raw_video in raw_videos:
+        print(str(raw_video['raw_video_name']) + ' is being processed')
+        theme = presets.themes[raw_video['preset']]
         
         clipped_video = video_clipper.clip_video(raw_video['raw_video_name'],
-                                                 raw_video['start_time'],
-                                                 raw_video['end_time'],
-                                                 raw_video['tag'])
+                                        raw_video['start_time'],
+                                        raw_video['end_time'],
+                                        raw_video['tag'])
         
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
@@ -108,31 +111,34 @@ def main():
             continue
         
         clipped_video, transcription['word_segments'] = pause_remover.remove_pauses(clipped_video,
-                                                                                    transcription['word_segments'],
-                                                                                    MAXIMUM_PAUSE_LENGTH)
+                                                                    transcription['word_segments'],
+                                                                    theme['MAXIMUM_PAUSE_LENGTH'])
         
         if HEAD_TRACKING_ENABLED:
-            clipped_video = head_tracker.crop_video_to_face_center(clipped_video,
-                                                                    VERTICAL_VIDEO_WIDTH,
-                                                                    VERTICAL_VIDEO_HEIGHT)
+            clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
+                                            presets.VERTICAL_VIDEO_WIDTH,
+                                            presets.VERTICAL_VIDEO_HEIGHT)
         else:
             clipped_video = video_resizer.resize_video(clipped_video['file_name'],
-                                                        clipped_video['file_name'],
-                                                        video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
-                                                        video_resizer.YOUTUBE_VIDEO_HEIGHT,
-                                                        clipped_video) 
+                                            clipped_video['file_name'],
+                                            video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
+                                            video_resizer.YOUTUBE_VIDEO_HEIGHT,
+                                            clipped_video) 
 
         
-        clipped_video = transcription_analyzer.get_info(clipped_video, transcription, raw_video['speaker'])
+        clipped_video = transcription_analyzer.get_info(clipped_video,
+                                                        transcription,
+                                                        raw_video['speaker'],
+                                                        theme['MUSIC_CATEGORY_OPTIONS'])
         
         query_list = sentence_analyzer.process_transcription(transcription['word_segments'],
-                                                    transcription['word_segments'][-1]['end'],
-                                                    SECONDS_PER_PHOTO,
-                                                    clipped_video['transcription_info']['description'],
-                                                    clipped_video['file_name'])
+                                        transcription['word_segments'][-1]['end'],
+                                        theme['SECONDS_PER_PHOTO'],
+                                        clipped_video['transcription_info']['description'],
+                                        clipped_video['file_name'])
         
         query_list = image_spacer.add_spacing_to_images(query_list,
-                                                        time_between_images=TIME_BETWEEN_IMAGES)
+                                                        time_between_images=theme["TIME_BETWEEN_IMAGES"])
         
         time_stamped_images = image_getter.get_images(query_list)
                 
@@ -144,33 +150,38 @@ def main():
         
         # add fullscreenimageselector here
         time_stamped_images = fullscreen_image_selector.choose_fullscreen_images(time_stamped_images,
-                                                                                 VERTICAL_VIDEO_WIDTH,
-                                                                                 VERTICAL_VIDEO_HEIGHT,
-                                                                                 VERTICAL_VIDEO_WIDTH,
-                                                                                 int(VERTICAL_VIDEO_HEIGHT / 2),
-                                                                                 percent_of_images_to_be_fullscreen=PERECENT_OF_IMAGES_TO_BE_FULLSCREEN,
-                                                                                 fullscreen_duration=DURATION_OF_FULL_SCREEN_IMAGES)
+                                                        presets.VERTICAL_VIDEO_WIDTH,
+                                                        presets.VERTICAL_VIDEO_HEIGHT,
+                                                        presets.VERTICAL_VIDEO_WIDTH,
+                                                        int(presets.VERTICAL_VIDEO_HEIGHT / 2),
+                                                        percent_of_images_to_be_fullscreen=theme["PERECENT_OF_IMAGES_TO_BE_FULLSCREEN"],
+                                                        fullscreen_duration=theme["DURATION_OF_FULL_SCREEN_IMAGES"])
         
-        video_data = image_to_video_creator.convert_to_videos(time_stamped_images)
+        video_data = image_to_video_creator.convert_to_videos(time_stamped_images, theme["IMAGE_BORDER_COLOR(S)"])
         
         video_with_media = media_adder.add_videos_to_original_clip(original_clip=clipped_video,
                                         videos=video_data,
-                                        original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
-                                        original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2)
+                                        original_clip_width=presets.VERTICAL_VIDEO_WIDTH,
+                                        original_clip_height=presets.VERTICAL_VIDEO_HEIGHT * 2)
     
-        video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_with_media['file_name'],
-                                                                 transcription['word_segments'],
-                                                                 'sub_' + video_with_media['file_name'],
-                                                                 80,
-                                                                 'Tahoma Bold.ttf',
-                                                                 50,
-                                                                 Y_PERCENT_HEIGHT_OF_SUBTITLE,
-                                                                 SUBTITLE_DURATION)
+        video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_file_name=video_with_media['file_name'],
+                                                    transcription=transcription['word_segments'],
+                                                    output_file_name='sub_' + video_with_media['file_name'],
+                                                    font_size=theme['FONT_SIZE'],
+                                                    font_name=theme['FONT'],
+                                                    outline_color=theme['FONT_OUTLINE_COLOR'],
+                                                    font_color=theme['FONT_COLOR'],
+                                                    x_percent=50,
+                                                    y_percent=theme["Y_PERCENT_HEIGHT_OF_SUBTITLE"],
+                                                    number_of_characters_per_line=theme["NUMBER_OF_CHARACTERS_PER_LINE"],
+                                                    interval=theme["SUBTITLE_DURATION"])
 
         video_with_music_name = music_adder.add_music_to_video(music_category=clipped_video['transcription_info']['category'],
                                         video_name=video_with_subtitles_name,
                                         output_video_name=clipped_video['transcription_info']['title'],
-                                        video_length=clipped_video['end_time_sec'])
+                                        video_length=clipped_video['end_time_sec'],
+                                        music_category_options=theme['MUSIC_CATEGORY_OPTIONS'])
+        
         video_clipper.output_file_path = directories.FINISHED_VIDEOS_FOLDER
         video_clipper.input_video_folder_path = directories.FINISHED_VIDEOS_FOLDER
         video_clipper.clip_video(video_with_music_name,
@@ -185,27 +196,34 @@ def main():
 def get_raw_videos():
     raw_videos = []
     with open(directories.INPUT_INFO_FOLDER, 'r') as csv_file:
+        lines_read = 0
         for line in csv_file:
+            logging.info("line is ________: " + line)
             # skip the first line
-            if line == "raw_video_name,start_time,end_time,tag\n":
+            if lines_read == 0:
+                logging.info("skipping first line")
+                lines_read += 1
                 continue
             line = line.strip()
             line = line.split(',')
             if len(line) > 3:
-                tag = str(line[3]) + "_"
+                tag = str(line[4]) + "_"
             else:
                 tag = ""
             
             if len(line) > 4:
-                speaker = str(line[4])
+                speaker = str(line[5])
             else:
                 speaker = ""
             
-            raw_videos.append({'raw_video_name': str(line[0]),
-                                'start_time': str(line[1]),
-                                'end_time': str(line[2]),
+            raw_videos.append({'preset': str(line[0]),
+                                'raw_video_name': str(line[1]),
+                                'start_time': str(line[2]),
+                                'end_time': str(line[3]),
                                 'tag': tag,
                                 'speaker': speaker})
+            
+            lines_read += 1
             
     return raw_videos
 

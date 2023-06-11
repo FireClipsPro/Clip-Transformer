@@ -38,9 +38,10 @@ class ImageToVideoCreator:
         self.x_scroll_speed = 200
         self.y_scroll_speed = 200
         self.image_evaluator = image_evaluator
+        self.__last_used_color = None
         logging.info("ImageToVideoCreator created")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def convert_to_videos(self, images):
+    def convert_to_videos(self, images, border_colors):
         if images == None:
             return None
         
@@ -56,8 +57,11 @@ class ImageToVideoCreator:
             image = self.resize_and_animate_image(image,
                                                   image['overlay_zone_width'],
                                                   image['overlay_zone_height'])
-            image = self.add_border(image)
+            image = self.add_border(image, border_colors)
             image = self.record_image_size(image)
+            
+        self.__last_used_color = None
+        
         return images
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def initialize_output_path(self, output_file):
@@ -139,14 +143,24 @@ class ImageToVideoCreator:
 
         return clip.fl(effect)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    def add_border(self, animated_image):
+    def add_border(self, animated_image, border_colors):
         animated_image_file = f'{self.video_2_image_file_path}{animated_image["video_file_name"]}'
         animated_image_output_file = f'{self.video_2_image_file_path}{animated_image["video_file_name"][:-4]}_border.mp4'
         
         clip = VideoFileClip(animated_image_file)
 
         border_size = 10
-        border_color = (255, 255, 0)  # Yellow color in RGB format
+        
+        if self.__last_used_color == None:
+            border_color = border_colors[0]
+        elif len(border_colors) > 1:
+            #scroll through the list of colors
+            border_color = border_colors[(border_colors.index(self.__last_used_color) + 1) % len(border_colors)]
+        else:
+            border_color = border_colors[0]
+            
+        self.__last_used_color = border_color
+        
         bordered_clip = vfx.margin(clip,
                                left=border_size, 
                                right=border_size, 

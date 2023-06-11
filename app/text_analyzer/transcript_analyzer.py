@@ -18,7 +18,7 @@ class TranscriptAnalyzer:
         for key in CATEGORY_LIST.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
-    def get_info(self, clipped_video, transcription, speaker_name):
+    def get_info(self, clipped_video, transcription, speaker_name, music_category_options):
         # if the file already exists, then we don't need to query the AI
         if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json"):
             with open(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json", "r") as f:
@@ -30,7 +30,10 @@ class TranscriptAnalyzer:
         for text_segment in transcription['word_segments']:
             transcription_text += text_segment['text']
             
-        transcription_info = self.query_gpt_for_json(transcription_text, clipped_video, speaker_name=speaker_name)
+        transcription_info = self.__query_gpt_for_json(transcription_text,
+                                                     clipped_video,
+                                                     speaker_name=speaker_name,
+                                                     music_category_options=music_category_options)
         
         # add transcription_info dictionary to clipped_video dictionary
         clipped_video['transcription_info'] = transcription_info
@@ -41,37 +44,72 @@ class TranscriptAnalyzer:
         
         return clipped_video
     
-    # TODO make this a while loop
-    def query_gpt_for_json(self, transcription_text, clipped_video, speaker_name):
-        speaker_name = speaker_name.replace("_", " ")
+    def __query_gpt_for_json(self, 
+                           transcription_text,
+                           clipped_video,
+                           speaker_name,
+                           music_category_options):
+        speaker_info = self.__make_speaker_info_string(speaker_name)
         
         logging.info("Querying openai for transcript info.")
         model="gpt-3.5-turbo"
-        system_prompt = ("You will be given a transcript of a video. "
-                "The speaker is " + speaker_name + "."
-                "Please return in json format, the following 3 things: "
-                "1. 'description': a 1 sentence description of the transcript "
-                "2. 'title': a title for the video that will grab peoples interest and make them want to watch it "
-                "3. 'category': for this transcript. Your options are: " + self.CATEGORY_LIST_STRING + ".")
-        user_prompt = "Here is the text: " + transcription_text + ". Reply with only the json and nothing else."
+        
+        system_prompt = self.__create_system_prompt(music_category_options, speaker_info)
 
+        
+        user_prompt = "Here is the text: " + transcription_text + ". Reply with only the json and nothing else."
+        
         response = self.openai_api.query(system_prompt, user_prompt, model)
                
         logging.info(f"Response: {response}")
  
         json_string = response
         
-        video_info_dictionary = self.parse_json_string(json_string, clipped_video)
+        video_info_dictionary = self.__parse_json_string(json_string, clipped_video)
+        
+        if music_category_options == 1:
+            video_info_dictionary['category'] = music_category_options[0]
         
         logging.info(f"Generated dictionary: {str(video_info_dictionary)}")
 
         return video_info_dictionary
+
+    def __create_system_prompt(self, music_category_options, speaker_info):
+        if len(music_category_options) > 1:
+            self.__initialize_category_list_string(music_category_options)
+            system_prompt = ("You will be given a transcript of a video. "
+                    + speaker_info +
+                    "Please return in json format, the following 3 things: "
+                    "1. 'description': a 1 sentence description of the transcript "
+                    "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible."
+                    "3. 'category': for this transcript. Choose the BEST option from: " + self.CATEGORY_LIST_STRING + ".")
+        else: 
+            system_prompt = ("You will be given a transcript of a video. "
+                    + speaker_info +
+                    "Please return in json format, the following 2 things: "
+                    "1. 'description': a 1 sentence description of the transcript "
+                    "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible.")
+                    
+        return system_prompt
+
+    def __make_speaker_info_string(self, speaker_name):
+        if speaker_name == "":
+            speaker_info = ""
+        else:
+            speaker_info = "The speaker is " + speaker_name + "."
+            speaker_name = speaker_name.replace("_", " ")
+        return speaker_info
+
+    def __initialize_category_list_string(self, music_category_options):
+        self.CATEGORY_LIST_STRING = ""
+        for category in music_category_options:
+            self.CATEGORY_LIST_STRING += category + ", "
     
     # TODO Handle the case where the json string is not valid
-    def parse_json_string(self, json_string, clipped_video):
+    def __parse_json_string(self, json_string, clipped_video):
         try:
             json_dict = json.loads(json_string)
-            json_dict = self.validate_dict(json_dict)
+            json_dict = self.__validate_dict(json_dict)
             return json_dict
         except ValueError as e:
             print(f"Error parsing JSON string: {e}")
@@ -80,7 +118,7 @@ class TranscriptAnalyzer:
             print(f"Error parsing JSON string: {t}")
             return {"description": json_string, "hashtags": ["", ""], "title": clipped_video['file_name'], "category": "motivational"}
         
-    def validate_dict(self, json_dict):
+    def __validate_dict(self, json_dict):
         required_fields = ["description", "hashtags", "title", "category"]
         
         for field in required_fields:

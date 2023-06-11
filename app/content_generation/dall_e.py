@@ -101,10 +101,21 @@ class DALL_E():
                 png.write(image_data)
                 
             logging.info(f"Saved image to: {image_file}")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
+    def get_api_key(self):
+        file_path = "../../OPENAI_API_KEY.txt"  # path to the file with the API key
+        try:
+            with open(file_path, 'r') as file:
+                api_key = file.readline().strip()  # Read the first line and remove any leading/trailing white spaces
+            return api_key
+        except FileNotFoundError:
+            print(f"API key file not found at {file_path}")
+            return None
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def generate_prompt(self, text):
-        openai.api_key = os.getenv("OPENAI_API_KEY")
-         
+        # openai.api_key = os.getenv("OPENAI_API_KEY")
+        openai.api_key = self.get_api_key()
+        
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
