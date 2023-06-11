@@ -1,18 +1,12 @@
 import requests
+from requests.exceptions import Timeout
 import os
 import logging
 import cv2
 import numpy as np
 from PIL import Image
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(filename='app.log'),
-        logging.StreamHandler()
-    ]
-)
+logging.basicConfig(level=logging.INFO)
 
 class GoogleImagesAPI:
     def __init__(self, image_file_path, image_classifier, image_evaluator):
@@ -51,32 +45,38 @@ class GoogleImagesAPI:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537"
         }
         try:
-            response = requests.get(url, stream=True, headers=headers)
+            logging.info(f"Downloading image from {url}")
+            response = requests.get(url, stream=True, headers=headers, timeout=5)
+            logging.info(f"Response status code: {response.status_code}")
             response.raise_for_status()  # Raise an exception if the GET request was unsuccessful
 
             with open(output_path, "wb") as f:
+                logging.info(f"Saving image to {output_path}")
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
 
             # Check if the image is openable
             try:
+                logging.info(f"Verifying image {output_path}")
                 img = Image.open(output_path)
                 img.verify()  # verify that it is, in fact an image
             except (IOError, SyntaxError) as e:
-                print('Bad file:', output_path)  # print out the names of corrupt files
+                logging.info('Bad file:', output_path)  # logging.info out the names of corrupt files
                 os.remove(output_path)
                 return False
 
+        except Timeout:
+            logging.error(f"Timeout occurred while attempting to download image from {url}")
+            return False
         except requests.exceptions.HTTPError as err:
-            print(f"HTTP error occurred: {err}")
+            logging.error(f"HTTP error occurred: {err}")
             return False
         except Exception as err:
-            print(f"An error occurred: {err}")
+            logging.error(f"An error occurred: {err}")
             return False
         
         return True
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_image_from_google(self, query, output_file_name):
         api_key = "AIzaSyDq--kNy4Vot0SGaSRtbJ-CKDAa2qhOlrc"
@@ -103,8 +103,9 @@ class GoogleImagesAPI:
                 continue
             
             logging.info(f"Found image link for query: {query}. Trying download.")
+            download_success = self.download_image(fetched_link, self.IMAGE_FILE_PATH + output_file_name)
             
-            if self.download_image(fetched_link, self.IMAGE_FILE_PATH + output_file_name):
+            if download_success:
                 logging.info(f"Downloaded image {fetched_link}")
                 self.used_links.append(fetched_link)
                 

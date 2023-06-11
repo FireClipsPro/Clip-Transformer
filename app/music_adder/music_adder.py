@@ -20,24 +20,24 @@ class MusicAdder:
         self.output_path = output_path
         self.music_categories = music_categories.keys()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
-    def add_music_to_video(self, music_category, video_name, output_video_name, video_length):
+    def add_music_to_video(self,
+                           music_category,
+                           video_name,
+                           output_video_name,
+                           video_length,
+                           music_category_options):
         logging.info(f'Adding music to video {video_name}')
         music_category = music_category.lower()
-        # make sure the music category is valid
+
         if music_category not in self.music_categories:
-            music_category = 'fascinating'
+            # choose a random music category from the music_category_options
+            music_category = random.choice(music_category_options)
 
-        #if the output_video_name does not have the .mp4 extension, add it
-        if output_video_name[-4:] != '.mp4':
-            output_video_name += '.mp4'
+        output_video_name = self.__ensure_mp4_extension(output_video_name)
 
-        music_folder_path = self.music_files_paths[music_category]
-        #choose a random file from the music folder
-        music_file_path = music_folder_path + random.choice(os.listdir(music_folder_path))
-        logging.info(f'Chosen music file: {music_file_path}')
-        # make sure the music file exists
-        if not os.path.exists(music_file_path):
-            raise Exception('Music file does not exist')
+        music_file_path = self.__choose_song(music_category)
+
+        self.ensure_song_exists(music_file_path)
 
         video_clip = VideoFileClip(self.video_files_path + video_name)
         video_audio_loudness = self.measure_loudness(self.video_files_path + video_name)  # removed use_max=True
@@ -72,6 +72,23 @@ class MusicAdder:
         video_clip.write_videofile(self.output_path + output_video_name, codec='libx264')
 
         return output_video_name
+
+    def __ensure_mp4_extension(self, output_video_name):
+        if output_video_name[-4:] != '.mp4':
+            return output_video_name + '.mp4'
+        else:
+            return output_video_name
+
+    def __choose_song(self, music_category):
+        music_folder_path = self.music_files_paths[music_category]
+        #choose a random song from the music folder
+        music_file_path = music_folder_path + random.choice(os.listdir(music_folder_path))
+        logging.info(f'Chosen music file: {music_file_path}')
+        return music_file_path
+
+    def ensure_song_exists(self, music_file_path):
+        if not os.path.exists(music_file_path):
+            raise Exception('Music file does not exist')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def measure_loudness(self, filename):
         audio = AudioSegment.from_file(filename)
