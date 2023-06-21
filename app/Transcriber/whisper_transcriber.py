@@ -14,7 +14,7 @@ class WhisperTranscriber:
         self.audio_files_path = audio_files_path
         self.transcripts_folder = transcripts_folder
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    def transcribe(self, audio_file, REMOVE_PUNCTUATION=False, CENSOR_PROFANITY=True):
+    def transcribe(self, audio_file, censor_profanity=True):
         # check if file exists
         if not os.path.exists(self.audio_files_path + audio_file):
             raise Exception('Audio file does not exist')
@@ -32,7 +32,7 @@ class WhisperTranscriber:
             device = "cuda"
         else:
             device = "cpu"
-        model = whisperx.load_model(MEDIUM_MODEL_SIZE, device=device)
+        model = whisperx.load_model(LARGE_MODEL_SIZE, device=device)
 
         result = model.transcribe(self.audio_files_path + audio_file)
 
@@ -51,7 +51,7 @@ class WhisperTranscriber:
 
         transcription = self.parse_transcription(result_aligned)
         
-        transcription = self.clean_transcription(transcription, REMOVE_PUNCTUATION, CENSOR_PROFANITY)
+        transcription = self.clean_transcription(transcription, censor_profanity)
         
         transcription = self.ensure_transcription_has_text(transcription)
         
@@ -66,16 +66,9 @@ class WhisperTranscriber:
             transcription = None
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def clean_transcription(self, transcription, remove_punctuation=False, censor_profanity=True):
+    def clean_transcription(self, transcription, censor_profanity=True):
         for word_segment in transcription['word_segments']:
-            #make all caps
-            # remove punctuation
-            if remove_punctuation:
-                word_segment['text'] = word_segment['text'].replace(".", "")
-                word_segment['text'] = word_segment['text'].replace(",", "")
-                word_segment['text'] = word_segment['text'].replace(";", "")
-                
-
+            
             if censor_profanity:
                 first_letter = word_segment['text'][0]
                 word_segment['text'] = profanity.censor(word_segment['text'])

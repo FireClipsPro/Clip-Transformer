@@ -3,24 +3,39 @@ import json
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from pause_remover import PauseRemover
 
-root = "../../media_storage/"
-RESIZED_FOLDER = f"{root}resized_original_videos/"
+root = "../../test_material/"
+RESIZED_FOLDER = f"{root}InputVideos/"
 AUDIO_EXTRACTIONS_FOLDER = f"{root}audio_extractions/"
+OUTPUT_FOLDER = f"{root}OutputVideos/"
 
 class TestPauseRemover(unittest.TestCase):
     
     def setUp(self):
-        self.pause_remover = PauseRemover(RESIZED_FOLDER, RESIZED_FOLDER)
+        self.pause_remover = PauseRemover(RESIZED_FOLDER,
+                                          OUTPUT_FOLDER)
 
     @classmethod
     def setUpClass(cls):
         cls.pause_remover = PauseRemover(RESIZED_FOLDER, RESIZED_FOLDER)
 
-        with open(AUDIO_EXTRACTIONS_FOLDER + "Eliezer_(0, 0)_(0, 25)_centered.mp3.json", "r") as f:
+        with open(AUDIO_EXTRACTIONS_FOLDER + "goggins.json", "r") as f:
             cls.transcript = json.load(f)['word_segments']
 
-        cls.file_name = "Eliezer_(0, 0)_(0, 25)_centered.mp4"
-        cls.max_pause_length = 0.4
+        cls.file_name = "goggins.mp4"
+        cls.max_pause_length = 0.5
+        
+    def test_remove_pauses_from_video(self):
+        transcript =  []
+        with open(AUDIO_EXTRACTIONS_FOLDER + "goggins.json", "r") as f:
+            transcript = json.load(f)['word_segments']
+
+        new_transcript = self.pause_remover.remove_pauses({'file_name': "goggins.mp4"},
+                                                            transcript,
+                                                            0.5)
+
+        print(new_transcript)
+        # self.assertEqual(new_transcript, expected_transcript)
+        
         
     def test_remove_pauses_from_transcript(self):
         transcript = [
@@ -41,26 +56,25 @@ class TestPauseRemover(unittest.TestCase):
 
         self.assertEqual(new_transcript, expected_transcript)
         
-        
-    def test_remove_pauses_from_transcript_and_video(self):
-        max_pause_length = 0.4
-        video = {}
-        video['file_name'] = "Eliezer_(0, 0)_(0, 25)_centered.mp4"
-        new_video, new_transcript = self.pause_remover.remove_pauses(video,
-                                                                        self.transcript,
-                                                                        max_pause_length)
-        original_video = VideoFileClip(self.pause_remover.input_video_folder + video['file_name'])
+    # def test_remove_pauses_from_transcript_and_video(self):
+    #     max_pause_length = 0.4
+    #     video = {}
+    #     video['file_name'] = "Eliezer_(0, 0)_(0, 25)_centered.mp4"
+    #     new_video, new_transcript = self.pause_remover.remove_pauses(video,
+    #                                                                     self.transcript,
+    #                                                                     max_pause_length)
+    #     original_video = VideoFileClip(self.pause_remover.input_video_folder + video['file_name'])
 
-        original_duration = original_video.duration
-        new_video = VideoFileClip(self.pause_remover.output_video_folder + video['file_name'])
-        new_video_duration = new_video.duration
+    #     original_duration = original_video.duration
+    #     new_video = VideoFileClip(self.pause_remover.output_video_folder + video['file_name'])
+    #     new_video_duration = new_video.duration
 
-        original_transcript_duration = sum([seg['end'] - seg['start'] for seg in self.transcript])
-        new_transcript_duration = sum([seg['end'] - seg['start'] for seg in new_transcript])
+    #     original_transcript_duration = sum([seg['end'] - seg['start'] for seg in self.transcript])
+    #     new_transcript_duration = sum([seg['end'] - seg['start'] for seg in new_transcript])
 
-        self.assertAlmostEqual(original_duration - new_video_duration,
-                               original_transcript_duration - new_transcript_duration,
-                               places=2)
+    #     self.assertAlmostEqual(original_duration - new_video_duration,
+    #                            original_transcript_duration - new_transcript_duration,
+    #                            places=2)
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ FUNNY_MUSIC_FOLDER = f'{root}songs/funny/'
 MOTIVATIONAL_MUSIC_FOLDER = f'{root}songs/motivational/'
 INTRIGUING_MUSIC_FOLDER = f'{root}songs/fascinating/'
 CONSPIRACY_MUSIC_FOLDER = f'{root}songs/conspiracy/'
+HOPEFUL_MUSIC_FOLDER = f'{root}songs/hopeful/'
 SCARY_MUSIC_FOLDER = f'{root}songs/scary/'
 RAW_VIDEO_FOLDER = f"{root}raw_videos/"
 INPUT_FOLDER = f"{root}InputVideos/"
@@ -24,6 +25,11 @@ VIDEO_INFO_FOLDER = f"{root}video_info/"
 GENERATED_PROMPTS_FOLDER = f"{root}generated_prompts/"
 FINISHED_VIDEOS_FOLDER = f"{root}finished_videos/"
 WITH_SUBTITLES_FOLDER = f"{root}subtitled_videos/"
+PHOTO_AD_FOLDER = f"{root}photo_ads/"
+BANNER_FOLDER = f"{root}banner_ads/"
+VIDEOS_WITH_BANNER_FOLDER = f"{root}banner_videos/"
+BACKGROUNDLESS_VIDEOS_FOLDER = f"{root}background_removed_videos/"
+BACKGROUND_IMAGE_FOLDER = f"{root}background_images/"
 
 folders_dict = {
     'TRANSCRIPTS_FOLDER': TRANSCRIPTS_FOLDER,
@@ -49,7 +55,12 @@ folders_dict = {
     'VIDEO_INFO_FOLDER': VIDEO_INFO_FOLDER,
     'GENERATED_PROMPTS_FOLDER': GENERATED_PROMPTS_FOLDER,
     'FINISHED_VIDEOS_FOLDER': FINISHED_VIDEOS_FOLDER,
-    'WITH_SUBTITLES_FOLDER': WITH_SUBTITLES_FOLDER
+    'WITH_SUBTITLES_FOLDER': WITH_SUBTITLES_FOLDER,
+    'PHOTO_AD_FOLDER': PHOTO_AD_FOLDER,
+    'BANNER_FOLDER': BANNER_FOLDER,
+    'VIDEOS_WITH_BANNER_FOLDER': VIDEOS_WITH_BANNER_FOLDER,
+    'BACKGROUNDLESS_VIDEOS_FOLDER': BACKGROUNDLESS_VIDEOS_FOLDER,
+    'BACKGROUND_IMAGE_FOLDER': BACKGROUND_IMAGE_FOLDER
 }
 
 
@@ -60,5 +71,6 @@ MUSIC_CATEGORY_PATH_DICT = {
     'fascinating': INTRIGUING_MUSIC_FOLDER,
     'angry': ANGRY_MUSIC_FOLDER,
     'conspiracy': CONSPIRACY_MUSIC_FOLDER,
-    'scary': SCARY_MUSIC_FOLDER
+    'scary': SCARY_MUSIC_FOLDER,
+    'hopeful': HOPEFUL_MUSIC_FOLDER
 }

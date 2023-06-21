@@ -14,7 +14,8 @@ themes = {
         "DURATION_OF_FULL_SCREEN_IMAGES" : 3,
         "FONT" : 'Tahoma Bold.ttf',
         "FONT_OUTLINE_COLOR" : (0, 0, 0),
-        "FONT_SIZE" : 80,
+        "FONT_OUTLINE_WIDTH" : 7,
+        "FONT_SIZE" : 90,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255, 255, 255), # white
         "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
@@ -22,7 +23,14 @@ themes = {
                                     (255,255,0), # yellow
                                     (255,48,48), # red
                                     (0,191,255)], # blue
-        "MUSIC_CATEGORY_OPTIONS_OPTIONS" : ["fascinating", "scary", "conspiracy", "funny"]
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "scary", "conspiracy", "funny"],
+        "WANTS_ADS" : False,
+        "CENSOR_PROFANITY" : False,
+        "ALL_CAPS": True,
+        "PUNCTUATION": False,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
+        "OVERLAY_ZONE_WIDTH": 1080,
+        "OVERLAY_ZONE_HEIGHT": 576,
     },
     "one_percent_minds":
     {
@@ -36,11 +44,21 @@ themes = {
         "DURATION_OF_FULL_SCREEN_IMAGES" : 3,
         "FONT" : 'Tahoma Bold.ttf',
         "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 6,
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255,193,37), # gold
-        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
-        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary"]
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0), (136, 8, 8)], # black, red
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "hopeful"],
+        "WANTS_ADS" : True,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10, 45],
+        "CENSOR_PROFANITY": False,
+        "ALL_CAPS": True,
+        "PUNCTUATION": False,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
+        "OVERLAY_ZONE_WIDTH": 1080,
+        "OVERLAY_ZONE_HEIGHT": 576,
     },
     "girly":
     {
@@ -57,9 +75,70 @@ themes = {
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255,255,255), # white
-        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)],
-        "MUSIC_CATEGORY_OPTIONS" : ["cute", "funny"]
-    }
+        "IMAGE_BORDER_COLOR(S)" : [(255,255,255)],
+        "MUSIC_CATEGORY_OPTIONS" : ["cute", "funny"],
+        "WANTS_ADS" : False,
+        "BANNER": None,
+        "BANNER_START_TIMES": []
+        
+    },
+    "political_1":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 6,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0.3,
+        "MAXIMUM_PAUSE_LENGTH" : 0.5,
+        "TIME_BETWEEN_IMAGES" : 1.5,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 60,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 3,
+        "FONT" :  "Times New Roman Bold Italic.ttf",
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 8,
+        "FONT_SIZE" : 90,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
+        "FONT_COLOR" : (255,255,255), # white
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful"],
+        "WANTS_ADS" : False,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10],
+        "CENSOR_PROFANITY": True,
+        "ALL_CAPS": True,
+        "PUNCTUATION": False,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
+        "OVERLAY_ZONE_WIDTH": 1080,
+        "OVERLAY_ZONE_HEIGHT": 576,
+    },
+    "political_2":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 6,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0.3,
+        "MAXIMUM_PAUSE_LENGTH" : 0.5,
+        "TIME_BETWEEN_IMAGES" : 1.5,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 60,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 3,
+        "FONT" :  "Tahoma Bold.ttf",
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 7,
+        "FONT_SIZE" : 90,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
+        "FONT_COLOR" : (255,255,255), # white
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful"],
+        "WANTS_ADS" : False,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10],
+        "CENSOR_PROFANITY": True,
+        "ALL_CAPS": True,
+        "PUNCTUATION": False,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
+        "OVERLAY_ZONE_WIDTH": 1080,
+        "OVERLAY_ZONE_HEIGHT": 576,
+    },
+    
 }
 
 

@@ -41,7 +41,10 @@ class MediaAdder:
                                     original_clip,
                                     videos,
                                     original_clip_width,
-                                    original_clip_height):
+                                    original_clip_height,
+                                    overlay_zone_top_left,
+                                    overlay_zone_width,
+                                    overlay_zone_height):
         self.log_parameters(original_clip,
                             videos,
                             original_clip_width,
@@ -72,22 +75,35 @@ class MediaAdder:
             if not os.path.exists(overlay_video_file_name):
                 print(f'Overlay video {overlay_video_file_name} does not exist')
             
-            self.add_clip_to_video(original_clip, composite_clips, video, overlay_video_file_name)
+            self.add_clip_to_video(original_clip,
+                                   composite_clips,
+                                   video,
+                                   overlay_video_file_name,
+                                   overlay_zone_top_left,
+                                   overlay_zone_width,
+                                   overlay_zone_height)
         
         final_video = CompositeVideoClip(composite_clips)
         final_video.write_videofile(output_video)
         
         return original_clip
-
-    def add_clip_to_video(self, original_clip, composite_clips, video, overlay_video_file_name):
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def add_clip_to_video(self, 
+                          original_clip,
+                          composite_clips,
+                          video,
+                          overlay_video_file_name,
+                          overlay_zone_top_left,
+                          overlay_zone_width,
+                          overlay_zone_height):
         overlay_video = VideoFileClip(overlay_video_file_name)
-        
+
         overlay_top_left_x, overlay_top_left_y = self.calculate_top_left_xy(overlay_video.w,
                                                                             overlay_video.h,
-                                                                            video['overlay_zone_width'],
-                                                                            video['overlay_zone_height'],
-                                                                            video['overlay_zone_x'],
-                                                                            video['overlay_zone_y'])
+                                                                            overlay_zone_width,
+                                                                            overlay_zone_height,
+                                                                            overlay_zone_top_left[0],
+                                                                            overlay_zone_top_left[1])
             
             
         end_time = self.get_end_time(original_clip, video)
@@ -149,8 +165,6 @@ class MediaAdder:
         logging.info(f"overlay_video_top_left_x: {overlay_video_top_left_x}")
         logging.info(f"overlay_video_top_left_y: {overlay_video_top_left_y}")
         
-        return overlay_video_top_left_x, overlay_video_top_left_y
-        
+        return overlay_video_top_left_x, overlay_video_top_left_y 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
