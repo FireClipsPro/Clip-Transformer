@@ -23,7 +23,10 @@ class PauseRemover:
         
         return clipped_video, new_transcript
 
-    def remove_video_pauses(self, file_name, transcript, maximum_pause_length):
+    def remove_video_pauses(self,
+                            file_name,
+                            transcript,
+                            maximum_pause_length):
         video = VideoFileClip(self.input_video_folder + file_name)
 
         new_video_clips = []
@@ -36,9 +39,16 @@ class PauseRemover:
                 pause_length = next_word['start'] - word['end']
 
                 if pause_length > maximum_pause_length:
-                    end_of_dialogue = word['end'] + maximum_pause_length
+                    logging.info(" ______ LONG PAUSE DETECTED ______")
+                    logging.info("at time " + str(word['end']) + " found a pause of length " + str(pause_length) + " seconds")
 
+                    logging.info("word is \"" + word['text'] + "\" and next word is \"" + next_word['text'] + "\"")
+                    
+                    end_of_dialogue = word['end'] + maximum_pause_length
+                    logging.info("the entire pause is from " + str(word['end']) + " to " + str(next_word['start']))
+                    logging.info(" removing pause from " + str(end_of_dialogue) + " to " + str(next_word['start']))
                     new_clip = video.subclip(last_gap_end, end_of_dialogue)
+                    logging.info("new clip is from " + str(last_gap_end) + " to " + str(end_of_dialogue))
                     last_gap_end = next_word['start']
 
                     new_video_clips.append(new_clip)

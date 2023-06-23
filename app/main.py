@@ -42,6 +42,7 @@ def main():
     
     head_tracker = HeadTrackingCropper(directories.RESIZED_FOLDER,
                                        directories.RESIZED_FOLDER)
+    
     video_resizer = VideoResizer(directories.INPUT_FOLDER,
                                  directories.RESIZED_FOLDER)
     
@@ -105,7 +106,8 @@ def main():
         
         audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
         
-        transcription = transcriber.transcribe(audio_extraction_file_name)
+        transcription = transcriber.transcribe(audio_extraction_file_name,
+                                               theme['CENSOR_PROFANITY'])
         
         if transcription == None:
             continue
@@ -157,12 +159,18 @@ def main():
                                                         percent_of_images_to_be_fullscreen=theme["PERECENT_OF_IMAGES_TO_BE_FULLSCREEN"],
                                                         fullscreen_duration=theme["DURATION_OF_FULL_SCREEN_IMAGES"])
         
-        video_data = image_to_video_creator.convert_to_videos(time_stamped_images, theme["IMAGE_BORDER_COLOR(S)"])
+        video_data = image_to_video_creator.convert_to_videos(time_stamped_images,
+                                                              theme["IMAGE_BORDER_COLOR(S)"],
+                                                              theme['OVERLAY_ZONE_WIDTH'],
+                                                              theme['OVERLAY_ZONE_HEIGHT'])
         
         video_with_media = media_adder.add_videos_to_original_clip(original_clip=clipped_video,
                                         videos=video_data,
                                         original_clip_width=presets.VERTICAL_VIDEO_WIDTH,
-                                        original_clip_height=presets.VERTICAL_VIDEO_HEIGHT * 2)
+                                        original_clip_height=presets.VERTICAL_VIDEO_HEIGHT * 2,
+                                        overlay_zone_top_left=theme["OVERLAY_ZONE_TOP_LEFT"],
+                                        overlay_zone_width=theme["OVERLAY_ZONE_WIDTH"],
+                                        overlay_zone_height=theme["OVERLAY_ZONE_HEIGHT"])
     
         video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_file_name=video_with_media['file_name'],
                                                     transcription=transcription['word_segments'],
@@ -170,8 +178,10 @@ def main():
                                                     font_size=theme['FONT_SIZE'],
                                                     font_name=theme['FONT'],
                                                     outline_color=theme['FONT_OUTLINE_COLOR'],
+                                                    outline_width=theme['FONT_OUTLINE_WIDTH'],
                                                     font_color=theme['FONT_COLOR'],
-                                                    x_percent=50,
+                                                    all_caps=theme['ALL_CAPS'],
+                                                    punctuation=theme['PUNCTUATION'],
                                                     y_percent=theme["Y_PERCENT_HEIGHT_OF_SUBTITLE"],
                                                     number_of_characters_per_line=theme["NUMBER_OF_CHARACTERS_PER_LINE"],
                                                     interval=theme["SUBTITLE_DURATION"])

@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 YOUTUBE_SHORT_ASPECT_RATIO = 9/16
 YOUTUBE_SHORT_HALF_HEIGHT = 960
 YOUTUBE_SHORT_WIDTH = 1080
-PERCENT_OF_DISPLAY_SCREEN = 0.95
+PERCENT_OF_DISPLAY_SCREEN = 0.90
 ZOOM_EFFECT = 'zoom'
 HORIZONTAL_SCROLL_EFFECT = 'horizontal_scroll'
 VERTICAL_SCROLL_EFFECT = 'vertical_scroll'
@@ -41,7 +41,14 @@ class ImageToVideoCreator:
         self.__last_used_color = None
         logging.info("ImageToVideoCreator created")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def convert_to_videos(self, images, border_colors):
+    def convert_to_videos(self, 
+                          images,
+                          border_colors,
+                          frame_width,
+                          frame_height):
+        self.frame_width = int(math.floor(frame_width * .9))
+        self.frame_height = int(math.floor(frame_height * .9))
+        
         if images == None:
             return None
         
@@ -161,6 +168,7 @@ class ImageToVideoCreator:
             
         self.__last_used_color = border_color
         
+        logging.info(f'Border color: {border_color}')
         bordered_clip = vfx.margin(clip,
                                left=border_size, 
                                right=border_size, 

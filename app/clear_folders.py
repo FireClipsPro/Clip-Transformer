@@ -33,6 +33,8 @@ file_deleter.delete_files_from_folder(f'{root}OutputVideos/')
 
 file_deleter.delete_files_from_folder(f'{root}media_added_videos/')
 
+file_deleter.delete_files_from_folder(f'{root}subtitled_videos/')
+
 # file_deleter.delete_files_from_folder(f'{root}resized_original_videos/')
 
 file_deleter.delete_files_from_folder(f'{root}queries/')

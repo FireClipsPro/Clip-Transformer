@@ -128,14 +128,17 @@ class SubtitleAdder:
                                font_size,
                                font_name,
                                outline_color,
+                               outline_width,
                                font_color,
-                               x_percent,
+                               all_caps,
+                               punctuation,
                                y_percent,
                                number_of_characters_per_line,
                                interval=2):
         # if video already exists don't make it again
         # if os.path.exists(self.output_folder_path + output_file_name):
         #     return output_file_name
+        transcription = self.edit_punctuation_and_caps(transcription, all_caps, punctuation)
         
         clip = VideoFileClip(self.input_folder_path + video_file_name)
         
@@ -149,7 +152,7 @@ class SubtitleAdder:
                                                       font_size,
                                                       text_color=font_color,
                                                       outline_color=outline_color,
-                                                      outline_width=3,
+                                                      outline_width=outline_width,
                                                       font_name=font_name)
             txt_clip = ImageClip(np.array(img)).set_duration((float(subtitle['end']) - float(subtitle['start']))).set_start(float(subtitle['start'])).set_position(lambda t: ('center', y_percent * clip_height / 100))
             clips.append(txt_clip)
@@ -158,16 +161,30 @@ class SubtitleAdder:
         final.write_videofile(self.output_folder_path + output_file_name, codec='libx264')
         
         return output_file_name
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    def edit_punctuation_and_caps(self, transcription, all_caps, punctuation):
+        #make all caps
+        for word in transcription:
+            # remove punctuation
+            if not punctuation:
+                word['text'] = word['text'].replace(".", "")
+                word['text'] = word['text'].replace(",", "")
+                word['text'] = word['text'].replace(";", "")
+            
+            if all_caps:
+                word['text'] = word['text'].upper()
+        return transcription
+                
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # for item in matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf'):
 #     print(item)
 
-# subtitle_list = [{'text': 'This', 'start': 0, 'end': 1},
-#                 {'text': 'is', 'start': 1, 'end': 2},
-#                 {'text': 'a', 'start': 2, 'end': 3},
-#                 {'text': 'test', 'start': 3, 'end': 4},
-#                 {'text': 'test', 'start': 4, 'end': 5}]
+subtitle_list = [{'text': 'THIS', 'start': 0, 'end': 1},
+                {'text': 'IS', 'start': 1, 'end': 2},
+                {'text': 'A', 'start': 2, 'end': 3},
+                {'text': 'TEST TO SEE', 'start': 3, 'end': 4},
+                {'text': 'IF THIS WORKS', 'start': 4, 'end': 5}]
 
 # # print(str(group_subtitles(subtitle_list, 2))) 
 
@@ -183,12 +200,12 @@ class SubtitleAdder:
 #         "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 60,
 #         "SUBTITLE_DURATION" : 1,
 #         "DURATION_OF_FULL_SCREEN_IMAGES" : 3,
-#         "FONT" : 'Tahoma Bold.ttf',
-#         "FONT_OUTLINE_COLOR" : (0, 0, 0),
-#         "FONT_SIZE" : 80,
+#         "FONT" : "Times New Roman Bold Italic.ttf",
+#         "FONT_OUTLINE_COLOR" : (0, 0, 0), # BLACK
+#         "FONT_SIZE" : 90,
 #         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
-#         "FONT_COLOR" : (255,193,37), # gold
-#         "IMAGE_BORDER_COLOR(S)" : [(255, 255, 255)],
+#         "FONT_COLOR" : (255,255,255), # WHITE
+#         "IMAGE_BORDER_COLOR(S)" : [(255, 255, 255)], 
 #         "MUSIC_CATEGORY" : ["motivational", "scary"]
 #     }
 
@@ -214,3 +231,7 @@ class SubtitleAdder:
 # Tahoma Bold.ttf == good for motivational or interesting
 # Comic Sans Bold.ttf == Cute
 # papyrus.ttx == stoner
+#Times New Roman Bold Italic.ttf
+# GOOD COMBOS:
+# 6 WIDTH + 80 FONT SIZE
+# 8 WIDTH + 100 FONT SIZE
