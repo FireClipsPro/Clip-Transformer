@@ -44,12 +44,12 @@ class PauseRemover:
 
                     logging.info("word is \"" + word['text'] + "\" and next word is \"" + next_word['text'] + "\"")
                     
-                    end_of_dialogue = word['end'] + maximum_pause_length
+                    end_of_dialogue = word['end'] + (maximum_pause_length / 2)
                     logging.info("the entire pause is from " + str(word['end']) + " to " + str(next_word['start']))
                     logging.info(" removing pause from " + str(end_of_dialogue) + " to " + str(next_word['start']))
                     new_clip = video.subclip(last_gap_end, end_of_dialogue)
                     logging.info("new clip is from " + str(last_gap_end) + " to " + str(end_of_dialogue))
-                    last_gap_end = next_word['start']
+                    last_gap_end = next_word['start'] - (maximum_pause_length / 2)
 
                     new_video_clips.append(new_clip)
             else:

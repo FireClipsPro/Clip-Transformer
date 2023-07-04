@@ -82,6 +82,7 @@ class TranscriptAnalyzer:
                     "Please return in json format, the following 3 things: "
                     "1. 'description': a 1 sentence description of the transcript "
                     "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible."
+                    "The best title must be, refuting something, epic or extreme, include a time, contain an authority, invoke curiosity fear or negativity, have a timeframe."
                     "3. 'category': for this transcript. Choose the BEST option from: " + self.CATEGORY_LIST_STRING + ".")
         else: 
             system_prompt = ("You will be given a transcript of a video. "

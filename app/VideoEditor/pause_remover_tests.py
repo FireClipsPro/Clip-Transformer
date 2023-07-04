@@ -56,25 +56,25 @@ class TestPauseRemover(unittest.TestCase):
 
         self.assertEqual(new_transcript, expected_transcript)
         
-    # def test_remove_pauses_from_transcript_and_video(self):
-    #     max_pause_length = 0.4
-    #     video = {}
-    #     video['file_name'] = "Eliezer_(0, 0)_(0, 25)_centered.mp4"
-    #     new_video, new_transcript = self.pause_remover.remove_pauses(video,
-    #                                                                     self.transcript,
-    #                                                                     max_pause_length)
-    #     original_video = VideoFileClip(self.pause_remover.input_video_folder + video['file_name'])
+    def test_remove_pauses_from_transcript_and_video(self):
+        max_pause_length = 0.4
+        video = {}
+        video['file_name'] = "Eliezer_(0, 0)_(0, 25)_centered.mp4"
+        new_video, new_transcript = self.pause_remover.remove_pauses(video,
+                                                                        self.transcript,
+                                                                        max_pause_length)
+        original_video = VideoFileClip(self.pause_remover.input_video_folder + video['file_name'])
 
-    #     original_duration = original_video.duration
-    #     new_video = VideoFileClip(self.pause_remover.output_video_folder + video['file_name'])
-    #     new_video_duration = new_video.duration
+        original_duration = original_video.duration
+        new_video = VideoFileClip(self.pause_remover.output_video_folder + video['file_name'])
+        new_video_duration = new_video.duration
 
-    #     original_transcript_duration = sum([seg['end'] - seg['start'] for seg in self.transcript])
-    #     new_transcript_duration = sum([seg['end'] - seg['start'] for seg in new_transcript])
+        original_transcript_duration = sum([seg['end'] - seg['start'] for seg in self.transcript])
+        new_transcript_duration = sum([seg['end'] - seg['start'] for seg in new_transcript])
 
-    #     self.assertAlmostEqual(original_duration - new_video_duration,
-    #                            original_transcript_duration - new_transcript_duration,
-    #                            places=2)
+        self.assertAlmostEqual(original_duration - new_video_duration,
+                               original_transcript_duration - new_transcript_duration,
+                               places=2)
 
 
 if __name__ == '__main__':

@@ -9,6 +9,7 @@ INTRIGUING_MUSIC_FOLDER = f'{root}songs/fascinating/'
 CONSPIRACY_MUSIC_FOLDER = f'{root}songs/conspiracy/'
 HOPEFUL_MUSIC_FOLDER = f'{root}songs/hopeful/'
 SCARY_MUSIC_FOLDER = f'{root}songs/scary/'
+SERIOUS_MUSIC_FOLDER = f'{root}songs/serious/'
 RAW_VIDEO_FOLDER = f"{root}raw_videos/"
 INPUT_FOLDER = f"{root}InputVideos/"
 AUDIO_EXTRACTIONS_FOLDER = f"{root}audio_extractions/"
@@ -72,5 +73,6 @@ MUSIC_CATEGORY_PATH_DICT = {
     'angry': ANGRY_MUSIC_FOLDER,
     'conspiracy': CONSPIRACY_MUSIC_FOLDER,
     'scary': SCARY_MUSIC_FOLDER,
-    'hopeful': HOPEFUL_MUSIC_FOLDER
+    'hopeful': HOPEFUL_MUSIC_FOLDER,
+    'serious': SERIOUS_MUSIC_FOLDER
 }

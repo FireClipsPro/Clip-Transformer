@@ -25,7 +25,8 @@ class MusicAdder:
                            video_name,
                            output_video_name,
                            video_length,
-                           music_category_options):
+                           music_category_options,
+                           background_music_volume):
         logging.info(f'Adding music to video {video_name}')
         music_category = music_category.lower()
 
@@ -46,7 +47,7 @@ class MusicAdder:
         music_loudness = self.measure_loudness(music_file_path)
 
         # adjust music volume to be 80% of the video's average audio volume
-        volume_ratio = 0.7 * (10 ** (video_audio_loudness / 20)) / (10 ** (music_loudness / 20))
+        volume_ratio = 0.7 * (10 ** (video_audio_loudness / 20)) / (10 ** (music_loudness / 20)) * background_music_volume
 
         if video_length <= full_audio_clip.duration:
             logging.info(f'Video length: {video_length} is shorter than the song')
