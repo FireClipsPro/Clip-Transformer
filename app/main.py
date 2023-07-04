@@ -190,7 +190,8 @@ def main():
                                         video_name=video_with_subtitles_name,
                                         output_video_name=clipped_video['transcription_info']['title'],
                                         video_length=clipped_video['end_time_sec'],
-                                        music_category_options=theme['MUSIC_CATEGORY_OPTIONS'])
+                                        music_category_options=theme['MUSIC_CATEGORY_OPTIONS'],
+                                        background_music_volume=theme["BACKGROUND_MUSIC_VOLUME"])
         
         video_clipper.output_file_path = directories.FINISHED_VIDEOS_FOLDER
         video_clipper.input_video_folder_path = directories.FINISHED_VIDEOS_FOLDER

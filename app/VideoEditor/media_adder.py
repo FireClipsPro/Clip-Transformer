@@ -125,27 +125,6 @@ class MediaAdder:
         logging.info(f"Videos: {videos}")
         logging.info(f"Original clip width: {original_clip_width}")
         logging.info(f"Original clip height: {original_clip_height}")
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def remove_audio(self, original_clip, index):
-        overlay_video_no_audio = original_clip['file_name'] + f'_{index}_no_audio.mp4'
-        if os.path.exists(overlay_video_no_audio):
-            os.remove(overlay_video_no_audio)
-        
-        command = [
-            "ffmpeg",
-            "-i", original_clip['file_name'],
-            "-an",
-            overlay_video_no_audio
-        ]
-        subprocess.run(command)
-        
-        # delete the original video
-        os.remove(original_clip['file_name'])
-        
-        # change the name of the video to the one without audio
-        os.rename(overlay_video_no_audio, original_clip['file_name'])
-        
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
     def calculate_top_left_xy(self,
                                  overlay_video_width,

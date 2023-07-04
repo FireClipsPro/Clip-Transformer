@@ -71,6 +71,11 @@ class SubtitleAdder:
         new_subtitles = []
         for subtitle in grouped_subtitles:
             if len(subtitle['text']) > characters_per_line:
+                #if words have no spaces, don't split
+                if ' ' not in subtitle['text']:
+                    new_subtitles.append(subtitle)
+                    continue
+                
                 words = subtitle['text'].split()
                 logging.info(f"Splitting subtitle: {subtitle}")
                 
