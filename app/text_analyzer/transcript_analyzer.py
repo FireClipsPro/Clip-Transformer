@@ -18,7 +18,7 @@ class TranscriptAnalyzer:
         for key in CATEGORY_LIST.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
-    def get_info(self, clipped_video, transcription, speaker_name, music_category_options):
+    def get_info(self, clipped_video, transcription, podcast_title, music_category_options):
         # if the file already exists, then we don't need to query the AI
         if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json"):
             with open(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json", "r") as f:
@@ -32,7 +32,7 @@ class TranscriptAnalyzer:
             
         transcription_info = self.__query_gpt_for_json(transcription_text,
                                                      clipped_video,
-                                                     speaker_name=speaker_name,
+                                                     podcast_title=podcast_title,
                                                      music_category_options=music_category_options)
         
         # add transcription_info dictionary to clipped_video dictionary
@@ -47,14 +47,14 @@ class TranscriptAnalyzer:
     def __query_gpt_for_json(self, 
                            transcription_text,
                            clipped_video,
-                           speaker_name,
+                           podcast_title,
                            music_category_options):
-        speaker_info = self.__make_speaker_info_string(speaker_name)
+        podcast_title = self.__make_title_info_string(podcast_title)
         
         logging.info("Querying openai for transcript info.")
         model="gpt-3.5-turbo"
         
-        system_prompt = self.__create_system_prompt(music_category_options, speaker_info)
+        system_prompt = self.__create_system_prompt(music_category_options, podcast_title)
 
         
         user_prompt = "Here is the text: " + transcription_text + ". Reply with only the json and nothing else."
@@ -74,32 +74,33 @@ class TranscriptAnalyzer:
 
         return video_info_dictionary
 
-    def __create_system_prompt(self, music_category_options, speaker_info):
+    def __create_system_prompt(self, music_category_options, title_info):
         if len(music_category_options) > 1:
             self.__initialize_category_list_string(music_category_options)
             system_prompt = ("You will be given a transcript of a video. "
-                    + speaker_info +
+                    + title_info +
                     "Please return in json format, the following 3 things: "
                     "1. 'description': a 1 sentence description of the transcript "
                     "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible."
-                    "The best title must be, refuting something, epic or extreme, include a time, contain an authority, invoke curiosity fear or negativity, have a timeframe."
+                    "The best title must be, concise and short, refuting something, epic or extreme, include a time, contain an authority, invoke curiosity fear or negativity, have a timeframe."
                     "3. 'category': for this transcript. Choose the BEST option from: " + self.CATEGORY_LIST_STRING + ".")
         else: 
             system_prompt = ("You will be given a transcript of a video. "
-                    + speaker_info +
+                    + title_info +
                     "Please return in json format, the following 2 things: "
                     "1. 'description': a 1 sentence description of the transcript "
-                    "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible.")
+                    "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible."
+                    "The best title must be, refuting something, epic or extreme, include a time, contain an authority, invoke curiosity fear or negativity, have a timeframe.")
                     
         return system_prompt
 
-    def __make_speaker_info_string(self, speaker_name):
-        if speaker_name == "":
-            speaker_info = ""
+    def __make_title_info_string(self, episode_title):
+        if episode_title == "":
+            title_info = ""
         else:
-            speaker_info = "The speaker is " + speaker_name + "."
-            speaker_name = speaker_name.replace("_", " ")
-        return speaker_info
+            title_info = "The title of the podcast episode is " + episode_title + "."
+            episode_title = episode_title.replace("_", " ")
+        return title_info
 
     def __initialize_category_list_string(self, music_category_options):
         self.CATEGORY_LIST_STRING = ""
