@@ -5,7 +5,7 @@ themes = {
     "curious_primates":
     {
         "HEAD_TRACKING_ENABLED" : True,
-        "SECONDS_PER_PHOTO" : 6,
+        "SECONDS_PER_PHOTO" : 5,
         "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0.3,
         "MAXIMUM_PAUSE_LENGTH" : 0.5,
         "TIME_BETWEEN_IMAGES" : 1.5,
@@ -23,7 +23,7 @@ themes = {
                                     (255,255,0), # yellow
                                     (255,48,48), # red
                                     (0,191,255)], # blue
-        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "scary", "conspiracy", "funny"],
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "conspiracy", "motivational", "funny"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,
@@ -31,12 +31,13 @@ themes = {
         "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
-        "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "BACKGROUND_MUSIC_VOLUME": 0.8,
+        "WANTS_SOUND_EFFECTS": True
     },
     "one_percent_minds":
     {
         "HEAD_TRACKING_ENABLED" : True,
-        "SECONDS_PER_PHOTO" : 6,
+        "SECONDS_PER_PHOTO" : 5,
         "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0.3,
         "MAXIMUM_PAUSE_LENGTH" : 0.5,
         "TIME_BETWEEN_IMAGES" : 1.5,
@@ -60,6 +61,8 @@ themes = {
         "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
+        "BACKGROUND_MUSIC_VOLUME": 0.8,
+        "WANTS_SOUND_EFFECTS": True
     },
     "girly":
     {
@@ -81,7 +84,8 @@ themes = {
         "WANTS_ADS" : False,
         "BANNER": None,
         "BANNER_START_TIMES": [],
-        "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "BACKGROUND_MUSIC_VOLUME": 0.8,
+        "WANTS_SOUND_EFFECTS": True
     },
     "political_1":
     {
@@ -111,6 +115,7 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": True
     },
     "political_2":
     {
@@ -140,6 +145,7 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": True
     },
         "political_3":
     {
@@ -169,6 +175,7 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": True
     },
 }
 
