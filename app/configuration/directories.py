@@ -10,13 +10,14 @@ CONSPIRACY_MUSIC_FOLDER = f'{root}songs/conspiracy/'
 HOPEFUL_MUSIC_FOLDER = f'{root}songs/hopeful/'
 SCARY_MUSIC_FOLDER = f'{root}songs/scary/'
 SERIOUS_MUSIC_FOLDER = f'{root}songs/serious/'
-RAW_VIDEO_FOLDER = f"{root}raw_videos/"
-INPUT_FOLDER = f"{root}InputVideos/"
+FULL_POD_FOLDER = f"{root}full_pod_folder/"
+POTENTIAL_CLIP_FOLDER = f"{root}potential_clip_folder/"
+SHORTENED_CLIPS_FOLDER = f"{root}shortened_clips/"
 AUDIO_EXTRACTIONS_FOLDER = f"{root}audio_extractions/"
 IMAGE_FOLDER = f"{root}images/"
 IMAGE_2_VIDEOS_FOLDER = f"{root}videos_made_from_images/"
 OUTPUT_FOLDER = f"{root}OutputVideos/"
-ORIGINAL_INPUT_FOLDER = f"{root}InputVideos/"
+ORIGINAL_INPUT_FOLDER = f"{root}potential_clip_folder/"
 CHROME_DRIVER_PATH = f"{root}content_generator/chromedriver.exe"
 RESIZED_FOLDER = f"{root}resized_original_videos/"
 VIDEOS_WITH_OVERLAYED_MEDIA_PATH = f"{root}media_added_videos/"
@@ -43,8 +44,8 @@ folders_dict = {
     'INTRIGUING_MUSIC_FOLDER': INTRIGUING_MUSIC_FOLDER,
     'CONSPIRACY_MUSIC_FOLDER': CONSPIRACY_MUSIC_FOLDER,
     'SCARY_MUSIC_FOLDER': SCARY_MUSIC_FOLDER,
-    'RAW_VIDEO_FOLDER': RAW_VIDEO_FOLDER,
-    'INPUT_FOLDER': INPUT_FOLDER,
+    'FULL_POD_FOLDER': FULL_POD_FOLDER,
+    'INPUT_FOLDER': POTENTIAL_CLIP_FOLDER,
     'AUDIO_EXTRACTIONS_FOLDER': AUDIO_EXTRACTIONS_FOLDER,
     'IMAGE_FOLDER': IMAGE_FOLDER,
     'IMAGE_2_VIDEOS_FOLDER': IMAGE_2_VIDEOS_FOLDER,

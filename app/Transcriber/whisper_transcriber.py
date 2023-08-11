@@ -9,7 +9,9 @@ MEDIUM_MODEL_SIZE = "medium"
 LARGE_MODEL_SIZE = "large"
 
 class WhisperTranscriber:
-    def __init__(self, audio_files_path, transcripts_folder):
+    def __init__(self, 
+                 audio_files_path,
+                 transcripts_folder):
         print("WhisperTranscriber created")
         self.audio_files_path = audio_files_path
         self.transcripts_folder = transcripts_folder
@@ -95,6 +97,15 @@ class WhisperTranscriber:
     def store_transcription(self, audio_file, result_aligned):
         with open(self.transcripts_folder + audio_file + ".json", "w+") as file:
             json.dump(result_aligned, file)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def round_times(self, transcript):
+        for segment in transcript['segments']:
+            segment['start'] = round(segment['start'], 2)
+            segment['end'] = round(segment['end'], 2)
+        for word_segment in transcript['word_segments']:
+            word_segment['start'] = round(word_segment['start'], 2)
+            word_segment['end'] = round(word_segment['end'], 2)
+        return transcript
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

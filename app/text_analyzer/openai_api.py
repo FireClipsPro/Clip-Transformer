@@ -20,7 +20,6 @@ class OpenaiApi:
             return None
     
     def query(self, system_prompt, user_prompt, model):
-        # openai.api_key = os.getenv("OPENAI_API_KEY")
         openai.api_key = self.get_api_key()
         
         num_retries = 50

@@ -27,7 +27,9 @@ class DALL_E():
             if '_Nothing_Found_' in image['image']:
                 # remove the '_Nothing_Found_' from the google_query string
                 google_query = image['image'].replace('_Nothing_Found_', '')
-
+                
+                logging.info(f"Generating image for: {google_query}")
+                
                 PROMPT = self.generate_prompt(google_query)
                 
                 PROMPT = self.remove_naughty_words(PROMPT)
@@ -42,7 +44,8 @@ class DALL_E():
                 )
 
                 file_name = self.OUTPUT_FOLDER_PATH + f"{PROMPT[:5]}-{response['created']}.json"
-
+                file_name = file_name[:30]
+                
                 with open(file_name, mode="w", encoding="utf-8") as file:
                     json.dump(response, file)
 
@@ -57,7 +60,7 @@ class DALL_E():
                 image['height'] = 1024
                 
         # store the prompts in a json file
-        with open(self.GENERATED_PROMPT_FOLDER_PATH + promps_log_file_name,
+        with open(self.GENERATED_PROMPT_FOLDER_PATH + image['image'],
                   mode="w",
                   encoding="utf-8") as file:
             json.dump(dall_e_prompts, file)
@@ -65,7 +68,8 @@ class DALL_E():
         
         return time_stamped_images
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def remove_naughty_words(self, PROMPT):
+    def remove_naughty_words(self, 
+                             PROMPT):
         for word in PROMPT.split(" "):
             if word == "stalking":
                 PROMPT = PROMPT.replace(word, "chasing")
@@ -96,6 +100,8 @@ class DALL_E():
         for index, image_dict in enumerate(response["data"]):
             image_data = b64decode(image_dict["b64_json"])
             cleaned_query = google_query.replace(" ", "_")
+            # only take the first 30 characters of the querh for the image path
+            cleaned_query = cleaned_query[:30]
             image_file = image_path / f"{cleaned_query}.png"
             with open(image_file, mode="wb") as png:
                 png.write(image_data)

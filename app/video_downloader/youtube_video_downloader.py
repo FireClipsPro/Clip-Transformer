@@ -35,6 +35,9 @@ class YoutubeVideoDownloader:
         logging.info(f"Done! Video downloaded to {self.output_folder}")
         logging.info(f"Video title: {video_title}")
         
+        # edit the file name of video_title to replace spaces with underscores
+        os.rename(os.path.join(self.output_folder, f"{video_title}.{video_ext}"),
+                    os.path.join(self.output_folder, f"{video_title.replace(' ', '_')}.{video_ext}"))
         
         video_title = video_title.replace(' ', '_')
         

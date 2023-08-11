@@ -32,21 +32,21 @@ def main():
     raw_videos = get_raw_videos()
     print(raw_videos)
     
-    video_clipper = VideoClipper(input_video_file_path=directories.RAW_VIDEO_FOLDER,
-                                 output_file_path=directories.INPUT_FOLDER)
+    # highlight finder
     
-    audio_extractor = AudioExtractor(directories.INPUT_FOLDER,
+    video_clipper = VideoClipper(input_video_file_path=directories.FULL_POD_FOLDER,
+                                 output_file_path=directories.POTENTIAL_CLIP_FOLDER)
+    
+    audio_extractor = AudioExtractor(directories.POTENTIAL_CLIP_FOLDER,
                                      directories.AUDIO_EXTRACTIONS_FOLDER)
 
     transcriber = WhisperTranscriber(directories.AUDIO_EXTRACTIONS_FOLDER, directories.TRANSCRIPTS_FOLDER)
     
-    pause_remover = PauseRemover(directories.INPUT_FOLDER, directories.RESIZED_FOLDER)
+    pause_remover = PauseRemover(directories.POTENTIAL_CLIP_FOLDER, directories.RESIZED_FOLDER)
     
+    #clip length reducer
     head_tracker = HeadTrackingCropper(directories.RESIZED_FOLDER,
                                        directories.RESIZED_FOLDER)
-    
-    video_resizer = VideoResizer(directories.INPUT_FOLDER,
-                                 directories.RESIZED_FOLDER)
     
     openai_api = OpenaiApi()
 
@@ -121,17 +121,9 @@ def main():
                                                                     transcription['word_segments'],
                                                                     theme['MAXIMUM_PAUSE_LENGTH'])
         
-        if HEAD_TRACKING_ENABLED:
-            clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
-                                            presets.VERTICAL_VIDEO_WIDTH,
-                                            presets.VERTICAL_VIDEO_HEIGHT)
-        else:
-            clipped_video = video_resizer.resize_video(clipped_video['file_name'],
-                                            clipped_video['file_name'],
-                                            video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
-                                            video_resizer.YOUTUBE_VIDEO_HEIGHT,
-                                            clipped_video) 
-
+        clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
+                                        presets.VERTICAL_VIDEO_WIDTH,
+                                        presets.VERTICAL_VIDEO_HEIGHT)
         
         clipped_video = transcription_analyzer.get_info(clipped_video,
                                                         transcription,
@@ -207,19 +199,10 @@ def main():
         video_clipper.clip_video(video_with_music_name,
                                  0,
                                  clipped_video['end_time_sec'])
-        video_clipper.input_video_folder_path = directories.RAW_VIDEO_FOLDER
-        video_clipper.output_file_path = directories.INPUT_FOLDER
+        video_clipper.input_video_folder_path = directories.FULL_POD_FOLDER
+        video_clipper.output_file_path = directories.POTENTIAL_CLIP_FOLDER
         
         finished_video_sorter.sort_video(raw_video['raw_video_name'], video_with_music_name)
-            
-        remove_line_of_input_info()
-
-def remove_line_of_input_info():
-    with open(directories.INPUT_INFO_FILE, 'r') as file:
-        lines = file.readlines()
-
-    with open(directories.INPUT_INFO_FILE, 'w') as file:
-        file.writelines(lines[1:])  # Skip the first line
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -244,7 +227,7 @@ def get_raw_videos():
             
             lines_read += 1
     
-    downloader = YoutubeVideoDownloader(output_folder=directories.RAW_VIDEO_FOLDER,
+    downloader = YoutubeVideoDownloader(output_folder=directories.FULL_POD_FOLDER,
                                         downloaded_videos_file=directories.DOWNLOADED_VIDEOS_FILE)
     raw_videos = downloader.download_videos(raw_videos)
     
