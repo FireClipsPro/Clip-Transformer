@@ -3,8 +3,9 @@ from content_generation import ImageToVideoCreator, ImageEvaluator, FullScreenIm
 import unittest
 import os
 import subprocess
+import configuration.presets as presets
 
-root = "../test_material/"
+root = "./Clip-Transformer/test_material/"
 
 RAW_VIDEO_FOLDER = f"{root}raw_videos/"
 INPUT_FOLDER = f"{root}InputVideos/"
@@ -26,6 +27,8 @@ VERTICAL_VIDEO_WIDTH = 1080
 PERECENT_OF_IMAGES_TO_BE_FULLSCREEN = 1
        
 def test_full_usage():
+    theme = presets.themes['curious_primates']
+    
     image_evaluator = ImageEvaluator(IMAGE_FOLDER)
     
     VERTICAL_VIDEO_WIDTH, VERTICAL_VIDEO_HEIGHT = image_evaluator.get_video_dimensions(INPUT_FOLDER + 'JordanClip_15.mp4')
@@ -47,20 +50,18 @@ def test_full_usage():
     
     images = [{'start_time': 2,
                 'end_time': 5,
-                'image': 'soccer_teammates_celebrating_after_scoring_a_goal_0.jpg'},
+                'image': 'elon.jpg'},
                 {'start_time': 7,
                 'end_time': 10,
-                'image': 'team_celebrating_after_scoring_a_goal_0.jpg'},
-                {'start_time': 12,
-                'end_time': 15,
-                'image': 'team_celebration_after_scoring_a_goal_2.jpg'}]
+                'image': 'soccer_teammates_celebrating_after_scoring_a_goal_0.jpg'}]
     
     images = fullscreen_selector.choose_fullscreen_images(images,
-                                                        VERTICAL_VIDEO_WIDTH,
-                                                        VERTICAL_VIDEO_HEIGHT,
-                                                        VERTICAL_VIDEO_WIDTH,
-                                                        int(VERTICAL_VIDEO_HEIGHT/2),
-                                                        percent_of_images_to_be_fullscreen=PERECENT_OF_IMAGES_TO_BE_FULLSCREEN)
+                                                        presets.VERTICAL_VIDEO_WIDTH,
+                                                        presets.VERTICAL_VIDEO_HEIGHT,
+                                                        presets.VERTICAL_VIDEO_WIDTH,
+                                                        int(presets.VERTICAL_VIDEO_HEIGHT / 2),
+                                                        percent_of_images_to_be_fullscreen=PERECENT_OF_IMAGES_TO_BE_FULLSCREEN,
+                                                        fullscreen_duration=3)
     
     #print current working directory
     print(os.getcwd())
@@ -70,24 +71,30 @@ def test_full_usage():
             print(f"Error: {IMAGE_FOLDER + image['image']} does not exist. Stopping program.")
             return
     
-    video_data = image_to_video_creator.convert_to_videos(images)
+    video_data = image_to_video_creator.convert_to_videos(images, 
+                                                          theme['IMAGE_BORDER_COLOR(S)'],
+                                                          theme['OVERLAY_ZONE_WIDTH'],
+                                                          theme['OVERLAY_ZONE_HEIGHT'])
+    
     if video_data == None:
         print("Error: Images were not found. Stopping program.")
         return 
+    else:
+        print("video_data: " + str(video_data))
         
     
-    original_clip = {'file_name': 'JordanClip_15.mp4',
-                     'end_time_sec': 15,
-                     'start_time_sec': 0}
+    # original_clip = {'file_name': 'JordanClip_15.mp4',
+    #                  'end_time_sec': 15,
+    #                  'start_time_sec': 0}
     
-    print("video_data:" + str(video_data))
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nStarting media_adder.add_videos_to_original_clip\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    output = media_adder.add_videos_to_original_clip(original_clip=original_clip,
-                                       videos=video_data,
-                                       original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
-                                       original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2)
+    # print("video_data:" + str(video_data))
+    # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nStarting media_adder.add_videos_to_original_clip\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    # output = media_adder.add_videos_to_original_clip(original_clip=original_clip,
+    #                                    videos=video_data,
+    #                                    original_clip_width=media_adder.YOUTUBE_SHORT_WIDTH,
+    #                                    original_clip_height=media_adder.YOUTUBE_SHORT_HALF_HEIGHT * 2)
     
-    print(str(output))
+    # print(str(output))
 
 
 # def test_cropped_images_are_correct_sizes():
