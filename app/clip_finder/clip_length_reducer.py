@@ -67,7 +67,7 @@ class ClipLenghtReducer():
         video = moviepy.VideoFileClip(f"{self.output_clip_folder_path}{clip_file_name}")
         
         remaining_parts = []
-        end_of_last_part = 0
+        end_of_last_part = 0.0
         for part in sorted(parts_to_remove, key=lambda x: x['start']):
             remaining_parts.append(video.subclip(end_of_last_part, part['start']))
             end_of_last_part = part['end']

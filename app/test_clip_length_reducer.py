@@ -11,7 +11,7 @@ transcript_folder = "../test_material/audio_extractions/"
 input_folder = "../test_material/InputVideos/"
 shortened_folder = "../test_material/OutputVideos/"
 
-class TestTranscriptModification(unittest.TestCase):
+class TestClipLengthReducer(unittest.TestCase):
     def setUp(self):
         openai_api = OpenaiApi()
         self.clip_length_reducer = ClipLenghtReducer(openai_api,
@@ -50,20 +50,20 @@ class TestTranscriptModification(unittest.TestCase):
     def ceil(self, num):
         return math.ceil(num * 1000) / 1000
     
-    def test_remove_parts_from_video(self):
+    def test_RemovePartsFromVideo_RemoveOnePart_CorrectTimeIsRemoved(self):
         self.clip_length_reducer.output_clip_folder_path = input_folder
         # get starting duration of video
-        video = moviepy.VideoFileClip(input_folder + 'repub.mp4')
+        video = moviepy.VideoFileClip(input_folder + 'JordanClip_15.mp4')
         starting_duration = video.duration
         
-        final_clip, duration = self.clip_length_reducer.remove_parts_from_video('repub.mp4', [{'start': 0, 'end': 4}, {'start': 10, 'end': 15}])
-
+        final_clip, duration = self.clip_length_reducer.remove_parts_from_video('JordanClip_15.mp4', [{'start': 1, 'end': 5}])
+        
         # get the duration of the video
         video = moviepy.VideoFileClip(input_folder + final_clip)
         
-        self.assertEqual(duration, video.duration)
         self.assertNotEqual(duration, starting_duration)
-        self.assertEqual(starting_duration - duration, 11)
+        self.assertEqual(starting_duration - duration, 4.0)
+        self.assertEqual(starting_duration - 4.0, video.duration)
         
         # tear down
         self.clip_length_reducer.output_clip_folder_path = shortened_folder
