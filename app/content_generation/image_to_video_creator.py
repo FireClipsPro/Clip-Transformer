@@ -54,10 +54,11 @@ class ImageToVideoCreator:
         
         #for each image in the list of images
         for image in images:
-            if os.path.exists(self.video_2_image_file_path + f'{image["image"][:-4]}.mp4'):
+            video_file_name = f'{image["image"][:-4]}.mp4'
+            if os.path.exists(self.video_2_image_file_path + video_file_name):
                 logging.info(f'Video for {image["image"]} already exists.')
-                image['width'], image['height'] = self.image_evaluator.get_video_dimensions(self.video_2_image_file_path + image["image"])
-                image['video_file_name'] = f'{image["image"][:-4]}.mp4'
+                image['width'], image['height'] = self.image_evaluator.get_video_dimensions(self.video_2_image_file_path + video_file_name)
+                image['video_file_name'] = video_file_name
                 continue
             
             image = self.record_image_size(image)
@@ -276,7 +277,7 @@ class ImageToVideoCreator:
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def shrink_image(self, image, input_file, output_file, frame_width, frame_height):
-        logging.info(f'Shrinking image.')
+        logging.info(f'Shrinking image to fit in {frame_width}x{frame_height} frame.')
         # delete output file if it exists
         if os.path.exists(output_file):
             os.remove(output_file)
@@ -286,11 +287,11 @@ class ImageToVideoCreator:
 
         if new_width > frame_width:
             new_width = frame_width * PERCENT_OF_DISPLAY_SCREEN
-            new_height = int(image['height'] * (frame_width / image['width']))
+            new_height = int(image['height'] * (new_width / image['width']))
             
         if new_height > frame_height:
             new_height = frame_height * PERCENT_OF_DISPLAY_SCREEN
-            new_width = int(image['width'] * (frame_height / image['height']))
+            new_width = int(image['width'] * (new_height / image['height']))
         
         # Create and Run the command to shrink the image
         command = [
@@ -322,7 +323,7 @@ class ImageToVideoCreator:
 
         if new_width > frame_width:
             new_width = frame_width * PERCENT_OF_DISPLAY_SCREEN
-            new_height = int(image['height'] * (frame_width / image['width']))
+            new_height = int(image['height'] * (new_width / image['width']))
         
         # Create and Run the command to shrink the image
         command = [
@@ -343,7 +344,12 @@ class ImageToVideoCreator:
         
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def shrink_image_height(self, image, input_file, output_file, frame_width, frame_height):
+    def shrink_image_height(self, 
+                            image,
+                            input_file,
+                            output_file,
+                            frame_width,
+                            frame_height):
         logging.info(f'Shrinking image height to fit in frame.')
         # delete output file if it exists
         if os.path.exists(output_file):
@@ -354,7 +360,7 @@ class ImageToVideoCreator:
             
         if new_height > frame_height:
             new_height = int(math.floor(frame_height * PERCENT_OF_DISPLAY_SCREEN))
-            new_width = int(math.floor(image['width'] * (frame_height / image['height'])))
+            new_width = int(math.floor(image['width'] * (new_height / image['height'])))
         
         # Create and Run the command to shrink the image
         command = [
