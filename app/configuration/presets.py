@@ -1,14 +1,16 @@
 VERTICAL_VIDEO_HEIGHT = 1920
 VERTICAL_VIDEO_WIDTH = 1080
+HORIZONTAL_VIDEO_HEIGHT = 1080
+HORIZONTAL_VIDEO_WIDTH = 1920
 
 themes = {
     "curious_primates":
     {
         "HEAD_TRACKING_ENABLED" : True,
-        "SECONDS_PER_PHOTO" : 5,
+        "SECONDS_PER_PHOTO" : 4,
         "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0.3,
         "MAXIMUM_PAUSE_LENGTH" : 0.5,
-        "TIME_BETWEEN_IMAGES" : 1.5,
+        "TIME_BETWEEN_IMAGES" : 1,
         "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 60,
         "SUBTITLE_DURATION" : 1,
         "DURATION_OF_FULL_SCREEN_IMAGES" : 3,
@@ -28,9 +30,9 @@ themes = {
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,
         "PUNCTUATION": True,
-        "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1400],
         "OVERLAY_ZONE_WIDTH": 1080,
-        "OVERLAY_ZONE_HEIGHT": 520,
+        "OVERLAY_ZONE_HEIGHT": 450,
         "BACKGROUND_MUSIC_VOLUME": 0.8,
         "WANTS_SOUND_EFFECTS": True
     },
@@ -171,11 +173,75 @@ themes = {
         "CENSOR_PROFANITY": True,
         "ALL_CAPS": False,
         "PUNCTUATION": True,
-        "OVERLAY_ZONE_TOP_LEFT": [0, 1344],
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1500],
         "OVERLAY_ZONE_WIDTH": 1080,
-        "OVERLAY_ZONE_HEIGHT": 520,
+        "OVERLAY_ZONE_HEIGHT": 420,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
         "WANTS_SOUND_EFFECTS": True
+    },
+        "jar":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 5,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
+        "MAXIMUM_PAUSE_LENGTH" : 0.5,
+        "TIME_BETWEEN_IMAGES" : 0,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 85,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 5,
+        "FONT" :  "Tahoma Bold.ttf",
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 6,
+        "FONT_SIZE" : 80,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 30,
+        "FONT_COLOR" : (255,255,255),
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful", "serious"],
+        "WANTS_ADS" : False,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10],
+        "CENSOR_PROFANITY": True,
+        "ALL_CAPS": False,
+        "PUNCTUATION": True,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 0],
+        "OVERLAY_ZONE_WIDTH": 1920,
+        "OVERLAY_ZONE_HEIGHT": 1080,
+        "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": False,
+        "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
+        "AUDIO_ONLY_BACKGROUND_MEDIA": "jar.jpg",
+    },
+    "horizontal":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 5,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
+        "MAXIMUM_PAUSE_LENGTH" : 0.5,
+        "TIME_BETWEEN_IMAGES" : 0,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 85,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 5,
+        "FONT" :  "Tahoma Bold.ttf",
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 6,
+        "FONT_SIZE" : 80,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 30,
+        "FONT_COLOR" : (255,255,255),
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful", "serious"],
+        "WANTS_ADS" : False,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10],
+        "CENSOR_PROFANITY": True,
+        "ALL_CAPS": False,
+        "PUNCTUATION": True,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 0],
+        "OVERLAY_ZONE_WIDTH": 1920,
+        "OVERLAY_ZONE_HEIGHT": 1080,
+        "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": False,
+        "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
+        "AUDIO_ONLY_BACKGROUND_MEDIA": "trippy_purple.mp4",
     },
 }
 

@@ -1,5 +1,6 @@
 root = "../../media_storage/"
 
+AUDIO_TO_VIDEO_INPUT_INFO = f"{root}audio_to_video_input_info.csv"
 TRANSCRIPTS_FOLDER = f'{root}transcripts/'
 ANGRY_MUSIC_FOLDER = f'{root}songs/angry/'
 CUTE_MUSIC_FOLDER = f'{root}songs/cute/'
@@ -33,6 +34,7 @@ BACKGROUNDLESS_VIDEOS_FOLDER = f"{root}background_removed_videos/"
 BACKGROUND_IMAGE_FOLDER = f"{root}background_images/"
 IMAGE_SOUNDS_FOLDER = f"{root}image_display_sounds/"
 DOWNLOADED_VIDEOS_FILE = f"{root}downloaded_videos/videos.csv"
+BACKGROUND_FOLDER = f"{root}audio_only_backgrounds/"
 
 folders_dict = {
     'TRANSCRIPTS_FOLDER': TRANSCRIPTS_FOLDER,
@@ -65,7 +67,8 @@ folders_dict = {
     'BACKGROUNDLESS_VIDEOS_FOLDER': BACKGROUNDLESS_VIDEOS_FOLDER,
     'BACKGROUND_IMAGE_FOLDER': BACKGROUND_IMAGE_FOLDER,
     'IMAGE_SOUNDS_FOLDER': IMAGE_SOUNDS_FOLDER,
-    'DOWNLOADED_VIDEOS_FILE': DOWNLOADED_VIDEOS_FILE
+    'DOWNLOADED_VIDEOS_FILE': DOWNLOADED_VIDEOS_FILE,
+    'BACKGROUND_FOLDER': BACKGROUND_FOLDER
 }
 
 

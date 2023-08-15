@@ -19,7 +19,7 @@ class SentenceSubjectAnalyzer:
                               transcription,
                               transcription_length_sec,
                               seconds_per_query,
-                              video_description,
+                              descriptions,
                               output_file_name="queries.json"):
         
         if os.path.exists(self.queries_folder_path + output_file_name[:-4] + '.json'):
@@ -51,14 +51,22 @@ class SentenceSubjectAnalyzer:
 
             if sentence == "":
                 continue
-
-            query = self.assign_query_to_time_chunk(sentence_list, i, video_description)
+            
+            description = self.get_video_description(descriptions, time_chunk_start, time_chunk_end)
+            
+            query = self.assign_query_to_time_chunk(sentence_list, i, description)
             query_list.append({'query': query, 'start': time_chunk_start, 'end': time_chunk_end, 'sentence': sentence})
             logging.info(f"Time chunk: {time_chunk_start}-{time_chunk_end}, Query: {query}")
 
         query_list = self.create_queries_for_null_time_chunks(query_list)
         self.save_queries(query_list, output_file_name)
         return query_list
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def get_video_description(self, descriptions, time_chunk_start, time_chunk_end):
+        logging.info("descriptions: " + str(descriptions))
+        for description in descriptions:
+            if description['start'] <= time_chunk_start and description['end'] >= time_chunk_end:
+                return description['description']
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def assign_query_to_time_chunk(self, sentence_list, i, video_description):
         current_sentence = sentence_list[i]
