@@ -97,7 +97,7 @@ class GoogleImagesAPI:
                 logging.info(f"Found image link for query: {query}, but it was already used. Trying again.")
                 link_needed += 1
                 continue
-            if "youtube.com" in fetched_link:
+            if "youtube.com" in fetched_link or "amazon.com" in fetched_link:
                 logging.info(f"Found image link for query: {query}, but it was a youtube link. Trying again.")
                 link_needed += 1
                 continue
