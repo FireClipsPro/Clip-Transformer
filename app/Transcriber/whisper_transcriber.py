@@ -3,6 +3,7 @@ import torch
 import os
 import json
 from better_profanity import profanity
+import logging
 
 SMALL_MODEL_SIZE = "small"
 MEDIUM_MODEL_SIZE = "medium"
@@ -10,7 +11,7 @@ LARGE_MODEL_SIZE = "large"
 
 class WhisperTranscriber:
     def __init__(self, audio_files_path, transcripts_folder):
-        print("WhisperTranscriber created")
+        logging.info("WhisperTranscriber created")
         self.audio_files_path = audio_files_path
         self.transcripts_folder = transcripts_folder
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -19,14 +20,16 @@ class WhisperTranscriber:
         if not os.path.exists(self.audio_files_path + audio_file):
             raise Exception('Audio file does not exist')
         else:
-            print("Audio file found, transcribing...")
+            logging.info("Audio file found, transcribing...")
             
         # check if json file exists
         if os.path.exists(self.transcripts_folder + audio_file + ".json"):
-            print("JSON file found, loading...")
+            logging.info("JSON file found, loading...")
             with open(self.transcripts_folder + audio_file + ".json", "r") as f:
                 transcription = json.load(f)
             return transcription
+        else:
+            logging.info("JSON file not found, transcribing...")
         
         if torch.cuda.is_available():
             device = "cuda"
@@ -36,7 +39,7 @@ class WhisperTranscriber:
 
         result = model.transcribe(self.audio_files_path + audio_file)
 
-        print(result["segments"]) # before alignment
+        logging.info(result["segments"]) # before alignment
 
         # load alignment model and metadata
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
@@ -44,10 +47,10 @@ class WhisperTranscriber:
         # align whisper output
         result_aligned = whisperx.align(result["segments"], model_a, metadata, self.audio_files_path + audio_file, device)
 
-        print("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print(result_aligned["segments"]) # after alignment
-        print("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print(result_aligned["word_segments"]) # after alignment 
+        logging.info("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        logging.info(result_aligned["segments"]) # after alignment
+        logging.info("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        logging.info(result_aligned["word_segments"]) # after alignment 
 
         transcription = self.parse_transcription(result_aligned)
         
@@ -105,4 +108,4 @@ class WhisperTranscriber:
 # transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
 
 # transcript = transcriber.clean_transcription(transcriber.transcribe("vikings_(0, 46)_(1, 44).mp3"))
-# print (transcript)
+# logging.info (transcript)

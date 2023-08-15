@@ -133,7 +133,7 @@ def main():
                                             clipped_video) 
 
         
-        clipped_video = transcription_analyzer.get_info(clipped_video,
+        clipped_video = transcription_analyzer.get_clip_info(clipped_video,
                                                         transcription,
                                                         raw_video['raw_video_name'],
                                                         theme['MUSIC_CATEGORY_OPTIONS'])
@@ -211,9 +211,8 @@ def main():
         video_clipper.output_file_path = directories.INPUT_FOLDER
         
         finished_video_sorter.sort_video(raw_video['raw_video_name'], video_with_music_name)
-            
-        remove_line_of_input_info()
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def remove_line_of_input_info():
     with open(directories.INPUT_INFO_FILE, 'r') as file:
         lines = file.readlines()
