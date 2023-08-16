@@ -22,6 +22,16 @@ class BlankVideoCreator:
         # Determine audio duration
         audio_clip = AudioFileClip(os.path.join(self.audio_folder, audio_file_name))
         audio_duration = audio_clip.duration
+        # Determine the name and path for the resulting video
+        background_video_name = "blank_" + os.path.splitext(audio_file_name)[0] + ".mp4"
+        background_video_path = os.path.join(self.video_folder, background_video_name)
+        
+        # if the video name already exists return it
+        if os.path.exists(background_video_path):
+            video = {'file_name': background_video_name,
+                'start_time_sec': 0,
+                'end_time_sec': audio_duration}
+            return video
 
         # If no background media is given, create a black video
         if background_media_name is None:
@@ -48,9 +58,6 @@ class BlankVideoCreator:
         # Add audio to the video clip
         clip = clip.set_audio(audio_clip).set_duration(audio_duration)
 
-        # Determine the name and path for the resulting video
-        background_video_name = "blank_" + os.path.splitext(audio_file_name)[0] + ".mp4"
-        background_video_path = os.path.join(self.video_folder, background_video_name)
 
         # Add fps attribute to the clip
         clip.fps = 24

@@ -93,7 +93,8 @@ class TranscriptAnalyzer:
                 if start_time_of_current_chunk is None:
                     start_time_of_current_chunk = text_segment['start']
 
-                if current_token_count + len(token) > 4000:
+                # We cut it down to smaller token chunks because that is a good sized context window
+                if current_token_count + len(token) > 750:
                     end_time_of_last_chunk = text_segment['start']  # The start time of the current segment is the end time of the last chunk
                     chunks.append({
                         'text': ' '.join(current_chunk),

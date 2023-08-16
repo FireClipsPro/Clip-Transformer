@@ -171,7 +171,8 @@ def main():
         video_data = image_to_video_creator.convert_to_videos(time_stamped_images,
                                                               theme["IMAGE_BORDER_COLOR(S)"],
                                                               theme['OVERLAY_ZONE_WIDTH'],
-                                                              theme['OVERLAY_ZONE_HEIGHT'])
+                                                              theme['OVERLAY_ZONE_HEIGHT'],
+                                                              theme['ZOOM_SPEED'])
         
         video_with_media = media_adder.add_videos_to_original_clip(original_clip=video_with_sound_effects,
                                         videos=video_data,

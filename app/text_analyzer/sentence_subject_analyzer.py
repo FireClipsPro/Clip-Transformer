@@ -25,6 +25,10 @@ class SentenceSubjectAnalyzer:
         if os.path.exists(self.queries_folder_path + output_file_name[:-4] + '.json'):
             with open(self.queries_folder_path + output_file_name[:-4] + '.json', "r") as f:
                 query_list = json.load(f)
+            for query in query_list:
+                query_words = query['query'].split(" ")
+                if len(query_words) > 8:
+                    query['query'] = " ".join(query_words[:8])
             return query_list
         
         logging.info("Processing transcription")
@@ -55,6 +59,14 @@ class SentenceSubjectAnalyzer:
             description = self.get_video_description(descriptions, time_chunk_start, time_chunk_end)
             
             query = self.assign_query_to_time_chunk(sentence_list, i, description)
+            
+            # if query has a newline character in it remove that
+            query = query.replace("\n","")
+            #if query is more than 6 words long, keep only first 6 words
+            word_list = query.split(" ")
+            if len(word_list) > 8:
+                query = " ".join(word_list[:8])
+            
             query_list.append({'query': query, 'start': time_chunk_start, 'end': time_chunk_end, 'sentence': sentence})
             logging.info(f"Time chunk: {time_chunk_start}-{time_chunk_end}, Query: {query}")
 

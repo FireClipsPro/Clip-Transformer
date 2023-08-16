@@ -128,15 +128,15 @@ class GoogleImagesAPI:
     
     def image_is_relevant_and_colorful(self, fetched_link, output_file_name, query, link_needed):
         # Classify image
-        if self.image_classifier.classify(output_file_name, query) < self.IMAGE_CLASSIFIER_THRESHOLD:
-            logging.info(f"Image {fetched_link} was not classified as {query}. Trying again.")
-            # delete image
-            os.remove(self.IMAGE_FILE_PATH + output_file_name)
-            self.used_links.append(fetched_link)
-            link_needed += 1
-            return False, link_needed
-        else:
-            logging.info(f"Image {fetched_link} was classified as {query}.")
+        # if self.image_classifier.classify(output_file_name, query) < self.IMAGE_CLASSIFIER_THRESHOLD:
+        #     logging.info(f"Image {fetched_link} was not classified as {query}. Trying again.")
+        #     # delete image
+        #     os.remove(self.IMAGE_FILE_PATH + output_file_name)
+        #     self.used_links.append(fetched_link)
+        #     link_needed += 1
+        #     return False, link_needed
+        # else:
+        #     logging.info(f"Image {fetched_link} was classified as {query}.")
         # Evaluate image
         if not self.image_evaluator.is_colorful_enough(output_file_name):
             logging.info(f"Image {fetched_link} is not colorful enough. Trying again.")
