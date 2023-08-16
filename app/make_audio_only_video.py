@@ -83,8 +83,8 @@ def main():
                     directories.IMAGE_2_VIDEOS_FOLDER,
                     directories.VIDEOS_WITH_OVERLAYED_MEDIA_PATH)
 
-    subtitle_adder = SubtitleAdder(directories.VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
-                                    directories.WITH_SUBTITLES_FOLDER)
+    subtitle_adder = SubtitleAdder(input_folder_path=directories.VIDEOS_WITH_OVERLAYED_MEDIA_PATH,
+                                   output_folder_path=directories.FINISHED_AUD2VID_FOLDER)
 
     # loop through the files
     for audio_file in audio_files:
@@ -144,7 +144,8 @@ def main():
         video_data = image_to_video_creator.convert_to_videos(time_stamped_images,
             theme["IMAGE_BORDER_COLOR(S)"],
             theme['OVERLAY_ZONE_WIDTH'],
-            theme['OVERLAY_ZONE_HEIGHT'])
+            theme['OVERLAY_ZONE_HEIGHT'],
+            theme['ZOOM_SPEED'])
         
         logging.info(str(video_with_sound_effects))
         

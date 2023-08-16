@@ -34,7 +34,8 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 450,
         "BACKGROUND_MUSIC_VOLUME": 0.8,
-        "WANTS_SOUND_EFFECTS": True
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
     },
     "one_percent_minds":
     {
@@ -64,7 +65,8 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
         "BACKGROUND_MUSIC_VOLUME": 0.8,
-        "WANTS_SOUND_EFFECTS": True
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
     },
     "girly":
     {
@@ -87,7 +89,8 @@ themes = {
         "BANNER": None,
         "BANNER_START_TIMES": [],
         "BACKGROUND_MUSIC_VOLUME": 0.8,
-        "WANTS_SOUND_EFFECTS": True
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
     },
     "political_1":
     {
@@ -117,7 +120,8 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
-        "WANTS_SOUND_EFFECTS": True
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
     },
     "political_2":
     {
@@ -147,7 +151,8 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 520,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
-        "WANTS_SOUND_EFFECTS": True
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
     },
         "political_3":
     {
@@ -177,7 +182,8 @@ themes = {
         "OVERLAY_ZONE_WIDTH": 1080,
         "OVERLAY_ZONE_HEIGHT": 420,
         "BACKGROUND_MUSIC_VOLUME": 0.75,
-        "WANTS_SOUND_EFFECTS": True
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
     },
         "jar":
     {
@@ -210,6 +216,7 @@ themes = {
         "WANTS_SOUND_EFFECTS": False,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
         "AUDIO_ONLY_BACKGROUND_MEDIA": "jar.jpg",
+        "ZOOM_SPEED": 'slow',
     },
     "horizontal":
     {
@@ -242,7 +249,8 @@ themes = {
         "WANTS_SOUND_EFFECTS": False,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
         "AUDIO_ONLY_BACKGROUND_MEDIA": "trippy_purple.mp4",
-    },
+        "ZOOM_SPEED": 'slow',
+    }
 }
 
 
