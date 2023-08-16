@@ -21,6 +21,8 @@ HORIZONTAL_SCROLL_EFFECT = 'horizontal_scroll'
 VERTICAL_SCROLL_EFFECT = 'vertical_scroll'
 HORIZONTAL_SPEED_COEFFICIENT = .714
 VERTICAL_SPEED_COEFFICIENT = .6
+FAST_SPEED = 'fast'
+SLOW_SPEED = 'slow'
 
 
 class ImageToVideoCreator:
@@ -39,13 +41,15 @@ class ImageToVideoCreator:
         self.y_scroll_speed = 200
         self.image_evaluator = image_evaluator
         self.__last_used_color = None
+        self.zoom_in_was_last_used = False
         logging.info("ImageToVideoCreator created")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def convert_to_videos(self, 
                           images,
                           border_colors,
                           frame_width,
-                          frame_height):
+                          frame_height,
+                          zoom_speed):
         self.frame_width = int(math.floor(frame_width * .9))
         self.frame_height = int(math.floor(frame_height * .9))
         
@@ -64,7 +68,8 @@ class ImageToVideoCreator:
             image = self.record_image_size(image)
             image = self.resize_and_animate_image(image,
                                                   image['overlay_zone_width'],
-                                                  image['overlay_zone_height'])
+                                                  image['overlay_zone_height'],
+                                                  zoom_speed)
             image = self.add_border(image, border_colors)
             image = self.record_image_size(image)
             
@@ -79,7 +84,7 @@ class ImageToVideoCreator:
         
         return os.path.abspath(self.video_2_image_file_path + output_file)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def animate_image(self, image, input_file_path, output_file, effect):
+    def animate_image(self, image, input_file_path, output_file, effect, zoom_speed):
         logging.info(f'Animating {image["image"]}')
         
         output_file_path = self.initialize_output_path(output_file)
@@ -93,10 +98,22 @@ class ImageToVideoCreator:
         
         # if effect is zoom in
         if effect == ZOOM_EFFECT:
-            logging.info(f'Zooming in on {image["image"]}')
-            slide = self.zoom_in_effect(slide, 0.05)
+            if zoom_speed == FAST_SPEED:
+                speed_factor = 0.05
+            elif zoom_speed == SLOW_SPEED:
+                speed_factor = 0.025
+            
+            if self.zoom_in_was_last_used:
+                logging.info(f' Zooming out on {image["image"]}')
+                slide = self.zoom_out_effect(slide, speed_factor)
+                self.zoom_in_was_last_used = False
+            else:
+                logging.info(f'Zooming in on {image["image"]}')
+                slide = self.zoom_in_effect(slide, speed_factor)
+                self.zoom_in_was_last_used = True
+            
 
-        slide.write_videofile(output_file_path)
+        slide.write_videofile(output_file_path, threads=4)
         
         #check if the output file exists
         if not os.path.exists(os.path.abspath(output_file_path)):
@@ -110,6 +127,47 @@ class ImageToVideoCreator:
         image['video_file_name'] = output_file
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def zoom_out_effect(self, clip, speed_factor=0.04):
+        duration = clip.duration
+
+        def effect(get_frame, t):
+            img = Image.fromarray(get_frame(t))
+            base_size = img.size
+
+            # Calculate the amount of zoom we should have at the start of the clip.
+            max_zoom = 1 + speed_factor * duration
+
+            # Calculate how much we should zoom out over time.
+            # This value will decrease from max_zoom to 1 as t goes from 0 to duration.
+            current_zoom = max_zoom - (speed_factor * t)
+
+            # Calculate the size of the region of the original image we will show based on the current zoom level.
+            crop_size = [
+                math.floor(base_size[0] / current_zoom),
+                math.floor(base_size[1] / current_zoom)
+            ]
+            
+            # The crop dimensions must be even.
+            crop_size[0] = crop_size[0] + (crop_size[0] % 2)
+            crop_size[1] = crop_size[1] + (crop_size[1] % 2)
+
+            # Calculate the top-left coordinates for cropping the center of the image.
+            x = math.ceil((base_size[0] - crop_size[0]) / 2)
+            y = math.ceil((base_size[1] - crop_size[1]) / 2)
+
+            # Crop the image.
+            img = img.crop([x, y, x + crop_size[0], y + crop_size[1]])
+
+            # Resize the cropped image back to the original dimensions, creating the zoom-out effect.
+            img = img.resize(base_size, Image.LANCZOS)
+
+            result = numpy.array(img)
+            img.close()
+
+            return result
+
+        return clip.fl(effect)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def files_do_not_exist(self, input_file_path, output_file, image):
         # throw error if the input file does not exist
         if not os.path.exists(input_file_path):
@@ -121,14 +179,14 @@ class ImageToVideoCreator:
             logging.info("Image is None")
             return True
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def zoom_in_effect(self, clip, zoom_ratio=0.04):
+    def zoom_in_effect(self, clip, zoom_speed=0.04):
         def effect(get_frame, t):
             img = Image.fromarray(get_frame(t))
             base_size = img.size
 
             new_size = [
-                math.ceil(img.size[0] * (1 + (zoom_ratio * t))),
-                math.ceil(img.size[1] * (1 + (zoom_ratio * t)))
+                math.ceil(img.size[0] * (1 + (zoom_speed * t))),
+                math.ceil(img.size[1] * (1 + (zoom_speed * t)))
             ]
 
             # The new dimensions must be even.
@@ -177,7 +235,7 @@ class ImageToVideoCreator:
                                bottom=border_size, 
                                color=border_color)
         
-        bordered_clip.write_videofile(animated_image_output_file)
+        bordered_clip.write_videofile(animated_image_output_file, threads=4)
         
         # delete the old input file
         if os.path.exists(animated_image_file):
@@ -191,7 +249,8 @@ class ImageToVideoCreator:
     def resize_and_animate_image(self,
                       image,
                       frame_width,
-                      frame_height):
+                      frame_height,
+                      zoom_speed):
         logging.info(f'image_file_path: {self.image_file_path}')
         logging.info(f'image file name: {image["image"]}')
         image_path = self.image_file_path + image["image"]
@@ -201,17 +260,21 @@ class ImageToVideoCreator:
         
         if os.path.exists(resized_image_path):
             os.remove(resized_image_path)
+            # return image
+        if os.path.exists(self.video_2_image_file_path + animated_image_filename):
+            os.remove(self.video_2_image_file_path + animated_image_filename)
+            # return image
             
         logging.info(f'image dimensions: {image["width"]}x{image["height"]}')
         # if the image is already the correct size, don't crop it
         if image['width'] == frame_width and image['height'] == frame_height:
             logging.info(f'Image {image["image"]} is already the correct size.')
-            image = self.animate_image(image, image_path, animated_image_filename, ZOOM_EFFECT)
+            image = self.animate_image(image, image_path, animated_image_filename, ZOOM_EFFECT, zoom_speed)
         # if the image is too small enlarge it
         elif image['width'] < frame_width and image['height'] < frame_height:
             logging.info(f'Image {image["image"]} is too small to crop. enlarging instead.')
             image = self.enlarge_image(image, image_path, resized_image_path, frame_width, frame_height)
-            image = self.animate_image(image, resized_image_path, animated_image_filename, ZOOM_EFFECT)
+            image = self.animate_image(image, resized_image_path, animated_image_filename, ZOOM_EFFECT, zoom_speed)
         # if the image is too tall use a vertical scroll
         elif image['width'] * 2 <= image['height']:
             logging.info(f'Image {image["image"]} is too tall to crop. scrolling instead.')
@@ -226,7 +289,7 @@ class ImageToVideoCreator:
         else:
             logging.info(f'Image {image["image"]} is too large to crop. Shrinking instead.')
             image = self.shrink_image(image, image_path, resized_image_path, frame_width, frame_height)
-            image = self.animate_image(image, resized_image_path, animated_image_filename, ZOOM_EFFECT)
+            image = self.animate_image(image, resized_image_path, animated_image_filename, ZOOM_EFFECT, zoom_speed)
         
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
@@ -243,7 +306,7 @@ class ImageToVideoCreator:
         composite = composite.fx(vfx.crop, x1=0, y1=0, width=(self.frame_width * PERCENT_OF_DISPLAY_SCREEN), height=image["height"])
 
         output_path = self.initialize_output_path(animated_image_filename)
-        composite.write_videofile(output_path)
+        composite.write_videofile(output_path, threads=4)
         
         # find the dimensions of the output file
         image['width'], image['height'] = self.image_evaluator.get_video_dimensions(output_path)
@@ -266,7 +329,7 @@ class ImageToVideoCreator:
         composite = composite.fx(vfx.crop, x1=0, y1=0, width=image["width"], height=(self.frame_height * PERCENT_OF_DISPLAY_SCREEN))
 
         output_path = self.initialize_output_path(animated_image_filename)
-        composite.write_videofile(output_path)
+        composite.write_videofile(output_path, threads=4)
         
         # find the dimensions of the output file
         image['width'], image['height'] = self.image_evaluator.get_video_dimensions(output_path)
@@ -383,7 +446,7 @@ class ImageToVideoCreator:
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def enlarge_image(self, image, image_path, enlarged_image_path, frame_width, frame_height):
-        logging.info(f'Image {image["image"]} is too small to crop. enlarging instead.')
+        logging.info(f'Image {str(image)} is too small to crop. enlarging instead.')
         
         scale_factor = 1
         if image['width'] > image['height']:
@@ -407,6 +470,8 @@ class ImageToVideoCreator:
         # replace the old image widths and heights
         image['width'] = new_width
         image['height'] = new_height
+        
+        logging.info(f"Image enlarged to {new_width}x{new_height}.")
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def record_image_size(self, image):
@@ -423,6 +488,9 @@ class ImageToVideoCreator:
         return image
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_image_dimensions(self, file_path):
+        if not os.path.exists(file_path):
+            raise Exception("File does not exist: " + file_path)
+        
         command = [
             'ffprobe',
             '-v', 'error',
@@ -434,6 +502,9 @@ class ImageToVideoCreator:
         
         output = subprocess.run(command, stdout=subprocess.PIPE)
         output = output.stdout.decode('utf-8').split('x')
+        
+        if output[0] == 0 or output[1] == 0:
+            raise Exception("Image dimensions are 0 for file path: " + file_path)
         
         return int(output[0]), int(output[1])
     

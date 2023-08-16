@@ -20,11 +20,16 @@ class SentenceSubjectAnalyzer:
                               transcription_length_sec,
                               seconds_per_query,
                               descriptions,
-                              output_file_name="queries.json"):
+                              output_file_name="queries.json",
+                              wants_free_images=False):
         
         if os.path.exists(self.queries_folder_path + output_file_name[:-4] + '.json'):
             with open(self.queries_folder_path + output_file_name[:-4] + '.json', "r") as f:
                 query_list = json.load(f)
+            for query in query_list:
+                query_words = query['query'].split(" ")
+                if len(query_words) > 8:
+                    query['query'] = " ".join(query_words[:8])
             return query_list
         
         logging.info("Processing transcription")
@@ -54,8 +59,22 @@ class SentenceSubjectAnalyzer:
             
             description = self.get_video_description(descriptions, time_chunk_start, time_chunk_end)
             
-            query = self.assign_query_to_time_chunk(sentence_list, i, description)
-            query_list.append({'query': query, 'start': time_chunk_start, 'end': time_chunk_end, 'sentence': sentence})
+            query = self.assign_query_to_time_chunk(sentence_list, i, description['description'], wants_free_images)
+            
+            # if query has a newline character in it remove that
+            query = query.replace("\n","")
+            #if query is more than 6 words long, keep only first 6 words
+            word_list = query.split(" ")
+            if len(word_list) > 8:
+                query = " ".join(word_list[:8])
+            
+            query_list.append({'query': query, 
+                               'start': time_chunk_start,
+                               'end': time_chunk_end,
+                               'sentence': sentence,
+                               'description': description['description'],
+                               'description_start': description['start'],
+                               'description_end': description['end']})
             logging.info(f"Time chunk: {time_chunk_start}-{time_chunk_end}, Query: {query}")
 
         query_list = self.create_queries_for_null_time_chunks(query_list)
@@ -64,23 +83,31 @@ class SentenceSubjectAnalyzer:
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_video_description(self, descriptions, time_chunk_start, time_chunk_end):
         logging.info("descriptions: " + str(descriptions))
+        logging.info("time_chunk_start: " + str(time_chunk_start))
+        logging.info("time_chunk_end: " + str(time_chunk_end))
+        if time_chunk_start == 0:
+            return descriptions[0]
+        
         for description in descriptions:
-            if description['start'] <= time_chunk_start and description['end'] >= time_chunk_end:
-                return description['description']
+            if description['start'] <= time_chunk_start and description['end'] >= time_chunk_start:
+                return description
+
+        # throw error
+        raise Exception("No description found for time chunk")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def assign_query_to_time_chunk(self, sentence_list, i, video_description):
+    def assign_query_to_time_chunk(self, sentence_list, i, video_description, wants_free_images):
         current_sentence = sentence_list[i]
-        query = self.parse_sentence_subject(current_sentence, video_description)
+        query = self.parse_sentence_subject(current_sentence, video_description, wants_free_images)
 
         j = 1
         while query is None and (i - j >= 0 or i + j < len(sentence_list)):
             if i - j >= 0:
                 current_sentence = sentence_list[i - j] + " " + current_sentence
-                query = self.parse_sentence_subject(current_sentence, video_description)
+                query = self.parse_sentence_subject(current_sentence, video_description, wants_free_images)
 
             if query is None and i + j < len(sentence_list):
                 current_sentence += " " + sentence_list[i + j]
-                query = self.parse_sentence_subject(current_sentence, video_description)
+                query = self.parse_sentence_subject(current_sentence, video_description, wants_free_images)
 
             j += 1
 
@@ -116,19 +143,15 @@ class SentenceSubjectAnalyzer:
         cleaned_text = re.sub(pattern, '', text)
         return cleaned_text.strip()
 
-    def parse_sentence_subject(self, sentence, video_description):
+    def parse_sentence_subject(self, sentence, video_description, wants_free_images):
         cleaned_sentence = self.remove_repeated_phrases(sentence)
         logging.info(f"Parsing sentence subject: {cleaned_sentence}")
         if cleaned_sentence == "" or cleaned_sentence == None:
             return None
 
         model = "gpt-3.5-turbo"
-        system_prompt = ("You are a google images search query generator. "
-                        "Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description. "
-                        "Generate a relevant and interesting query for Google Images based on the main subject or object from the excerpt. "
-                        "If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text. "
-                        "If the excerpt is about a concrete subject or object, prioritize it. "
-                        "Reply only with the search query or 'null query' if you need more context.")
+        system_prompt = self.get_system_prompt(wants_free_images)
+
         # Add a check for NoneType before concatenation
         user_prompt = ("Video description: " + (video_description if video_description is not None else "") +
                     " Make an image query that is relevant only to the transcript excerpt. "
@@ -150,7 +173,24 @@ class SentenceSubjectAnalyzer:
         return query
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    def get_system_prompt(self, wants_free_images):
+        if wants_free_images:
+            return ("You are a stock images search query generator. "
+                "Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description. "
+                "Generate a relevant and interesting query for a stock images library based on the main subject or object from the excerpt. "
+                "If the excerpt is about a concept, make a query that brings up a general image that is related to the concept. "
+                "If the excerpt is about a concrete subject or object, prioritize it."
+                "Keep the queries simple and generic as the stock image library may not have very specific images."
+                "Reply only with the search query. Reply with 'null query' if you need more context.")
+        else:
+            return ("You are a google images search query generator. "
+                "Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description. "
+                "Generate a relevant and interesting query for Google Images based on the main subject or object from the excerpt. "
+                "If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text. "
+                "If the excerpt is about a concrete subject or object, prioritize it. "
+                "Reply only with the search query or 'null query' if you need more context.")
+        
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # video_description = "The speaker shares a story of encountering a jaguar while alone in the jungle and how it energized and motivated him to continue his journey."
 # cleaned_sentence = "  I felt like I understood the intentions of the cat.  If she was hunting, I'd already be dead.  She was curious. "
 

@@ -55,7 +55,7 @@ class BackgroundRemover:
         # Overlay video_clip on top of image_video_clip
         final_video_clip = CompositeVideoClip([image_video_clip, video_clip])
 
-        final_video_clip.write_videofile(mp4_output_video_path, fps=30)
+        final_video_clip.write_videofile(mp4_output_video_path, fps=30, threads=4)
         logging.info(f"Overlayed {mp4_output_video_path} with {image_video_path}")
 
         logging.info(f"Done!")

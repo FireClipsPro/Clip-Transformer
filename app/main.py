@@ -15,17 +15,6 @@ import csv
 import time
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-VERTICAL_VIDEO_HEIGHT = 1920
-VERTICAL_VIDEO_WIDTH = 1080
-HEAD_TRACKING_ENABLED = True
-SECONDS_PER_PHOTO = 6
-PERECENT_OF_IMAGES_TO_BE_FULLSCREEN = 0.3
-MAXIMUM_PAUSE_LENGTH = 0.5
-TIME_BETWEEN_IMAGES = 1.5
-Y_PERCENT_HEIGHT_OF_SUBTITLE = 60
-SUBTITLE_DURATION = 1
-DURATION_OF_FULL_SCREEN_IMAGES = 3
-
 def main():
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
@@ -171,7 +160,8 @@ def main():
         video_data = image_to_video_creator.convert_to_videos(time_stamped_images,
                                                               theme["IMAGE_BORDER_COLOR(S)"],
                                                               theme['OVERLAY_ZONE_WIDTH'],
-                                                              theme['OVERLAY_ZONE_HEIGHT'])
+                                                              theme['OVERLAY_ZONE_HEIGHT'],
+                                                              theme['ZOOM_SPEED'])
         
         video_with_media = media_adder.add_videos_to_original_clip(original_clip=video_with_sound_effects,
                                         videos=video_data,
@@ -195,7 +185,7 @@ def main():
                                                     number_of_characters_per_line=theme["NUMBER_OF_CHARACTERS_PER_LINE"],
                                                     interval=theme["SUBTITLE_DURATION"])
 
-        video_with_music_name = music_adder.add_music_to_video(music_category=clipped_video['transcription_info']['category'],
+        video_with_music_name = music_adder.add_music_to_video_by_category(music_category=clipped_video['transcription_info']['category'],
                                         video_name=video_with_subtitles_name,
                                         output_video_name=clipped_video['time_string'] + '_' + clipped_video['transcription_info']['title'],
                                         video_length=clipped_video['end_time_sec'],

@@ -96,6 +96,8 @@ class DALL_E():
         for index, image_dict in enumerate(response["data"]):
             image_data = b64decode(image_dict["b64_json"])
             cleaned_query = google_query.replace(" ", "_")
+            #only use the first 20 charaters for the cleaned query
+            cleaned_query = cleaned_query
             image_file = image_path / f"{cleaned_query}.png"
             with open(image_file, mode="wb") as png:
                 png.write(image_data)
