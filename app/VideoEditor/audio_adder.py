@@ -24,10 +24,9 @@ class AudioAdder:
         temp_audio_path = self.get_temporary_audio_path(audio_file_path)
         final_video.write_videofile(output_video_path,
                                     codec='libx264',
-                                    audio_codec='aac',
                                     temp_audiofile=temp_audio_path,
                                     audio=True,
-                                    remove_temp=True)
+                                    remove_temp=True, threads=4)
         video.close()
         audio.close()
         final_video.close()

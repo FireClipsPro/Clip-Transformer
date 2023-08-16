@@ -21,7 +21,8 @@ def scale_video(video_path, target_width):
         target_height = int((target_width / current_width) * current_height)
         
         resized_clip = clip.resize(width=target_width)
-        resized_clip.write_videofile(directories.FINISHED_VIDEOS_FOLDER + "test_output.mp4", codec="libx264")
+        resized_clip.write_videofile(directories.FINISHED_VIDEOS_FOLDER + "test_output.mp4",
+                                     codec="libx264", threads=4)
         
         return target_width, target_height
     except Exception as e:
@@ -36,7 +37,7 @@ def crop_video_height(video_path, percent_to_remove):
         height_to_remove = int(current_height * percent_to_remove)
         cropped_clip = clip.crop(y1=0, y2=current_height - height_to_remove)
         cropped_clip.write_videofile(directories.BANNER_FOLDER + "cropped_banner.mp4",
-                                     codec="libx264")
+                                     codec="libx264", threads=4)
         return current_width, current_height - height_to_remove
     except Exception as e:
         print(f"Error occurred: {str(e)}")

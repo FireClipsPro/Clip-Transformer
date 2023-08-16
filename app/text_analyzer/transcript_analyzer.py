@@ -20,9 +20,14 @@ class TranscriptAnalyzer:
         for key in CATEGORY_LIST.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
-    def get_clip_info(self, clipped_video, transcription, podcast_title, music_category_options):
+    def get_clip_info(self, 
+                      clipped_video,
+                      transcription,
+                      podcast_title,
+                      music_category_options):
         # if the file already exists, then we don't need to query the AI
         if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json"):
+            logging.info(f"File already exists. Loading from file: {self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + '.json'}")
             with open(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json", "r") as f:
                 transcription_info = json.load(f)
             clipped_video['transcription_info'] = transcription_info
@@ -38,10 +43,10 @@ class TranscriptAnalyzer:
                                                         music_category_options=music_category_options)
         
         # set the start and end times for the description
-        transcription_info['descriptions'] = {
-            'description': transcription['word_segments'][0]['start'],
+        transcription_info['descriptions'] = [{
+            'description': transcription_info['description'],
             'start': transcription['word_segments'][0]['start'],
-            'end': transcription['word_segments'][-1]['end']}
+            'end': transcription['word_segments'][-1]['end']}]
         
         # add transcription_info dictionary to clipped_video dictionary
         clipped_video['transcription_info'] = transcription_info
@@ -93,7 +98,8 @@ class TranscriptAnalyzer:
                 if start_time_of_current_chunk is None:
                     start_time_of_current_chunk = text_segment['start']
 
-                if current_token_count + len(token) > 4000:
+                # We cut it down to smaller token chunks because that is a good sized context window
+                if current_token_count + len(token) > 800:
                     end_time_of_last_chunk = text_segment['start']  # The start time of the current segment is the end time of the last chunk
                     chunks.append({
                         'text': ' '.join(current_chunk),

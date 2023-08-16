@@ -1,0 +1,105 @@
+VERTICAL_VIDEO_HEIGHT = 1920
+VERTICAL_VIDEO_WIDTH = 1080
+HORIZONTAL_VIDEO_HEIGHT = 1080
+HORIZONTAL_VIDEO_WIDTH = 1920
+bottom_vert = "bottom_vert"
+top_vert = "top_vert"
+top_right_hor = "top_right_hor"
+top_left_hor = "top_left_hor"
+bottom_right_hor = "bottom_right_hor"
+bottom_left_hor = "bottom_left_hor"
+center = "center"
+
+themes = {
+"molecular":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 5,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
+        "MAXIMUM_PAUSE_LENGTH" : 0.5,
+        "TIME_BETWEEN_IMAGES" : 0,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 50,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 5,
+        "FONT" :  "Tahoma Bold.ttf",
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 3,
+        "FONT_SIZE" : 40,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 120,
+        "FONT_COLOR" : (255,255,255),
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful", "serious"],
+        "WANTS_ADS" : False,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10],
+        "CENSOR_PROFANITY": True,
+        "ALL_CAPS": False,
+        "PUNCTUATION": True,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 0],
+        "OVERLAY_ZONE_WIDTH": 1920,
+        "OVERLAY_ZONE_HEIGHT": 1080,
+        "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": False,
+        "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["mountain.mp4"],
+        "ZOOM_SPEED": 'slow',
+        "WANTS_ROYALTY_FREE_IMAGES": True,
+        "WATERMARK": 'molecular.png',
+        "WATERMARK_LOCATION": top_left_hor,
+        "INTRO_FILE": None,
+        "BACKGROUND_MUSIC": 'background_music.mp3',
+        "AFFIRMATION_COUNT": 70,
+        "AUDIO_ONLY_INTRO_FILE": "molecular_intro.mp3",
+        "OUTRO_TEXT": "Molecular.txt",
+        "INTRO_TEXT": "molecular_intro.txt",
+        "INTRO_IMAGE": "mountain.png",
+        "OUTRO_IMAGE": "mountain.png",
+        "INTRO_MEDIA": ["bedtime1.mp4",
+                        "bedtime2.mp4",
+                        "bedtime3.mp4",
+                        "bedtime4.mp4",
+                        "bedtime5.mp4",
+                        "bedtime6.mp4"],
+        "USE_EXISTING_INTRO": True,
+        "EXISTING_INTRO": "molecular_intro.mp4",
+    },
+    "molecular_dark":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 5,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
+        "MAXIMUM_PAUSE_LENGTH" : 0.5,
+        "TIME_BETWEEN_IMAGES" : 0,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 85,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 5,
+        "FONT" :  "Tahoma Bold.ttf",
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 6,
+        "FONT_SIZE" : 80,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 50,
+        "FONT_COLOR" : (255,255,255),
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful", "serious"],
+        "WANTS_ADS" : False,
+        "BANNER": "zero.mp4",
+        "BANNER_START_TIMES": [10],
+        "CENSOR_PROFANITY": True,
+        "ALL_CAPS": False,
+        "PUNCTUATION": True,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 0],
+        "OVERLAY_ZONE_WIDTH": 1920,
+        "OVERLAY_ZONE_HEIGHT": 1080,
+        "BACKGROUND_MUSIC_VOLUME": 0.75,
+        "WANTS_SOUND_EFFECTS": False,
+        "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
+        "ZOOM_SPEED": 'slow',
+        "WANTS_ROYALTY_FREE_IMAGES": True,
+        "WATERMARK": 'molecular.png',
+        "WATERMARK_LOCATION": top_left_hor,
+        "INTRO_FILE": None,
+        "BACKGROUND_MUSIC": 'background.mp3',
+        "AFFIRMATION_COUNT": 30,
+    },
+}
