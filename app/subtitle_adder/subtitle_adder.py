@@ -15,6 +15,7 @@ class SubtitleAdder:
         self.input_folder_path = input_folder_path
         self.output_folder_path = output_folder_path
     
+    # this method groups words together into subtitles based on them falling into a certain time interval
     def group_subtitles(self,
                         subtitle_list,
                         interval,
@@ -163,7 +164,7 @@ class SubtitleAdder:
             clips.append(txt_clip)
             
         final = CompositeVideoClip([clip] + clips)
-        final.write_videofile(self.output_folder_path + output_file_name, codec='libx264')
+        final.write_videofile(self.output_folder_path + output_file_name, codec='libx264', threads=4)
         
         return output_file_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -179,6 +180,44 @@ class SubtitleAdder:
             if all_caps:
                 word['text'] = word['text'].upper()
         return transcription
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Transcription must be of form {'text': 'a bunch of words to be displayed at same time', 'start': 0, 'end': 1}
+    def add_subtitles_no_grouping(self,
+                                video_file_name,
+                                transcription,
+                                output_file_name,
+                                font_size,
+                                font_name,
+                                outline_color,
+                                outline_width,
+                                font_color,
+                                all_caps,
+                                punctuation,
+                                y_percent,
+                                number_of_characters_per_line):
+        # if video already exists don't make it again
+        # if os.path.exists(self.output_folder_path + output_file_name):
+        #     return output_file_name
+        transcription = self.edit_punctuation_and_caps(transcription, all_caps, punctuation)
+        
+        clip = VideoFileClip(self.input_folder_path + video_file_name)
+        clip_height = clip.h
+        
+        clips = []
+        for subtitle in transcription:
+            img = self.create_text_image_with_outline(subtitle['text'],
+                                                      font_size,
+                                                      text_color=font_color,
+                                                      outline_color=outline_color,
+                                                      outline_width=outline_width,
+                                                      font_name=font_name)
+            txt_clip = ImageClip(np.array(img)).set_duration((float(subtitle['end']) - float(subtitle['start']))).set_start(float(subtitle['start'])).set_position(lambda t: ('center', y_percent * clip_height / 100))
+            clips.append(txt_clip)
+            
+        final = CompositeVideoClip([clip] + clips)
+        final.write_videofile(self.output_folder_path + output_file_name, codec='libx264', threads=4)
+        
+        return output_file_name
                 
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

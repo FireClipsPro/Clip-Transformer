@@ -2,6 +2,13 @@ VERTICAL_VIDEO_HEIGHT = 1920
 VERTICAL_VIDEO_WIDTH = 1080
 HORIZONTAL_VIDEO_HEIGHT = 1080
 HORIZONTAL_VIDEO_WIDTH = 1920
+bottom_vert = "bottom_vert"
+top_vert = "top_vert"
+top_right_hor = "top_right_hor"
+top_left_hor = "top_left_hor"
+bottom_right_hor = "bottom_right_hor"
+bottom_left_hor = "bottom_left_hor"
+center = "center"
 
 themes = {
     "curious_primates":
@@ -36,6 +43,10 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.8,
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     },
     "one_percent_minds":
     {
@@ -67,6 +78,10 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.8,
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     },
     "girly":
     {
@@ -91,6 +106,10 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.8,
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     },
     "political_1":
     {
@@ -122,6 +141,10 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.75,
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     },
     "political_2":
     {
@@ -153,6 +176,10 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.75,
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     },
         "political_3":
     {
@@ -184,6 +211,10 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.75,
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     },
         "jar":
     {
@@ -215,8 +246,12 @@ themes = {
         "BACKGROUND_MUSIC_VOLUME": 0.75,
         "WANTS_SOUND_EFFECTS": False,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
-        "AUDIO_ONLY_BACKGROUND_MEDIA": "jar.jpg",
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
         "ZOOM_SPEED": 'slow',
+        "WANTS_ROYALTY_FREE_IMAGES": True,
+        "WATERMARK": 'jar.png',
+        "WATERMARK_LOCATION": top_left_hor,
+        "INTRO_FILE": 'jar.mp4',
     },
     "horizontal":
     {
@@ -250,6 +285,10 @@ themes = {
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
         "AUDIO_ONLY_BACKGROUND_MEDIA": "trippy_purple.mp4",
         "ZOOM_SPEED": 'slow',
+        "WANTS_ROYALTY_FREE_IMAGES": True,
+        "WATERMARK": None,
+        "WATERMARK_LOCATION": center,
+        "INTRO_FILE": None,
     }
 }
 

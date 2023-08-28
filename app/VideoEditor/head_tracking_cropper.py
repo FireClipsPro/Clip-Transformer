@@ -171,7 +171,6 @@ class HeadTrackingCropper:
 
         cropped_video_clip.write_videofile(self.OUTPUT_FILE_PATH + output_video,
                                         codec="libx264",
-                                        audio_codec="aac",
                                         threads=4,
                                         preset="ultrafast")
         

@@ -15,17 +15,6 @@ import csv
 import time
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-VERTICAL_VIDEO_HEIGHT = 1920
-VERTICAL_VIDEO_WIDTH = 1080
-HEAD_TRACKING_ENABLED = True
-SECONDS_PER_PHOTO = 6
-PERECENT_OF_IMAGES_TO_BE_FULLSCREEN = 0.3
-MAXIMUM_PAUSE_LENGTH = 0.5
-TIME_BETWEEN_IMAGES = 1.5
-Y_PERCENT_HEIGHT_OF_SUBTITLE = 60
-SUBTITLE_DURATION = 1
-DURATION_OF_FULL_SCREEN_IMAGES = 3
-
 def main():
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
@@ -121,16 +110,10 @@ def main():
                                                                     transcription['word_segments'],
                                                                     theme['MAXIMUM_PAUSE_LENGTH'])
         
-        if HEAD_TRACKING_ENABLED:
-            clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
+
+        clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
                                             presets.VERTICAL_VIDEO_WIDTH,
                                             presets.VERTICAL_VIDEO_HEIGHT)
-        else:
-            clipped_video = video_resizer.resize_video(clipped_video['file_name'],
-                                            clipped_video['file_name'],
-                                            video_resizer.YOUTUBE_VIDEO_WIDTH * 0.8, 
-                                            video_resizer.YOUTUBE_VIDEO_HEIGHT,
-                                            clipped_video) 
 
         
         clipped_video = transcription_analyzer.get_clip_info(clipped_video,
@@ -141,7 +124,7 @@ def main():
         query_list = sentence_analyzer.process_transcription(transcription['word_segments'],
                                         transcription['word_segments'][-1]['end'],
                                         theme['SECONDS_PER_PHOTO'],
-                                        clipped_video['transcription_info']['description'],
+                                        clipped_video['transcription_info']['descriptions'],
                                         clipped_video['file_name'])
         
         query_list = image_spacer.add_spacing_to_images(query_list,
@@ -196,7 +179,7 @@ def main():
                                                     number_of_characters_per_line=theme["NUMBER_OF_CHARACTERS_PER_LINE"],
                                                     interval=theme["SUBTITLE_DURATION"])
 
-        video_with_music_name = music_adder.add_music_to_video(music_category=clipped_video['transcription_info']['category'],
+        video_with_music_name = music_adder.add_music_to_video_by_category(music_category=clipped_video['transcription_info']['category'],
                                         video_name=video_with_subtitles_name,
                                         output_video_name=clipped_video['time_string'] + '_' + clipped_video['transcription_info']['title'],
                                         video_length=clipped_video['end_time_sec'],

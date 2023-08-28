@@ -16,9 +16,11 @@ class GoogleImagesAPI:
         self.image_classifier = image_classifier
         self.IMAGE_CLASSIFIER_THRESHOLD = 6.5
         self.image_evaluator = image_evaluator
+        self.cares_about_public_domain = False
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_image_link(self, query, api_key, cx, link_needed):
         url = "https://www.googleapis.com/customsearch/v1"
+        
         params = {
             "q": query,
             "key": api_key,
@@ -27,6 +29,10 @@ class GoogleImagesAPI:
             "start": link_needed,  # 'start' parameter specifies the first result to return
             "num": 1  # 'num' parameter specifies the number of search results to return
         }
+        
+        if self.cares_about_public_domain:
+            license_types = "cc_publicdomain,cc_attribute,cc_sharealike"
+            params['rights'] = license_types
 
         response = requests.get(url, params=params)
         results = response.json()
@@ -97,7 +103,7 @@ class GoogleImagesAPI:
                 logging.info(f"Found image link for query: {query}, but it was already used. Trying again.")
                 link_needed += 1
                 continue
-            if "youtube.com" in fetched_link or "amazon.com" in fetched_link:
+            if "youtube.com" in fetched_link or "amazon.com" in fetched_link or "alamy.com" in fetched_link:
                 logging.info(f"Found image link for query: {query}, but it was a youtube link. Trying again.")
                 link_needed += 1
                 continue
