@@ -9,7 +9,6 @@ class SoundEffectAdder:
     def __init__(self, image_sounds_folder,
                  video_input_folder,
                  output_folder):
-        # Get the image sounds from the folder
         self.image_sounds = [os.path.join(image_sounds_folder, sound) 
                              for sound in os.listdir(image_sounds_folder) 
                              if sound.endswith('.mp3')]
@@ -30,7 +29,9 @@ class SoundEffectAdder:
         for image in images:
             sound_file = random.choice(self.image_sounds)
             sound_clip = AudioFileClip(sound_file)
+            sound_clip = sound_clip.volumex(0.6)
             sound_duration = sound_clip.duration
+
             logging.info(f"Adding sound {sound_file} to image")
             logging.info(f"Sound duration: {sound_duration}")
 
@@ -49,6 +50,3 @@ class SoundEffectAdder:
         
         logging.info(f"Done! Sound added to {output_video_path}")
         return video
-
-
-

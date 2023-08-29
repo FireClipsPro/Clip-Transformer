@@ -1,5 +1,5 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper, ImageSpacer, PauseRemover, SoundEffectAdder
-from content_generation import ImageScraper, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
+from content_generation import ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
 from text_analyzer import SentenceSubjectAnalyzer, TranscriptAnalyzer, OpenaiApi
 from Transcriber import WhisperTranscriber, AudioExtractor
 from file_organisation import FileDeleter, FinishedVideoSorter
@@ -33,9 +33,6 @@ def main():
     
     head_tracker = HeadTrackingCropper(directories.RESIZED_FOLDER,
                                        directories.RESIZED_FOLDER)
-    
-    video_resizer = VideoResizer(directories.INPUT_FOLDER,
-                                 directories.RESIZED_FOLDER)
     
     openai_api = OpenaiApi()
 
@@ -89,7 +86,6 @@ def main():
     
     finished_video_sorter = FinishedVideoSorter(directories.FINISHED_VIDEOS_FOLDER)
 
-    # loop through the files
     for raw_video in raw_videos:
         print(str(raw_video['raw_video_name']) + ' is being processed')
         theme = presets.themes[raw_video['preset']]

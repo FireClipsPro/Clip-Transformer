@@ -185,22 +185,29 @@ class SentenceSubjectAnalyzer:
                 "Reply only with the search query. Reply with 'null query' if you need more context.")
         else:
             return ("You are a google images search query generator. "
-                "Given a video description and a transcript excerpt, identify the main subject or object within the excerpt and ignore the video description. "
+                "Given a video description and a transcript excerpt, " 
+                "identify the main subject or object within the excerpt and ignore the video description. "
                 "Generate a relevant and interesting query for Google Images based on the main subject or object from the excerpt. "
-                "If the excerpt is about a concept, generate a query that represents people embodying the concept through their actions rather than an image that might contain text. "
+                "If the excerpt is about a concept, generate a query that brings up a general image related to the concept. "
                 "If the excerpt is about a concrete subject or object, prioritize it. "
                 "Reply only with the search query or 'null query' if you need more context.")
         
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# video_description = "The speaker shares a story of encountering a jaguar while alone in the jungle and how it energized and motivated him to continue his journey."
-# cleaned_sentence = "  I felt like I understood the intentions of the cat.  If she was hunting, I'd already be dead.  She was curious. "
+
+
+
+# description = "The speaker shares a story of encountering a jaguar "
+# "while alone in the jungle and how it energized and motivated him to continue his journey."
+
+# excerpt = "  I felt like I understood the intentions of the cat."
+# "  If she was hunting, I'd already be dead.  She was curious. "
 
 
 # openai.api_key = os.getenv("OPENAI_API_KEY")
 # for i in range(5):
-    # response = openai.ChatCompletion.create(
-    # model="gpt-3.5-turbo",
-    # messages=[
-    #     ]
-    # )
-    # logging.info(f"Response: {response['choices'][0]['message']['content']}")
+#     response = openai.ChatCompletion.create(
+#     model="gpt-3.5-turbo",
+#     messages=[
+#         ]
+#     )
+#     logging.info(f"Response: {response['choices'][0]['message']['content']}")

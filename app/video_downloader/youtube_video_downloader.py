@@ -24,7 +24,7 @@ class YoutubeVideoDownloader:
         logging.info(f"Downloading video from {link}")
         ydl_opts = {
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]',
-            'outtmpl': os.path.join(self.output_folder, '%(title)s.%(ext)s'.replace(' ', '_')),
+            'outtmpl': os.path.join(self.output_folder, '%(title)s.%(ext)s'),
             'noplaylist': True,
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -34,9 +34,6 @@ class YoutubeVideoDownloader:
             video_ext = info_dict.get('ext', 'mp4')
         logging.info(f"Done! Video downloaded to {self.output_folder}")
         logging.info(f"Video title: {video_title}")
-        
-        
-        video_title = video_title.replace(' ', '_')
         
         self.saved_videos[link] = video_title
         

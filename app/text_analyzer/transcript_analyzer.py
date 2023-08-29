@@ -133,7 +133,10 @@ class TranscriptAnalyzer:
         logging.info("Querying openai for transcript info.")
         model="gpt-3.5-turbo"
         
-        system_prompt = f"You will be given a transcript of a section of a podcast. {podcast_title}. Your task is to create a 1 sentence description of the transcript that is passed to you. Return the one sentence description and nothing else."
+        system_prompt = f"""You will be given a transcript of a section of a podcast.
+        {podcast_title}.
+        Your task is to create a 1 sentence description of the transcript that is passed to you.
+        Return the one sentence description and nothing else."""
         user_prompt = "Here is the transcript section: " + transcription_text + "."
         
         response = self.openai_api.query(system_prompt, user_prompt, model)
@@ -175,7 +178,8 @@ class TranscriptAnalyzer:
                     "Please return in json format, the following 3 things: "
                     "1. 'description': a 1 sentence description of the transcript "
                     "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible."
-                    "The best title must be, concise and short, refuting something, epic or extreme, include a time, contain an authority, invoke curiosity fear or negativity, have a timeframe."
+                    "The best title must be, concise and short, refuting something, epic or extreme," 
+                    "have a timeframe, contain an authority, invoke curiosity fear or negativity." 
                     "3. 'category': for this transcript. Choose the BEST option from: " + self.CATEGORY_LIST_STRING + ".")
         else: 
             system_prompt = ("You will be given a transcript of a video. "

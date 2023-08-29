@@ -99,6 +99,55 @@ class SubtitleAdder:
                 new_subtitles.append(subtitle)
         return new_subtitles
 
+    # I don't remember why I made this but it might be useful
+    def create_text_image_with_outline1(self,
+                                       text: str,
+                                        fontsize: int,
+                                        text_color,
+                                        outline_color: tuple,
+                                        outline_width: int,
+                                        font_name: str) -> Image.Image:
+        """
+        Create an image with the given text, font, and outline.
+
+        Parameters:
+        - text (str): The text to be rendered.
+        - fontsize (int): Font size.
+        - text_color (tuple): RGB tuple for text color.
+        - outline_color (tuple): RGB tuple for outline color.
+        - outline_width (int): Width of the outline.
+        - font_name (str): Path to the TTF font file.
+
+        Returns:
+        - Image.Image: An image with the rendered text and outline.
+        """
+
+        # Ensure colors have an alpha channel
+        outline_color = (*outline_color, 255)
+        text_color = (*text_color, 255)
+
+        # Load font
+        font = ImageFont.truetype(font_name, fontsize)
+
+        # Calculate text size using getbbox()
+        bbox = font.getbbox(text)
+        text_width, text_height = bbox[2], bbox[3]
+
+        logging.info(f"Text Width: {text_width}, Text Height: {text_height}")
+
+        # Create a new image with enough space for text and its outline
+        img = Image.new('RGBA', (text_width + 2 * outline_width, text_height + 2 * outline_width), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+
+        # Draw the outline by offsetting the text in all directions
+        for x in range(-outline_width, outline_width + 1):
+            for y in range(-outline_width, outline_width + 1):
+                draw.text((x + outline_width, y + outline_width), text, font=font, fill=outline_color)
+
+        # Draw the main text
+        draw.text((outline_width, outline_width), text, font=font, fill=text_color)
+
+        return img
 
     def create_text_image_with_outline( self,
                                         text,
@@ -154,6 +203,7 @@ class SubtitleAdder:
         
         clips = []
         for subtitle in grouped_subtitles:
+            logging.info(f"text color = {font_color}")
             img = self.create_text_image_with_outline(subtitle['text'],
                                                       font_size,
                                                       text_color=font_color,

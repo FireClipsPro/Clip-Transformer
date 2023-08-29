@@ -34,7 +34,7 @@ class VideoClipper:
             raise ValueError("Start time must be before end time")
         
         
-        # if the video has already been clipped, return the file name
+        # if the video has already been clipped, return the clip name
         if os.path.exists(self.output_file_path + tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4'):
             return {'file_name': tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4',
                     'start_time_sec': start_time_sec,
@@ -133,7 +133,7 @@ class VideoClipper:
 # clipper.clip_video("lost.mp4", "0", "59")
 
 
-# RAW_VIDEO_FILE_PATH = "../../media_storage/songs/fascinating/"
-# INPUT_FILE_PATH = "../../media_storage/songs/fascinating/"
+# RAW_VIDEO_FILE_PATH = "../../../media_storage/songs/fascinating/"
+# INPUT_FILE_PATH = "../../../media_storage/songs/fascinating/"
 # clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
-# clipper.clip_song("tell_em.mp3", "38", "4:10")
+# clipper.clip_song("Time.mp3", "1:00", "3:20")
