@@ -18,7 +18,7 @@ class WhisperTranscriber:
     def transcribe(self, audio_file, censor_profanity=True):
         # check if file exists
         if not os.path.exists(self.audio_files_path + audio_file):
-            raise Exception('Audio file does not exist')
+            raise Exception(f'Audio file {self.audio_files_path + audio_file} does not exist')
         else:
             logging.info("Audio file found, transcribing...")
             

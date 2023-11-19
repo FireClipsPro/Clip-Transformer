@@ -134,6 +134,8 @@ class VideoClipper:
 
 
 # RAW_VIDEO_FILE_PATH = "../../../media_storage/songs/fascinating/"
-# INPUT_FILE_PATH = "../../../media_storage/songs/fascinating/"
+# RAW_VIDEO_FILE_PATH = "../../../media_storage/audio_extractions/"
+# INPUT_FILE_PATH = "../../../media_storage/audio_extractions/"
 # clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
-# clipper.clip_song("Time.mp3", "1:00", "3:20")
+# clipper.clip_song("jocko.mp3", "0", "5:00")
+# clipper.clip_song("jocko.mp3", "5:00", "10:00")

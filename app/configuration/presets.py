@@ -27,6 +27,7 @@ themes = {
         "FONT_SIZE" : 90,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
         "FONT_COLOR" : (255, 255, 255), # white
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
                                     (0,245,255), # cyan
                                     (255,255,0), # yellow
@@ -44,9 +45,10 @@ themes = {
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
         "WANTS_ROYALTY_FREE_IMAGES": False,
-        "WATERMARK": None,
-        "WATERMARK_LOCATION": center,
+        "WATERMARK": 'curious_primates.png',
+        "WATERMARK_LOCATION": top_vert,
         "INTRO_FILE": None,
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
     },
     "one_percent_minds":
     {
@@ -64,6 +66,7 @@ themes = {
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255,193,37), # gold
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0), (136, 8, 8)], # black, red
         "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "hopeful"],
         "WANTS_ADS" : True,
@@ -77,11 +80,12 @@ themes = {
         "OVERLAY_ZONE_HEIGHT": 400,
         "BACKGROUND_MUSIC_VOLUME": 0.8,
         "WANTS_SOUND_EFFECTS": True,
-        "ZOOM_SPEED": 'fast',
+        "ZOOM_SPEED": 'slow',
         "WANTS_ROYALTY_FREE_IMAGES": False,
-        "WATERMARK": None,
-        "WATERMARK_LOCATION": center,
+        "WATERMARK": 'one_percent_minds.png',
+        "WATERMARK_LOCATION": top_vert,
         "INTRO_FILE": None,
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
     },
     "girly":
     {
@@ -98,6 +102,7 @@ themes = {
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255,255,255), # white
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(255,255,255)],
         "MUSIC_CATEGORY_OPTIONS" : ["cute", "funny"],
         "WANTS_ADS" : False,
@@ -127,6 +132,7 @@ themes = {
         "FONT_SIZE" : 90,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255,255,255), # white
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
         "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful"],
         "WANTS_ADS" : False,
@@ -162,6 +168,7 @@ themes = {
         "FONT_SIZE" : 90,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
         "FONT_COLOR" : (255,255,255), # white
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
         "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful"],
         "WANTS_ADS" : False,
@@ -197,6 +204,7 @@ themes = {
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 20,
         "FONT_COLOR" : (255,255,255),
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
         "MUSIC_CATEGORY_OPTIONS" : ["motivational",
                                     "scary",
@@ -237,6 +245,7 @@ themes = {
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 30,
         "FONT_COLOR" : (255,255,255),
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
         "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful", "serious"],
         "WANTS_ADS" : False,
@@ -274,6 +283,7 @@ themes = {
         "FONT_SIZE" : 80,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 30,
         "FONT_COLOR" : (255,255,255),
+        "WANTS_IMAGES" : True,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
         "MUSIC_CATEGORY_OPTIONS" : ["motivational", "scary", "fascinating", "funny", "hopeful", "serious"],
         "WANTS_ADS" : False,
@@ -292,9 +302,83 @@ themes = {
         "ZOOM_SPEED": 'slow',
         "WANTS_ROYALTY_FREE_IMAGES": True,
         "WATERMARK": None,
+        "WATERMARK_LOCATION": top_right_hor,
+        "INTRO_FILE": None,
+    },
+    "Kinvestor":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 4,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
+        "MAXIMUM_PAUSE_LENGTH" : 0.35,
+        "TIME_BETWEEN_IMAGES" : 0,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 55,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 3.5,
+        "FONT" : 'Tahoma Bold.ttf',
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 7,
+        "FONT_SIZE" : 90,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
+        "FONT_COLOR" : (255, 255, 255), # white
+        "WANTS_IMAGES" : True,
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)],
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "motivational", "hopeful", "funny", "serious"],
+        "WANTS_ADS" : False,
+        "CENSOR_PROFANITY" : False,
+        "ALL_CAPS": False,
+        "PUNCTUATION": True,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 1300],
+        "OVERLAY_ZONE_WIDTH": 1080,
+        "OVERLAY_ZONE_HEIGHT": 400,
+        "BACKGROUND_MUSIC_VOLUME": 0.8,
+        "WANTS_SOUND_EFFECTS": True,
+        "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": None,
         "WATERMARK_LOCATION": center,
         "INTRO_FILE": None,
-    }
+    },
+    "curious_primates_long_form":
+    {
+        "HEAD_TRACKING_ENABLED" : True,
+        "SECONDS_PER_PHOTO" : 4,
+        "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
+        "MAXIMUM_PAUSE_LENGTH" : 0.35,
+        "TIME_BETWEEN_IMAGES" : 0,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 85,
+        "SUBTITLE_DURATION" : 1,
+        "DURATION_OF_FULL_SCREEN_IMAGES" : 3.5,
+        "FONT" : 'Tahoma Bold.ttf',
+        "FONT_OUTLINE_COLOR" : (0, 0, 0),
+        "FONT_OUTLINE_WIDTH" : 7,
+        "FONT_SIZE" : 90,
+        "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
+        "FONT_COLOR" : (255, 255, 255), # white
+        "WANTS_IMAGES" : True,
+        "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
+                                    (0,245,255), # cyan
+                                    (255,255,0), # yellow
+                                    (255,48,48), # red
+                                    (0,191,255)], # blue
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "conspiracy", "motivational", "funny"],
+        "WANTS_ADS" : False,
+        "CENSOR_PROFANITY" : False,
+        "ALL_CAPS": False,
+        "PUNCTUATION": True,
+        "OVERLAY_ZONE_TOP_LEFT": [0, 0],
+        "OVERLAY_ZONE_WIDTH": 1920,
+        "OVERLAY_ZONE_HEIGHT": 1080,
+        "BACKGROUND_MUSIC_VOLUME": 0.8,
+        "WANTS_SOUND_EFFECTS": False,
+        "ZOOM_SPEED": 'fast',
+        "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WATERMARK": 'curious_primates.png',
+        "WATERMARK_LOCATION": top_left_hor,
+        "INTRO_FILE": None,
+        "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
+    },
 }
 
 

@@ -63,8 +63,8 @@ def main():
                                    output_folder_path=directories.SUBTITLED_AFFIRMATIONS)
     
     music_adder = MusicAdder(music_file_paths=directories.AFFIRMATIONS_MUSIC,
-                            video_files_path=directories.SUBTITLED_AFFIRMATIONS,
-                            output_path=directories.FINISHED_AFFIRMATIONS,
+                            input_video_folder=directories.SUBTITLED_AFFIRMATIONS,
+                            ouput_video_folder=directories.FINISHED_AFFIRMATIONS,
                             music_categories=None,
                             affirmation_music_folder=directories.AFFIRMATIONS_MUSIC)
 

@@ -89,12 +89,12 @@ def main():
                                      presets=presets)
     
     subtitle_adder = SubtitleAdder(input_folder_path=directories.WATERMARKED_VIDEOS_FOLDER,
-                                   output_folder_path=directories.WITH_SUBTITLES_FOLDER)
+                                   output_folder_path=directories.FINISHED_AUD2VID_FOLDER)
     
     
-    intro_adder = IntroAdder(intro_vid_folder=directories.INTRO_VIDEOS,
-                             video_folder=directories.WITH_SUBTITLES_FOLDER,
-                             output_folder=directories.FINISHED_AUD2VID_FOLDER)
+    # intro_adder = IntroAdder(intro_vid_folder=directories.INTRO_VIDEOS,
+    #                          video_folder=directories.WITH_SUBTITLES_FOLDER,
+    #                          output_folder=directories.FINISHED_AUD2VID_FOLDER)
 
     # loop through the files
     for audio_file in audio_files:
@@ -187,20 +187,17 @@ def main():
             y_percent=theme["Y_PERCENT_HEIGHT_OF_SUBTITLE"],
             number_of_characters_per_line=theme["NUMBER_OF_CHARACTERS_PER_LINE"])
         
-        video_with_intro = intro_adder.add_video_intro(video_file_name=video_with_subtitles_name,
-                              intro_file_name=theme['INTRO_FILE'])
+        # video_with_intro = intro_adder.add_video_intro(video_file_name=video_with_subtitles_name,
+        #                       intro_file_name=theme['INTRO_FILE'])
         
-        logging.info('FINISHED:' + video_with_intro)
+        logging.info('FINISHED:' + video_with_subtitles_name)
     
-    
-
 def remove_line_of_input_info():
     with open(directories.INPUT_INFO_FILE, 'r') as file:
         lines = file.readlines()
 
     with open(directories.INPUT_INFO_FILE, 'w') as file:
         file.writelines(lines[1:])  # Skip the first line
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_audio_files():

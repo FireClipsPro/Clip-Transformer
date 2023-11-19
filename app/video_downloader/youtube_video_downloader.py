@@ -47,6 +47,11 @@ class YoutubeVideoDownloader:
         self.__get_saved_videos()
         
         for raw_video in raw_videos:
+            if raw_video['link'].endswith('.mp4'):
+                # check to see if the video is already downloaded
+                raw_video['raw_video_name'] = raw_video['link']
+                continue
+            
             if raw_video['link'] in self.saved_videos.keys():
                 raw_video['raw_video_name'] = self.saved_videos[raw_video['link']]
                 logging.info(f"Video {raw_video['raw_video_name']} already downloaded")

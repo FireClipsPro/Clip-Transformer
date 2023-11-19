@@ -12,13 +12,13 @@ class MusicAdder:
 
     def __init__(self,
                  music_file_paths,
-                 video_files_path,
-                 output_path,
+                 input_video_folder,
+                 ouput_video_folder,
                  music_categories,
                  affirmation_music_folder=None):
         self.music_files_paths = music_file_paths
-        self.video_files_path = video_files_path
-        self.output_path = output_path
+        self.video_files_path = input_video_folder
+        self.output_path = ouput_video_folder
         self.affirmation_music_folder = affirmation_music_folder
         if music_categories is None:
             music_categories = {}
