@@ -24,9 +24,9 @@ class WhisperTranscriber:
             print("Audio file found, transcribing...")
             
         # check if json file exists
-        if os.path.exists(self.transcripts_folder + audio_file + ".json"):
+        if os.path.exists(self.transcripts_folder + audio_file[:-3] + ".json"):
             print("JSON file found, loading...")
-            with open(self.transcripts_folder + audio_file + ".json", "r") as f:
+            with open(self.transcripts_folder + audio_file[:-3] + ".json", "r") as f:
                 transcription = json.load(f)
             return transcription
         
@@ -95,7 +95,7 @@ class WhisperTranscriber:
         return transcription
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def store_transcription(self, audio_file, result_aligned):
-        with open(self.transcripts_folder + audio_file + ".json", "w+") as file:
+        with open(self.transcripts_folder + audio_file[:-3] + ".json", "w+") as file:
             json.dump(result_aligned, file)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def round_times(self, transcript):

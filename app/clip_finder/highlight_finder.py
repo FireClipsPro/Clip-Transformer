@@ -2,31 +2,64 @@ import nltk
 from nltk.tokenize import word_tokenize
 import json
 import logging
+import os
 import math
 
 logging.basicConfig(level=logging.INFO)
 
 class HighlightFinder:
     def __init__(self, 
-                 openai_api):
+                 openai_api,
+                 hooks_folder_path,
+                 clip_end_folder_path,
+                 re_use_hooks=True,
+                 re_use_clip_ends=True,
+                 min_clip_length=20,):
         self.openai_api = openai_api
         self.valid_start_stamps = []
         self.valid_end_stamps = []
         self.valid_start_stamps = []
         self.valid_end_stamps = []
+        self.re_use_hooks = re_use_hooks
+        self.hooks_folder_path = hooks_folder_path
+        self.clip_end_folder_path = clip_end_folder_path
+        self.re_use_clip_ends = re_use_clip_ends
+        self.min_clip_length = min_clip_length
 
     # input should be a transcript in the following format:
     # [{'text': 'text goes here', 'start': 0.22332, 'end': 2.3342}, ...]
     # returns list of clips [{'start': 0.22332, 'end': 65.3342}, ...]
-    def get_highlights(self, transcript):
+    def get_highlights(self, video_id, transcript):
         self.valid_start_stamps = [segment["start"] for segment in transcript]
         self.valid_end_stamps = [segment["end"] for segment in transcript]
         
-        hooks = self.find_hooks(transcript)
+        hooks = self.init_hooks(video_id, transcript)
         
-        highlights = self.find_clips(transcript, transcript, hooks)
+        highlights = self.find_clips(transcript, hooks, video_id)
         
         return highlights
+    
+    def throw_away_small_clips(self, clips):
+        for clip in clips:
+            if clip['end'] - clip['start'] < self.min_clip_length:
+                logging.info(f"Throwing away clip at: {clip['start']}, because it is too short.")
+                clips.remove(clip)
+        return clips
+
+    def init_hooks(self, video_name, transcript):
+        if self.re_use_hooks:
+            hooks_path = self.hooks_folder_path + video_name[:-4] + ".json"
+            #check if there is a json file with the same name as the video
+            if os.path.exists(hooks_path):
+                logging.info("Json file found. Using hooks from json file.")
+                with open(hooks_path , "r") as file:
+                    hooks = json.load(file)
+            else:
+                logging.info("No json file found. Finding hooks...")
+                hooks = self.find_hooks(transcript)
+                with open(hooks_path , "w+") as file:
+                    json.dump(hooks, file)
+        return hooks
 
     def chunk_transcript(self, transcript):
         # print(transcript)
@@ -76,9 +109,9 @@ class HighlightFinder:
                 ...
             ]
             Please analyze the 'text' within each segment to identify intriguing starting points for a short video. An 'intriguing' starting point could be a moment where a question is asked, a surprising statement is made, an interesting topic is introduced, or a humorous incident is shared - essentially, anything that would immediately catch a viewer's attention and encourage them to continue watching the video. 
-            Only return the start times of the best 1-3 starting points and make sure they are not close to each other in the transcript.
+            Only return the start times of the best 1-2 starting points and make sure they are not close to each other in the transcript.
             Return only the 'start' timestamps of these intriguing starting points as a list, in this form:
-            [2.3342, 5.1234, ...]
+            [2.3342, 72.1442]
             Return absolutely nothing other than the list of timestamps.
             """
             user_prompt = str(chunk)
@@ -102,19 +135,38 @@ class HighlightFinder:
         
         return hooks
 
-    def find_clips(self, transcript, hooks):
+    def find_clips(self, transcript, hooks, video_id):
         logging.info("Finding clips")
         clips = []
 
-        for hook in hooks:
-            clips = self.query_gpt_for_end_times(hook, transcript, clips)
-            
+        clip_end_path = self.clip_end_folder_path + video_id[:-4] + ".json"
+        # check if clip ends have already been foun
+        if self.re_use_clip_ends and os.path.exists(clip_end_path):
+            logging.info("Json file found. Using clip ends from json file.")
+            with open(clip_end_path , "r") as file:
+                clips = json.load(file)
+        else:
+            for hook in hooks:
+                clips.append(self.query_gpt_for_end_times(hook, transcript, clips))
+            logging.info(f"Saving clip ends to json file {clip_end_path}")
+            with open(clip_end_path , "w+") as file:
+                json.dump(clips, file)
+        
         logging.info("Clips: " + str(clips))
+        
+        clips = self.throw_away_small_clips(clips)
         
         clips = self.get_transcripts(transcript, clips)
         
         return clips
 
+    # returns list of clips with transcripts
+    # clips = [{'start': 0.22332,
+    #           'end': 65.3342,
+    #           'transcript': [
+    #               {'text': 'text goes here',
+    #                'start': 0.22332, 
+    #                'end': 2.3342}, ...]}, ...]
     def get_transcripts(self, transcript, clips):
         for clip in clips:
             logging.info("previous start and end times: " + str(clip))
@@ -122,15 +174,21 @@ class HighlightFinder:
             # add all segments inside of transcript to the clip
             for segment in transcript:
                 # we have to round numbers down because the timestamps in the transcript are rounded down
+                
+                # check if all start and end times are floats
+                if not (isinstance(segment['start'], float) and isinstance(segment['end'], float)):
+                    # throw an error if they are not
+                    raise ValueError(f"segment {str(segment)} has a start or end time that is not a float")
+                
                 if ((segment['start'] <= clip['end'] and segment['start'] >= clip['start'])
                     and (segment['end'] <= clip['end'] and segment['end'] >= clip['start'])):
-                    clip['transcript'].append(segment['text'])
-                    break
+                    clip['transcript'].append(segment)
+                    # break
 
             # ensure that start and end time set correctly
             # previously they were rounded but now they are not
-            clip['start'] = clip['transcript'][0]
-            clip['end'] = clip['transcript'][-1]
+            clip['start'] = clip['transcript'][0]['start']
+            clip['end'] = clip['transcript'][-1]['end']
             logging.info(f"new start and end times: {clip['start']} to {clip['end']}")
 
         return clips
@@ -149,9 +207,9 @@ class HighlightFinder:
                 The start of the transcript is the start of a short clip. You need to find the end of the clip.
                 Identify an end timestamp around 60 seconds after the start that would make a good ending for the clip. A good ending would be where the speakers stop discussing the topic introduced at the start, or the conversation loses its interesting quality, or just a point that would be a good wrap up.
                 Only return the 'end' timestamp of this section. 
+                Respond with only the number and absolutely nothing else.
                 For example:
-                5.1234
-                Return only the number and absolutely nothing else."""
+                Your response: 5.1234"""
             
             user_prompt = transcript_section
 
@@ -169,12 +227,13 @@ class HighlightFinder:
 
             if self._is_valid_timestamp(end_time):
                 is_valid_timestamp = True
+                end_time = float(end_time)
             else:
                 logging.info("Invalid timestamp returned. Trying again...")
         
         logging.info(f"found valid clip: {hook} to {end_time}")
-        clips.append({"start": hook, "end": end_time})   
-        return clips
+        clip = {"start": hook, "end": end_time}
+        return clip
 
     def get_first_4k_tokens_after_timestamp(self, hook, transcript):
         logging.info("Getting first 4k tokens after timestamp")

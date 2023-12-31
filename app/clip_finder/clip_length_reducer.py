@@ -29,7 +29,7 @@ class ClipLenghtReducer():
                transcript,
                clip_file_name):
         video_duration = self.get_video_duration(clip_file_name)
-        edge_time = self.calculate_edge_time(transcript, video_duration)
+        # edge_time = self.calculate_edge_time(transcript, video_duration)
         
         # renaming the clip_file_name
         clip_file_name = self.rename_and_move(clip_file_name)
@@ -42,10 +42,8 @@ class ClipLenghtReducer():
             transcript = self.remove_parts_from_transcript(transcript, parts_to_remove)
             clip_file_name, video_duration = self.remove_parts_from_video(clip_file_name, parts_to_remove_from_video)
             
-            transcript_length = self.get_length_of_transcript(transcript) + edge_time
-            
-            if ((math.floor(video_duration * 1000) / 1000 != transcript_length)
-                and (math.ceil(video_duration * 1000) / 1000 != transcript_length)):
+            transcript_length = self.get_length_of_transcript(transcript)
+            if ((video_duration * 1000) / 1000 < transcript_length):
                 raise Exception(f"Video duration: {video_duration} does not match transcript length: {transcript_length}")
         
         logging.info(f"Video duration is {video_duration} seconds, finished reducing.")
@@ -65,6 +63,12 @@ class ClipLenghtReducer():
     
     def remove_parts_from_video(self, clip_file_name, parts_to_remove):
         video = moviepy.VideoFileClip(f"{self.output_clip_folder_path}{clip_file_name}")
+        logging.info(f"Removing parts: {parts_to_remove} from video: {clip_file_name}")
+        #log the number of seconds being removed:
+        time_removed = 0
+        for part in parts_to_remove:
+            time_removed += part['end'] - part['start']
+        logging.info(f"Removing: {time_removed}, from the video")
         
         remaining_parts = []
         end_of_last_part = 0.0
@@ -85,17 +89,20 @@ class ClipLenghtReducer():
     # this function assumes that the the video_duration and transcript are accurate
     # also assumes that transcript is normalized
     def calculate_edge_time(self, transcript, video_duration):
-        return self.to_decimal(self.to_milliseconds(transcript[0]['start']) 
+        return self.to_seconds(self.to_milliseconds(transcript[0]['start']) 
                                 + self.to_milliseconds(video_duration) 
                                 - self.to_milliseconds(transcript[-1]['end']))
     
     def to_milliseconds(self, timestamp):
         return int(timestamp * 1000)
     
-    def to_decimal(self, timestamp):
+    def to_seconds(self, timestamp):
         return timestamp / 1000
     
     def remove_parts_from_transcript(self, transcript, parts_to_remove):
+        logging.info(f"Removing parts: {parts_to_remove} from transcript")
+        logging.info(f"before removing parts: {transcript}")
+        logging.info(f"transcript len = {len(transcript)}")
         #put all times in integer form (decimal subtraction keeps giving errors)
         for part in parts_to_remove:
             part['start'] = self.to_milliseconds(part['start'])
@@ -110,29 +117,40 @@ class ClipLenghtReducer():
             part['end'] -= time_removed
             transcript = self.remove_part_from_transcript(transcript, part)
             time_removed += part['end'] - part['start']
+            logging.info(f"transcript len = {len(transcript)}")
             # logging.info(f"Time removed from part to remove: {time_removed} milliseconds")
         
-        # put times back to decimal form
+        logging.info(f"Time removed from transcript: {time_removed} milliseconds")
+        # put times back to seconds form
         for segment in transcript:
-            segment['start'] = self.to_decimal(segment['start'])
-            segment['end'] = self.to_decimal(segment['end'])
+            segment['start'] = self.to_seconds(segment['start'])
+            segment['end'] = self.to_seconds(segment['end'])
         for part in parts_to_remove:
-            part['start'] = self.to_decimal(part['start'])
-            part['end'] = self.to_decimal(part['end'])
+            part['start'] = self.to_seconds(part['start'])
+            part['end'] = self.to_seconds(part['end'])
+        logging.info(f"after removing parts: {transcript}")
         
         return transcript
     
     def remove_part_from_transcript(self, transcript, rem_part):
         time_subtracted = rem_part['end'] - rem_part['start']
+        print(f"current transcript end time: {transcript[-1]['end']}")
         # logging.info(f"Removing part: {rem_part} from transcript. Time to be subtracted: {time_subtracted} milliseconds")
-        
+
         new_transcript = []
+        if rem_part['start'] == transcript[-1]['start'] and rem_part['end'] == transcript[-1]['end']:
+            logging.info(f"Removing last element of transcript: {transcript[-1]}")
+            new_transcript = transcript[:-1]
+            logging.info(f"New transcript end time: {new_transcript[-1]['end']}")
+            return new_transcript
+            
+        
         # remove all parts that are inside of the part to remove
         # for all segments after part to remove, subtract the time removed from the start and end times
         for segment in transcript:
             # logging.info("transcript:" + str(transcript))
             # logging.info("segment:" + str(segment))
-            if segment['start'] > rem_part['end']:
+            if segment['start'] >= rem_part['end']:
                 # logging.info(f"Subtracting {time_subtracted} milliseconds from segment: {segment}")
                 new_transcript.append({'start': segment['start'] - time_subtracted,
                                         'end': segment['end'] - time_subtracted,
@@ -140,7 +158,7 @@ class ClipLenghtReducer():
             # case: segment is fully inside of part
             elif (segment['start'] >= rem_part['start'] and segment['end'] <= rem_part['end']):
                 #remove segment from the transcript
-                logging.info(f"Removing segment: {segment}")
+                logging.info(f"Removing segment: {segment} of length: {segment['end'] - segment['start']} milliseconds")
             # case: segment is partially inside of part (straddling rem_part end or start) (this should not happen)
             elif ((segment['start'] > rem_part['start'] and segment['start'] < rem_part['end'] and segment['end'] > rem_part['end'])
                   or(segment['start'] < rem_part['start'] and segment['end'] < rem_part['end'] and segment['end'] > rem_part['start'])):
@@ -148,7 +166,8 @@ class ClipLenghtReducer():
             # case: segment is before part to remove
             else:
                 new_transcript.append(segment)
-        # logging.info("new transcript:" + str(new_transcript))
+        logging.info(f"New transcript end time: {new_transcript[-1]['end']}")
+        logging.info(f"New transcript: {str(new_transcript)}")
         return new_transcript
 
     # returns list of parts to remove in the form [{start: 0, end: 10}, {start: 20, end: 30}]
