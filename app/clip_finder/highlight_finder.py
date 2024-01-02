@@ -37,12 +37,15 @@ class HighlightFinder:
         
         highlights = self.find_clips(transcript, hooks, video_id)
         
+        for highlight in highlights:
+            highlight['raw_video_name'] = video_id[:-4] + f"_({highlight['start_time']}_{highlight['end_time']}).mp4"
+        
         return highlights
     
     def throw_away_small_clips(self, clips):
         for clip in clips:
-            if clip['end'] - clip['start'] < self.min_clip_length:
-                logging.info(f"Throwing away clip at: {clip['start']}, because it is too short.")
+            if clip['end_time'] - clip['start_time'] < self.min_clip_length:
+                logging.info(f"Throwing away clip at: {clip['start_time']}, because it is too short.")
                 clips.remove(clip)
         return clips
 
@@ -180,16 +183,16 @@ class HighlightFinder:
                     # throw an error if they are not
                     raise ValueError(f"segment {str(segment)} has a start or end time that is not a float")
                 
-                if ((segment['start'] <= clip['end'] and segment['start'] >= clip['start'])
-                    and (segment['end'] <= clip['end'] and segment['end'] >= clip['start'])):
+                if ((segment['start'] <= clip['end_time'] and segment['start'] >= clip['start_time'])
+                    and (segment['end'] <= clip['end_time'] and segment['end'] >= clip['start_time'])):
                     clip['transcript'].append(segment)
                     # break
 
             # ensure that start and end time set correctly
             # previously they were rounded but now they are not
-            clip['start'] = clip['transcript'][0]['start']
-            clip['end'] = clip['transcript'][-1]['end']
-            logging.info(f"new start and end times: {clip['start']} to {clip['end']}")
+            clip['start_time'] = clip['transcript'][0]['start']
+            clip['end_time'] = clip['transcript'][-1]['end']
+            logging.info(f"new start and end times: {clip['start_time']} to {clip['end_time']}")
 
         return clips
     
@@ -232,7 +235,7 @@ class HighlightFinder:
                 logging.info("Invalid timestamp returned. Trying again...")
         
         logging.info(f"found valid clip: {hook} to {end_time}")
-        clip = {"start": hook, "end": end_time}
+        clip = {"start_time": hook, "end_time": end_time}
         return clip
 
     def get_first_4k_tokens_after_timestamp(self, hook, transcript):

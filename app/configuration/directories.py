@@ -36,7 +36,7 @@ IMAGE_SOUNDS_FOLDER = f"{root}image_display_sounds/"
 DOWNLOADED_VIDEOS_FILE = f"{root}downloaded_videos/videos.csv"
 HOOKS_FOLDER = f"{root}hooks/"
 CLIP_END_FOLDER = f"{root}clip_ends/"
-
+INPUT_YOUTUBE_LINK = f"{root}input_youtube_links.csv"
 
 folders_dict = {
     'TRANSCRIPTS_FOLDER': TRANSCRIPTS_FOLDER,

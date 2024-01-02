@@ -25,9 +25,17 @@ class ClipLenghtReducer():
         video = moviepy.VideoFileClip(f"{self.input_clip_folder_path}/{clip_file_name}")
         return video.duration
 
+    
     def reduce(self, 
                transcript,
                clip_file_name):
+        """Reduces the length of the clip to 60 seconds or less
+        Args:
+            transcript (_type_): The transcript must have ['segments'] and ['word_segments'] keys
+            clip_file_name (_type_): name.mp4
+        Returns:
+            _type_: modified transcript and name of shortened clip
+        """
         video_duration = self.get_video_duration(clip_file_name)
         # edge_time = self.calculate_edge_time(transcript, video_duration)
         
@@ -36,13 +44,15 @@ class ClipLenghtReducer():
         
         while video_duration > self.MAX_VIDEO_DURATION:
             logging.info(f"Video duration is {video_duration} seconds, reducing...")
-            parts_to_remove = self.get_parts_to_remove(transcript)
+            parts_to_remove = self.get_parts_to_remove(transcript['segments'])
             parts_to_remove_from_video = copy.deepcopy(parts_to_remove)
             
-            transcript = self.remove_parts_from_transcript(transcript, parts_to_remove)
+            transcript['segments'] = self.remove_parts_from_transcript(transcript['segments'], parts_to_remove)
+            transcript['word_segments'] = self.remove_parts_from_transcript(transcript['word_segments'], parts_to_remove)
+
             clip_file_name, video_duration = self.remove_parts_from_video(clip_file_name, parts_to_remove_from_video)
             
-            transcript_length = self.get_length_of_transcript(transcript)
+            transcript_length = self.get_length_of_transcript(transcript['segments'])
             if ((video_duration * 1000) / 1000 < transcript_length):
                 raise Exception(f"Video duration: {video_duration} does not match transcript length: {transcript_length}")
         
@@ -162,7 +172,8 @@ class ClipLenghtReducer():
             # case: segment is partially inside of part (straddling rem_part end or start) (this should not happen)
             elif ((segment['start'] > rem_part['start'] and segment['start'] < rem_part['end'] and segment['end'] > rem_part['end'])
                   or(segment['start'] < rem_part['start'] and segment['end'] < rem_part['end'] and segment['end'] > rem_part['start'])):
-                raise Exception(f"Segment: ({segment['start']}, {segment['end']}) is partially inside of part to remove: ({rem_part['start']}, {rem_part['end']}). This should not happen.")
+                logging.info(f"Removing segment: {segment} of length: {segment['end'] - segment['start']} milliseconds")
+                # raise Exception(f"Segment: ({segment['start']}, {segment['end']}) is partially inside of part to remove: ({rem_part['start']}, {rem_part['end']}). This should not happen.")
             # case: segment is before part to remove
             else:
                 new_transcript.append(segment)
