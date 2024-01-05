@@ -59,7 +59,7 @@ class PauseRemover:
         new_video = concatenate_videoclips(new_video_clips)
         return new_video
 
-
+    # TODO: re-jig this so that it works with the new transcript format
     def remove_transcript_pauses(self, transcript, maximum_pause_length):
         time_substracted_from_video = 0
         new_transcript = []

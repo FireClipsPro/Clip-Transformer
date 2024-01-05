@@ -131,15 +131,15 @@ def main():
             transcript = transcriber.transcribe(audio_extraction_file_name,
                                                 theme['CENSOR_PROFANITY'])
             
-            transcript, reduced_length_clip = clip_length_reducer.reduce(transcript, clipped_video['file_name'])
-            clipped_video['file_name'] = reduced_length_clip['file_name']
-            
             if transcript == None:
                 continue
             
             clipped_video, transcript['word_segments'] = pause_remover.remove_pauses(clipped_video,
-                                                                        transcript['word_segments'],
+                                                                        transcript,
                                                                         theme['MAXIMUM_PAUSE_LENGTH'])
+            
+            transcript, reduced_length_clip = clip_length_reducer.reduce(transcript, clipped_video['file_name'])
+            clipped_video['file_name'] = reduced_length_clip['file_name']
             
             clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
                                             presets.VERTICAL_VIDEO_WIDTH,

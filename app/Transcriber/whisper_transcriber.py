@@ -10,15 +10,15 @@ LARGE_MODEL_SIZE = "large"
 
 class WhisperTranscriber:
     def __init__(self, 
-                 audio_files_path,
+                 audio_extractions_folder,
                  transcripts_folder):
         print("WhisperTranscriber created")
-        self.audio_files_path = audio_files_path
+        self.audio_extractions_folder = audio_extractions_folder
         self.transcripts_folder = transcripts_folder
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def transcribe(self, audio_file, censor_profanity=True):
         # check if file exists
-        if not os.path.exists(self.audio_files_path + audio_file):
+        if not os.path.exists(self.audio_extractions_folder + audio_file):
             raise Exception('Audio file does not exist')
         else:
             print("Audio file found, transcribing...")
@@ -28,6 +28,7 @@ class WhisperTranscriber:
             print("JSON file found, loading...")
             with open(self.transcripts_folder + audio_file[:-3] + ".json", "r") as f:
                 transcription = json.load(f)
+                transcription['segments'] = self.normalize_segments(transcription['segments'], transcription['word_segments'])
             return transcription
         
         if torch.cuda.is_available():
@@ -36,7 +37,7 @@ class WhisperTranscriber:
             device = "cpu"
         model = whisperx.load_model(LARGE_MODEL_SIZE, device=device)
 
-        result = model.transcribe(self.audio_files_path + audio_file)
+        result = model.transcribe(self.audio_extractions_folder + audio_file)
 
         print(result["segments"]) # before alignment
 
@@ -44,7 +45,7 @@ class WhisperTranscriber:
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
 
         # align whisper output
-        result_aligned = whisperx.align(result["segments"], model_a, metadata, self.audio_files_path + audio_file, device)
+        result_aligned = whisperx.align(result["segments"], model_a, metadata, self.audio_extractions_folder + audio_file, device)
 
         print("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(result_aligned["segments"]) # after alignment
@@ -56,6 +57,8 @@ class WhisperTranscriber:
         transcription = self.clean_transcription(transcription, censor_profanity)
         
         transcription = self.ensure_transcription_has_text(transcription)
+        
+        transcription['segments'] = self.normalize_segments(transcription['segments'], transcription['word_segments'])
         
         self.store_transcription(audio_file, transcription)
         
@@ -106,7 +109,46 @@ class WhisperTranscriber:
             word_segment['start'] = round(word_segment['start'], 2)
             word_segment['end'] = round(word_segment['end'], 2)
         return transcript
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def normalize_segments(self, segments, word_segments):
+        def find_closest_time(target, key):
+            closest_time = None
+            start, end = 0, len(word_segments) - 1
+            while start <= end:
+                mid = (start + end) // 2
+                mid_time = word_segments[mid][key]
+                if closest_time is None or abs(mid_time - target) < abs(closest_time - target):
+                    closest_time = mid_time
+                if mid_time < target:
+                    start = mid + 1
+                else:
+                    end = mid - 1
+            return closest_time
 
+        normalized_segments = []
+        for segment in segments:
+            closest_start = find_closest_time(segment['start'], 'start')
+            closest_end = find_closest_time(segment['end'], 'end')
+            normalized_segment = {'start': closest_start,
+                                  'end': closest_end,
+                                  'text': segment['text']}
+            normalized_segments.append(normalized_segment)
+
+        return normalized_segments
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def create_mapping(self, segments, word_segments):
+        '''Creates map from word_segment to segment
+        '''
+        mapping = {}
+        for segment in segments:
+            for word_segment in word_segments:
+                # if word segment is within segment
+                if word_segment['start'] >= segment['start'] and word_segment['end'] <= segment['end']:
+                    # Convert word_segment to a tuple (start, end)
+                    word_segment_key = (word_segment['start'], word_segment['end'])
+                    mapping[word_segment_key] = segment
+        
+        return mapping
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # root = "../../media_storage/"
