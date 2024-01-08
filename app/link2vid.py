@@ -6,7 +6,7 @@ from file_organisation import FileDeleter, FinishedVideoSorter
 from video_downloader import YoutubeVideoDownloader
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder
-from clip_finder import ClipLenghtReducer, HighlightFinder
+from clip_finder import ClipLengthReducer, HighlightFinder
 import configuration.directories as directories
 import configuration.presets as presets
 import os
@@ -53,7 +53,7 @@ def main():
     pause_remover = PauseRemover(directories.POTENTIAL_CLIP_FOLDER, 
                                  directories.POTENTIAL_CLIP_FOLDER)
     
-    clip_length_reducer = ClipLenghtReducer(openai_api=openai_api,
+    clip_length_reducer = ClipLengthReducer(openai_api=openai_api,
                                             input_clip_folder_path=directories.POTENTIAL_CLIP_FOLDER,
                                             output_clip_folder_path=directories.RESIZED_FOLDER)
     

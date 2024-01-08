@@ -1,5 +1,5 @@
 
-from clip_finder import ClipLenghtReducer
+from clip_finder import ClipLengthReducer
 from text_analyzer import OpenaiApi
 from configuration import directories
 from subtitle_adder import SubtitleAdder
@@ -16,11 +16,26 @@ shortened_folder = "../test_medias/OutputVideos/"
 class TestClipLengthReducer(unittest.TestCase):
     def setUp(self):
         openai_api = OpenaiApi()
-        self.clip_length_reducer = ClipLenghtReducer(openai_api,
+        self.clip_length_reducer = ClipLengthReducer(openai_api,
                                                      input_folder,
                                                      shortened_folder)
         subtitle_adder = SubtitleAdder(shortened_folder,
                                        shortened_folder)
+        
+    def test_build_segments(self):
+        word_segments = [
+            {'segment_num': 0, 'start': 0.0, 'end': 1.0, 'text': 'Hello'},
+            {'segment_num': 0, 'start': 1.0, 'end': 2.0, 'text': 'world'},
+            {'segment_num': 1, 'start': 2.0, 'end': 3.0, 'text': 'foo'},
+            {'segment_num': 1, 'start': 3.0, 'end': 4.0, 'text': 'bar'}
+        ]
+        num_segments = 2
+        expected_segments = [
+            {'start': 0.0, 'end': 2.0, 'text': 'Hello world'},
+            {'start': 2.0, 'end': 4.0, 'text': 'foo bar'}
+        ]
+        segments = self.clip_length_reducer.build_segments(word_segments, num_segments)
+        self.assertEqual(segments, expected_segments)
 
     # def test_reduce(self):
     #     with open(transcript_folder + 'repub.json') as f:

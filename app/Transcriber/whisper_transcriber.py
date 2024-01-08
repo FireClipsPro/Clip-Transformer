@@ -3,6 +3,10 @@ import torch
 import os
 import json
 from better_profanity import profanity
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
 
 SMALL_MODEL_SIZE = "small"
 MEDIUM_MODEL_SIZE = "medium"
@@ -17,6 +21,13 @@ class WhisperTranscriber:
         self.transcripts_folder = transcripts_folder
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def transcribe(self, audio_file, censor_profanity=True):
+        ''' Transcribes the audio file and returns a dictionary with the following keys:
+            'word_segments': list of word segments, each with the following keys:
+                'text': the text of the word segment
+                'start': the start time of the word segment
+                'end': the end time of the word segment
+                'segment_num': the index of the segment that contains this word segment (used later for clustering)
+        '''
         # check if file exists
         if not os.path.exists(self.audio_extractions_folder + audio_file):
             raise Exception('Audio file does not exist')
@@ -28,7 +39,7 @@ class WhisperTranscriber:
             print("JSON file found, loading...")
             with open(self.transcripts_folder + audio_file[:-3] + ".json", "r") as f:
                 transcription = json.load(f)
-                transcription['segments'] = self.normalize_segments(transcription['segments'], transcription['word_segments'])
+                transcription = self.assign_clusters(transcription)
             return transcription
         
         if torch.cuda.is_available():
@@ -49,7 +60,7 @@ class WhisperTranscriber:
 
         print("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(result_aligned["segments"]) # after alignment
-        print("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(result_aligned["word_segments"]) # after alignment 
 
         transcription = self.parse_transcription(result_aligned)
@@ -57,13 +68,16 @@ class WhisperTranscriber:
         transcription = self.clean_transcription(transcription, censor_profanity)
         
         transcription = self.ensure_transcription_has_text(transcription)
-        
-        transcription['segments'] = self.normalize_segments(transcription['segments'], transcription['word_segments'])
-        
+                
         self.store_transcription(audio_file, transcription)
         
+        transcription['word_segments'], transcription['num_segments'] = self.assign_clusters(transcription['segments'],
+                                                                                             transcription['word_segments'])
+        
+        transcription['segments'] = None
+        
         return transcription
-    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def ensure_transcription_has_text(self, transcription):
         if (len(transcription['word_segments']) == 0
             or len(transcription['segments']) == 0
@@ -110,45 +124,31 @@ class WhisperTranscriber:
             word_segment['end'] = round(word_segment['end'], 2)
         return transcript
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def normalize_segments(self, segments, word_segments):
-        def find_closest_time(target, key):
-            closest_time = None
-            start, end = 0, len(word_segments) - 1
-            while start <= end:
-                mid = (start + end) // 2
-                mid_time = word_segments[mid][key]
-                if closest_time is None or abs(mid_time - target) < abs(closest_time - target):
-                    closest_time = mid_time
-                if mid_time < target:
-                    start = mid + 1
-                else:
-                    end = mid - 1
-            return closest_time
-
-        normalized_segments = []
-        for segment in segments:
-            closest_start = find_closest_time(segment['start'], 'start')
-            closest_end = find_closest_time(segment['end'], 'end')
-            normalized_segment = {'start': closest_start,
-                                  'end': closest_end,
-                                  'text': segment['text']}
-            normalized_segments.append(normalized_segment)
-
-        return normalized_segments
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def create_mapping(self, segments, word_segments):
-        '''Creates map from word_segment to segment
+    def assign_clusters(self, transcription):
+        ''' Assign each word_segment a number that represents its position in segments.
+            This is so we don't have to store segments and can rebuild it later.
         '''
-        mapping = {}
-        for segment in segments:
-            for word_segment in word_segments:
-                # if word segment is within segment
-                if word_segment['start'] >= segment['start'] and word_segment['end'] <= segment['end']:
-                    # Convert word_segment to a tuple (start, end)
-                    word_segment_key = (word_segment['start'], word_segment['end'])
-                    mapping[word_segment_key] = segment
+        segments = transcription['segments']
+        word_segments = transcription['word_segments']
         
-        return mapping
+        for i, segment in enumerate(segments):
+            segment_text = segment['text']
+            for word in word_segments:
+                # Check if the word is completely within the segment
+                if word['start'] >= segment['start'] and word['end'] <= segment['end']:
+                    word['segment_num'] = i
+                # Check for partial overlap and if the word text is in the segment text
+                elif ((word['start'] < segment['end'] and word['end'] > segment['start']) and 
+                    (word['text'] in segment_text)):
+                    word['segment_num'] = i
+                    
+        # Set the number of segments and remove segments from the transcription
+        transcription['num_segments'] = len(segments)
+        transcription['word_segments'] = word_segments
+        transcription['segments'] = None
+        
+        return transcription
+
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # root = "../../media_storage/"
@@ -158,4 +158,4 @@ class WhisperTranscriber:
 # transcriber = WhisperTranscriber(AUDIO_EXTRACTIONS_PATH)
 
 # transcript = transcriber.clean_transcription(transcriber.transcribe("vikings_(0, 46)_(1, 44).mp3"))
-# print (transcript)
+# print(transcript)

@@ -9,7 +9,7 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 
-class ClipLenghtReducer():
+class ClipLengthReducer():
     def __init__(self,
                  openai_api,
                  input_clip_folder_path,
@@ -34,9 +34,11 @@ class ClipLenghtReducer():
             transcript (_type_): The transcript must have ['segments'] and ['word_segments'] keys
             clip_file_name (_type_): name.mp4
         Returns:
-            _type_: modified transcript and name of shortened clip
+            modified transcript and name of shortened clip
         """
         video_duration = self.get_video_duration(clip_file_name)
+        
+        transcript['segments'] = self.build_segments(transcript['word_segments'], transcript['num_segments'])
         # edge_time = self.calculate_edge_time(transcript, video_duration)
         
         # renaming the clip_file_name
@@ -62,6 +64,24 @@ class ClipLenghtReducer():
             
         logging.info(f"Video duration is {video_duration} seconds, finished reducing.")
         return transcript, clip_file_name
+
+    def build_segments(self, word_segments, num_segments):
+        segments = []
+        
+        for segment_num in range(0, num_segments):
+            for word_segment in word_segments:
+                if word_segment['segment_num'] == segment_num:
+                    # if segment already exists, add word text to it and update end time
+                    if len(segments) > segment_num:
+                        segments[segment_num]['text'] += " " + word_segment['text']
+                        segments[segment_num]['end'] = word_segment['end']
+                    else:
+                        segments.append({'start': word_segment['start'],
+                                         'end': word_segment['end'],
+                                         'text': word_segment['text']})
+            segment_num += 1
+        
+        return segments
 
     def rename_and_move(self, clip_file_name):
         renamed_clip_file_name = f"reduced_{clip_file_name}"

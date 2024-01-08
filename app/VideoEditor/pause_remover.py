@@ -17,7 +17,7 @@ class PauseRemover:
         clipped_video['file_name'] = clipped_video['file_name'].split('.')[0] + '_no_pauses.mp4'
         new_video.write_videofile(self.output_video_folder + clipped_video['file_name'])
         
-        new_transcript = self.remove_transcript_pauses(transcript,maximum_pause_length)
+        new_transcript = self.remove_transcript_pauses(transcript, maximum_pause_length)
 
         clipped_video['end_time_sec'] = new_video.duration
         
@@ -59,7 +59,6 @@ class PauseRemover:
         new_video = concatenate_videoclips(new_video_clips)
         return new_video
 
-    # TODO: re-jig this so that it works with the new transcript format
     def remove_transcript_pauses(self, transcript, maximum_pause_length):
         time_substracted_from_video = 0
         new_transcript = []
@@ -98,3 +97,13 @@ class PauseRemover:
 # remover.remove_pauses("Eliezer_(0, 0)_(0, 25)_centered.mp4",
 #                             transcript['word_segments'],
 #                             0.4)
+
+
+
+# build clusters of words that are close together based segments
+
+# each word is given a cluster number
+
+# if a word is ever deleted everything is fine because the cluster is still intact
+
+# rebuild transcript['segments'] after 'um' and 'uh' is removed and after pauses are removed
