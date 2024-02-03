@@ -1,4 +1,4 @@
-import directories
+import .directories
 import os
 import logging
 

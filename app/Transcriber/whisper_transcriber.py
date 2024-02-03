@@ -27,6 +27,7 @@ class WhisperTranscriber:
             logging.info("JSON file found, loading...")
             with open(self.transcripts_folder + audio_file + ".json", "r") as f:
                 transcription = json.load(f)
+                transcription = self.fix_numerical_transcriptions(transcription)
             return transcription
         else:
             logging.info("JSON file not found, transcribing...")
@@ -58,10 +59,21 @@ class WhisperTranscriber:
         
         transcription = self.ensure_transcription_has_text(transcription)
         
+        transcription = self.fix_numerical_transcriptions(transcription)
+        
         self.store_transcription(audio_file, transcription)
         
         return transcription
-    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def fix_numerical_transcriptions(self, transcription):
+        word_segments = transcription['word_segments']
+        for i in range(0, len(word_segments)):
+            # if the word_segment contains a digit, replace it with the word
+            if any(char.isdigit() for char in word_segments[i]['text']):
+                word_segments[i]['end'] = word_segments[i + 1]['start'] - (0.01 * (word_segments[i + 1]['start'] - word_segments[i]['end']))
+        
+        return transcription
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def ensure_transcription_has_text(self, transcription):
         if (len(transcription['word_segments']) == 0
             or len(transcription['segments']) == 0

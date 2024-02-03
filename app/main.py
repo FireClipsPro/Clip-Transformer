@@ -133,7 +133,7 @@ def main():
             query_list = image_spacer.add_spacing_to_images(query_list,
                 time_between_images=theme["TIME_BETWEEN_IMAGES"])
             
-            video_with_sound_effects = sound_effect_adder.add_sounds_to_images(images=query_list,
+            clipped_video = sound_effect_adder.add_sounds_to_images(images=query_list,
                 video=clipped_video,
                 wants_sounds=theme['WANTS_SOUND_EFFECTS'])
             
@@ -160,7 +160,7 @@ def main():
                 theme['OVERLAY_ZONE_HEIGHT'],
                 theme['ZOOM_SPEED'])
             
-            video_with_media = media_adder.add_videos_to_original_clip(original_clip=video_with_sound_effects,
+            clipped_video = media_adder.add_videos_to_original_clip(original_clip=clipped_video,
                 videos=video_data,
                 original_clip_width=presets.VERTICAL_VIDEO_WIDTH,
                 original_clip_height=presets.VERTICAL_VIDEO_HEIGHT * 2,
@@ -168,11 +168,11 @@ def main():
                 overlay_zone_width=theme["OVERLAY_ZONE_WIDTH"],
                 overlay_zone_height=theme["OVERLAY_ZONE_HEIGHT"])
         else:
-            subtitle_adder.input_folder_path = head_tracker.output_folder_path
+            subtitle_adder.input_folder_path = head_tracker.OUTPUT_FILE_PATH
     
-        video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_file_name=video_with_media['file_name'],
+        video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_file_name=clipped_video['file_name'],
             transcription=transcription['word_segments'],
-            output_file_name='sub_' + video_with_media['file_name'],
+            output_file_name='sub_' + clipped_video['file_name'],
             font_size=theme['FONT_SIZE'],
             font_name=theme['FONT'],
             outline_color=theme['FONT_OUTLINE_COLOR'],
@@ -185,7 +185,7 @@ def main():
             interval=theme["SUBTITLE_DURATION"])
 
         watermarked_video = watermark_adder.add_watermark(image_file_name=theme['WATERMARK'],
-            video_file_name=video_with_media['file_name'],
+            video_file_name=video_with_subtitles_name,
             location=theme['WATERMARK_LOCATION'])
         
         video_with_music_name = music_adder.add_music_to_video_by_category(music_category=clipped_video['transcription_info']['category'],

@@ -33,7 +33,7 @@ themes = {
                                     (255,255,0), # yellow
                                     (255,48,48), # red
                                     (0,191,255)], # blue
-        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "conspiracy", "motivational", "funny"],
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,
@@ -312,7 +312,7 @@ themes = {
         "PERECENT_OF_IMAGES_TO_BE_FULLSCREEN" : 0,
         "MAXIMUM_PAUSE_LENGTH" : 0.35,
         "TIME_BETWEEN_IMAGES" : 0,
-        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 55,
+        "Y_PERCENT_HEIGHT_OF_SUBTITLE" : 85,
         "SUBTITLE_DURATION" : 1,
         "DURATION_OF_FULL_SCREEN_IMAGES" : 3.5,
         "FONT" : 'Tahoma Bold.ttf',
@@ -321,9 +321,9 @@ themes = {
         "FONT_SIZE" : 90,
         "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
         "FONT_COLOR" : (255, 255, 255), # white
-        "WANTS_IMAGES" : True,
+        "WANTS_IMAGES" : False,
         "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)],
-        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "motivational", "hopeful", "funny", "serious"],
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "motivational", "funny", "mystery"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,
@@ -361,7 +361,7 @@ themes = {
                                     (255,255,0), # yellow
                                     (255,48,48), # red
                                     (0,191,255)], # blue
-        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "conspiracy", "motivational", "funny"],
+        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,

@@ -148,8 +148,6 @@ class MusicAdder:
     def measure_loudness(self, filename):
         audio = AudioSegment.from_file(filename)
         return audio.dBFS
-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Tests:
 # root = "../../"

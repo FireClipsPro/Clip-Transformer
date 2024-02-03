@@ -1,6 +1,9 @@
 from moviepy.editor import VideoFileClip, ImageClip, vfx, CompositeVideoClip
 import os
 import shutil
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class WatermarkAdder:
     def __init__(self,
@@ -17,8 +20,17 @@ class WatermarkAdder:
                       image_file_name, 
                       video_file_name, 
                       location):
-        image_path = os.path.join(self.watermark_folder, image_file_name)
-        video_path = os.path.join(self.input_video_folder, video_file_name)
+        if location == None or image_file_name == None or video_file_name == None:
+            # copy the video to the output folder
+            destination = os.path.join(self.output_video_folder, video_file_name)
+            input_video_path = os.path.join(self.input_video_folder, video_file_name)
+            shutil.copy(input_video_path, destination)
+
+            logging.info("No location provided. Skipping Watermark.")
+            return video_file_name
+        
+        image_path = self.watermark_folder + image_file_name
+        video_path = self.input_video_folder + video_file_name
         
          # If image_file_name is None, just copy the video to the output folder
         if image_file_name is None:

@@ -174,8 +174,7 @@ class SubtitleAdder:
         # draw text
         draw.text((outline_width, outline_width), text, font=font, fill=text_color)
         return img
-
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def add_subtitles_to_video(self,
                                video_file_name,
                                transcription,
@@ -191,8 +190,8 @@ class SubtitleAdder:
                                number_of_characters_per_line,
                                interval=2):
         # if video already exists don't make it again
-        # if os.path.exists(self.output_folder_path + output_file_name):
-        #     return output_file_name
+        if os.path.exists(self.output_folder_path + output_file_name):
+            return output_file_name
         transcription = self.edit_punctuation_and_caps(transcription, all_caps, punctuation)
         
         clip = VideoFileClip(self.input_folder_path + video_file_name)

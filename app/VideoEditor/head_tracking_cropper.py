@@ -149,7 +149,7 @@ class HeadTrackingCropper:
         video_clip_resized = video_clip.resize((new_video_width, new_video_height))
         reduced_fps_video_clip = video_clip_resized.set_fps(reduced_fps)
 
-        moving_average_length = 40
+        moving_average_length = 20
         x_positions = collections.deque(maxlen=moving_average_length)
         y_positions = collections.deque(maxlen=moving_average_length)
 
@@ -221,7 +221,8 @@ class HeadTrackingCropper:
                                                                                                 corner_color_threshold,
                                                                                                 frame)
                             self.log_color_difference_detection(reduced_fps_video_clip, frame_index, color_diff_count)
-                            
+                            # making temp change here for kinvestor
+
                             if color_diff_count >= 2:  # At least 2 out of 4 corners have significant color changes
                                 print("Color difference between frames is too large.")
                                 print("Color difference is: " + str(color_diff))

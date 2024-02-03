@@ -13,7 +13,7 @@ logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s 
 def main():
     # read from the csv file in ./media_storage/input_info.csv and parse the data
     # into a list of dictionaries
-    prompt = "I want to love myself and forgive myself for my flaws. I want to live in the moment and be calm and happy."
+    prompt = "I want to live in the moment and be calm and happy. I want to be confident in myself."
     
     
     tracks = [{'file_name': 'healing.mp3',
