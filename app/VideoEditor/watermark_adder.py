@@ -19,8 +19,9 @@ class WatermarkAdder:
     def add_watermark(self, 
                       image_file_name, 
                       video_file_name, 
-                      location):
-        if location == None or image_file_name == None or video_file_name == None:
+                      location,
+                      wants_watermark):
+        if not wants_watermark or location == None or image_file_name == None or video_file_name == None:
             # copy the video to the output folder
             destination = os.path.join(self.output_video_folder, video_file_name)
             input_video_path = os.path.join(self.input_video_folder, video_file_name)

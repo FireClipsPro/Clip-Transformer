@@ -1,3 +1,3 @@
-from .sentence_subject_analyzer import SentenceSubjectAnalyzer
-from .transcript_analyzer import TranscriptAnalyzer
+from .image_query_creator import ImageQueryCreator
 from .openai_api import OpenaiApi
+from .transcript_analyzer import TranscriptAnalyzer

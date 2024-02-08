@@ -133,9 +133,8 @@ class VideoClipper:
 # clipper.clip_video("lost.mp4", "0", "59")
 
 
-# RAW_VIDEO_FILE_PATH = "../../../media_storage/songs/fascinating/"
-# RAW_VIDEO_FILE_PATH = "../../../media_storage/audio_extractions/"
-# INPUT_FILE_PATH = "../../../media_storage/audio_extractions/"
-# clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
-# clipper.clip_song("jocko.mp3", "0", "5:00")
+# input_path = "../../media_storage/video_maker/audio_input/"
+# output_path = "../../media_storage/video_maker/audio_input/"
+# clipper = VideoClipper(input_path, output_path)
+# clipper.clip_song("Joe_Beast_1_(0 0)_(1 0).mp3", "0", "0:10")
 # clipper.clip_song("jocko.mp3", "5:00", "10:00")

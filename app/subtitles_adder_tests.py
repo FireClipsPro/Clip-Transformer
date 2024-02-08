@@ -1,6 +1,6 @@
 from VideoEditor import MediaAdder, VideoResizer, VideoClipper
 
-from text_analyzer import SentenceSubjectAnalyzer
+from text_analyzer import ImageQueryCreator
 from Transcriber import WhisperTranscriber, AudioExtractor
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder

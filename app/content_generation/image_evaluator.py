@@ -81,7 +81,7 @@ class ImageEvaluator:
         
         return color_count > MIN_COLOR_COUNT
     
-    def get_image_dimensions(self, file_path):
+    def get_dimensions(self, file_path):
         if not os.path.exists(file_path):
             logging.error(f"Could not find image: {file_path}")
             return 0, 0

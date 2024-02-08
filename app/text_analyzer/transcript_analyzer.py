@@ -6,18 +6,19 @@ import re
 import json
 import nltk
 from nltk.tokenize import word_tokenize
+from .openai_api import OpenaiApi
 
 class TranscriptAnalyzer:
     def __init__(self,
-             AI_PARSED_INFORMATION_FILE_PATH,
-             CATEGORY_LIST,
-             openai_api):
-        self.TRANSCRIPTION_INFO_FILE_PATH = AI_PARSED_INFORMATION_FILE_PATH
+             video_info_folder,
+             music_cat_list,
+             openai_api: OpenaiApi):
+        self.TRANSCRIPTION_INFO_FILE_PATH = video_info_folder
         self.CATEGORY_LIST_STRING = ""
         self.openai_api = openai_api
         # get the keys from the dictionary category list
-        CATEGORY_LIST.keys()
-        for key in CATEGORY_LIST.keys():
+        music_cat_list.keys()
+        for key in music_cat_list.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
     def get_clip_info(self, 

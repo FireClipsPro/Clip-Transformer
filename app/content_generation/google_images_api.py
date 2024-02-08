@@ -5,18 +5,23 @@ import logging
 import cv2
 import numpy as np
 from PIL import Image
+from .image_evaluator import ImageEvaluator
+from .image_classifier import ImageClassifier
 
 logging.basicConfig(level=logging.INFO)
 
 class GoogleImagesAPI:
-    def __init__(self, image_file_path, image_classifier, image_evaluator):
+    def __init__(self, 
+                 image_file_path,
+                 image_classifier: ImageClassifier,
+                 image_evaluator: ImageEvaluator):
         self.IMAGE_FILE_PATH = image_file_path
         self.used_links = []
         self.num_links_per_query = {}
         self.image_classifier = image_classifier
         self.IMAGE_CLASSIFIER_THRESHOLD = 6.5
         self.image_evaluator = image_evaluator
-        self.cares_about_public_domain = False
+        self.wants_royalty_free = False
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_image_link(self, query, api_key, cx, link_needed):
         url = "https://www.googleapis.com/customsearch/v1"
@@ -30,7 +35,7 @@ class GoogleImagesAPI:
             "num": 1  # 'num' parameter specifies the number of search results to return
         }
         
-        if self.cares_about_public_domain:
+        if self.wants_royalty_free:
             license_types = "cc_publicdomain,cc_attribute,cc_sharealike"
             params['rights'] = license_types
 

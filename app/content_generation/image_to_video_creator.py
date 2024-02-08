@@ -66,10 +66,10 @@ class ImageToVideoCreator:
                 continue
             
             image = self.record_image_size(image)
-            image = self.resize_and_animate_image(image,
-                                                  image['overlay_zone_width'],
-                                                  image['overlay_zone_height'],
-                                                  zoom_speed)
+            image = self.resize_and_animate_image(image=image,
+                                                  frame_height=frame_height,
+                                                  frame_width=frame_width,
+                                                  zoom_speed=zoom_speed)
             image = self.add_border(image, border_colors)
             image = self.record_image_size(image)
             

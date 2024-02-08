@@ -7,12 +7,12 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 class MediaAdder:
     def __init__(self,
-                 input_videos_file_path,
+                 input_video_folder,
                  media_added_vidoes_file_path,
                  image_videos_file_path,
                  final_output_file_path):
         
-        self.input_videos_file_path = input_videos_file_path
+        self.input_videos_file_path = input_video_folder
         self.output_file_path = media_added_vidoes_file_path
         self.image_videos_file_path = image_videos_file_path
         self.final_output_file_path = final_output_file_path

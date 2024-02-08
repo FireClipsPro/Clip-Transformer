@@ -25,8 +25,8 @@ class TestTranscriptAnalyzer(unittest.TestCase):
         self.mock_openai_api.query.side_effect = self.mock_openai_api_call  # Replace 'some_method' with the method you'd call on the OpenAI API
 
         self.ANALYZER = TranscriptAnalyzer(
-            AI_PARSED_INFORMATION_FILE_PATH="directories.TRANSCRIPTS_FOLDER",
-            CATEGORY_LIST={'key1': 'value1', 'key2': 'value2'},
+            video_info_folder="directories.TRANSCRIPTS_FOLDER",
+            music_cat_list={'key1': 'value1', 'key2': 'value2'},
             openai_api=self.mock_openai_api
         )
 

@@ -41,6 +41,7 @@ class TextToSpeech:
             with open(audio_file_path, 'wb') as f:
                 f.write(audio)
 
+            
             # Load the audio and adjust its speed
             audio_clip = AudioFileClip(audio_file_path)
             
@@ -80,4 +81,4 @@ class TextToSpeech:
 
 # tts = TextToSpeech(path)
 
-# tts.generate_audio(audio_file_name="molecular.mp3",  text=text)
+# tts.generate_audio(audio_file_name="molecular.mp3",  text=text)e
