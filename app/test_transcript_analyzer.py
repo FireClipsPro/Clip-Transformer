@@ -26,7 +26,7 @@ class TestTranscriptAnalyzer(unittest.TestCase):
 
         self.ANALYZER = TranscriptAnalyzer(
             video_info_folder="directories.TRANSCRIPTS_FOLDER",
-            music_cat_list={'key1': 'value1', 'key2': 'value2'},
+            music_category_list={'key1': 'value1', 'key2': 'value2'},
             openai_api=self.mock_openai_api
         )
 

@@ -84,9 +84,9 @@ def main():
                                      output_video_folder=directories.WATERMARKED_VIDEOS_FOLDER,
                                      presets=presets)
 
-    music_adder = MusicAdder(music_file_paths=directories.MUSIC_CATEGORY_PATH_DICT,
+    music_adder = MusicAdder(music_folder=directories.MUSIC_CATEGORY_PATH_DICT,
                         input_video_folder=directories.WATERMARKED_VIDEOS_FOLDER,
-                        ouput_video_folder=directories.FINISHED_VIDEOS_FOLDER,
+                        output_video_folder=directories.FINISHED_VIDEOS_FOLDER,
                         music_categories=directories.MUSIC_CATEGORY_PATH_DICT)
     
     finished_video_sorter = FinishedVideoSorter(directories.FINISHED_VIDEOS_FOLDER)
@@ -99,7 +99,7 @@ def main():
             raw_video['start_time'],
             raw_video['end_time'])
         
-        audio_extraction_file_name = audio_extractor.extract_mp3_from_mp4(clipped_video['file_name'])
+        audio_extraction_file_name = audio_extractor.extract(clipped_video['file_name'])
         
         transcription = transcriber.transcribe(audio_extraction_file_name,
             theme['CENSOR_PROFANITY'])

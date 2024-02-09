@@ -11,14 +11,14 @@ from .openai_api import OpenaiApi
 class TranscriptAnalyzer:
     def __init__(self,
              video_info_folder,
-             music_cat_list,
+             music_category_list,
              openai_api: OpenaiApi):
         self.TRANSCRIPTION_INFO_FILE_PATH = video_info_folder
         self.CATEGORY_LIST_STRING = ""
         self.openai_api = openai_api
         # get the keys from the dictionary category list
-        music_cat_list.keys()
-        for key in music_cat_list.keys():
+        music_category_list.keys()
+        for key in music_category_list.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
     def get_clip_info(self, 
@@ -60,13 +60,15 @@ class TranscriptAnalyzer:
     
     # returns a list of dictionaries
     # each dictionary contains the description and the start and end time of the segment
-    def get_info_for_entire_pod(self, video_file_name, transcription, podcast_title):
+    def get_info_for_entire_pod(self, 
+                                video_file_name,
+                                transcription,
+                                podcast_title):
         # if the file already exists, then we don't need to query the AI
         if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json"):
             with open(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json", "r") as f:
                 video_info_list = json.load(f)
             return video_info_list
-            
 
         #split the transcription into 4096 token chunks
         chunks = self.split_transcript_into_chunks(transcription)
@@ -80,9 +82,8 @@ class TranscriptAnalyzer:
                                     'start': chunk['start'],
                                     'end': chunk['end']})
             
-        
         # Save the transcription info to a file
-        with open(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json", "w") as f:
+        with open(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json", "w+") as f:
             json.dump(video_info_list, f)
         
         return video_info_list

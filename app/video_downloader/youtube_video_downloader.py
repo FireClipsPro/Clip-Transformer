@@ -43,6 +43,29 @@ class YoutubeVideoDownloader:
         
         return f"{video_title}.{video_ext}"
     
+    def download_youtube_audio(self, link):
+        logging.info(f"Downloading audio from {link}")
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': os.path.join(self.output_folder, '%(title)s.%(ext)s'),
+            'noplaylist': True,
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(link, download=False)
+            ydl.download([link])
+            audio_title = info_dict.get('title', None)
+            audio_ext = 'mp3'  # we set this manually because we know the preferred codec
+        logging.info(f"Done! Audio downloaded to {self.output_folder}")
+        logging.info(f"Audio title: {audio_title}")
+        
+        return f"{audio_title}.{audio_ext}"
+
+    
     def download_videos(self, raw_videos):
         self.__get_saved_videos()
         

@@ -10,7 +10,7 @@ bottom_right_hor = "bottom_right_hor"
 bottom_left_hor = "bottom_left_hor"
 center = "center"
 
-themes = {
+preset = {
     "curious_primates_long_form":
     {
         "SECONDS_PER_PHOTO" : 4,
@@ -25,7 +25,7 @@ themes = {
         "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
         "FONT_COLOR" : (255, 255, 255), # white
         "WANTS_IMAGES" : True,
-        "WANTS_DALL_E_IMAGES": True,
+        "WANTS_DALL_E_IMAGES": False,
         "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
                                     (0,245,255), # cyan
                                     (255,255,0), # yellow
@@ -39,7 +39,7 @@ themes = {
         "OVERLAY_ZONE_TOP_LEFT": [0, 0],
         "OVERLAY_ZONE_WIDTH": 1920,
         "OVERLAY_ZONE_HEIGHT": 1080,
-        "BACKGROUND_MUSIC_VOLUME": 0.8,
+        "BACKGROUND_MUSIC_VOLUME": 0.65,
         "WANTS_SOUND_EFFECTS": False,
         "ZOOM_SPEED": 'fast',
         "WANTS_ROYALTY_FREE_IMAGES": False,
@@ -48,6 +48,9 @@ themes = {
         "WATERMARK_LOCATION": top_left_hor,
         "INTRO_FILE": None,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
-        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
+        # "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["wormhole.mp4"],
+        "VOICE": "hHOm3UWNabBYnTSFnrPx", # old British guy
+        "SONG":  "four_seasons.mp3"
     },
 }

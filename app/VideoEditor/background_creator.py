@@ -10,7 +10,11 @@ class BackgroundCreator:
         self.audio_folder = input_audio_folder
         self.video_folder = output_video_folder
         self.background_image_folder = background_media_folder
-
+    
+    # returns:
+    # video = {'file_name': background_video_name,
+    #             'start_time_sec': 0,
+    #             'end_time_sec': audio_duration}
     def create_horizontal(self, 
                       audio_file_name,
                       background_media,

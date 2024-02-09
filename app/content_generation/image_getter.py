@@ -49,14 +49,13 @@ class ImageGetter:
                                                                            file_name=query['image_file_name'])
             else:
                 logging.info(f"Download required for query: {query['query']}, using image_scraper")
+                width, height = self.image_evaluator.get_dimensions(self.image_file_path + query['image_file_name'])
                 image_was_found = self.image_scraper.get_image_from_google(query=query['query'],
                                                                        output_file_name=query['image_file_name'])
             
             if image_was_found:
-                logging.info(f"Image found for query: {query['query']}")
-                if not width and not height:
-                    width, height = self.image_evaluator.get_dimensions(self.image_file_path + query['image_file_name'])
-                time_stamped_images.append({'start_time': query['start'],
+                time_stamped_images.append({'image': query['image_file_name'],
+                                            'start_time': query['start'],
                                             'end_time': query['end'],
                                             'width': width,
                                             'height': height})

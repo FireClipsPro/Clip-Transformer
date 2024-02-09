@@ -42,6 +42,7 @@ INTRO_VIDEOS = f"{pod_clips_root}intro_videos/"
 WATERMARKS_FOLDER = f"{pod_clips_root}watermarks/"
 WATERMARKED_VIDEOS_FOLDER = f"{pod_clips_root}watermarked_videos/"
 
+
 VM_BACKGROUNDS = f"{video_maker_root}backgrounds/"
 VM_FINISHED_VIDEOS = f"{video_maker_root}finished_videos/"
 VM_INTRO_VIDOES = f"{video_maker_root}intro_videos/"
@@ -59,6 +60,9 @@ VM_AUDIO_EXTRACTIONS = f"{video_maker_root}audio_extractions/"
 VM_VIDEOS_WITH_MEDIA = f"{video_maker_root}videos_with_overlayed_media/"
 VM_VIDEO_INFO = f"{video_maker_root}video_info/"
 VM_INPUT_FILE = f"{video_maker_root}video_maker_input.csv"
+VM_TEXT_INPUT = f"{video_maker_root}text_input/"
+VM_SONGS = f"{video_maker_root}songs/"
+VM_VIDEOS_WITH_MUSIC = f"{video_maker_root}videos_with_music/"
 
 AFFIRMATION_FOLDER = f"{affirmations_root}affirmations/"
 AFFIRMATIONS_INTROS = f"{affirmations_root}intros/"

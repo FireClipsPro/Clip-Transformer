@@ -10,9 +10,9 @@ MEDIUM_MODEL_SIZE = "medium"
 LARGE_MODEL_SIZE = "large"
 
 class WhisperTranscriber:
-    def __init__(self, audio_files_path, transcripts_folder):
+    def __init__(self, audio_files_folder, transcripts_folder):
         logging.info("WhisperTranscriber created")
-        self.audio_files_path = audio_files_path
+        self.audio_files_path = audio_files_folder
         self.transcripts_folder = transcripts_folder
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def transcribe(self, audio_file, censor_profanity=True):

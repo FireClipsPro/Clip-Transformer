@@ -165,6 +165,8 @@ dmypy.json
 /media_storage/pod_clips/intro_videos/*
 /media_storage/pod_clips/watermarks/*
 /media_storage/pod_clips/watermarked_videos/*
+/media_storage/pod_clips/images/*
+/media_storage/pod_clips/backgrounds/*
 
 /media_storage/video_maker/media_added_videos/*
 /media_storage/video_maker/intro_videos/*
@@ -176,6 +178,17 @@ dmypy.json
 /media_storage/video_maker/audio_input/*
 /media_storage/video_maker/blank_videos/*
 /media_storage/video_maker/finished_videos/*
+media_storage/video_maker/images/*
+/media_storage/video_maker/media_added_videos/*
+/media_storage/video_maker/backgrounds/*
+/media_storage/video_maker/songs/*
+/media_storage/video_maker/video_info/*
+/media_storage/video_maker/videos_with_intro/*
+/media_storage/video_maker/videos_with_music/*
+/media_storage/video_maker/subtitled_videos/*
+/media_storage/video_maker/videos_with_overlayed_media/*
+/media_storage/video_maker/text_input/*
+
 
 /media_storage/affirmations/affirmations/*
 /media_storage/affirmations/intros/*
@@ -196,3 +209,4 @@ dmypy.json
 /media_storage/affirmations/videos/*
 /media_storage/affirmations/affirmation_json/*
 /media_storage/affirmations/intro_videos/*
+

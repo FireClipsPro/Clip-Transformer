@@ -1,23 +1,23 @@
-from elevenlabs import generate, play, set_api_key
+import elevenlabs
 from moviepy.editor import AudioFileClip, vfx
 import os
 import logging
+from pydub import AudioSegment, effects
 
 logging.basicConfig(level=logging.INFO)
-AUDIO_SLOWDOWN_AMOUNT = 0.93
+# AUDIO_SLOWDOWN_AMOUNT = 0.93
 
 class TextToSpeech:
     def __init__(self, audio_folder):
         self.audio_folder = audio_folder
-        # set_api_key("9bcf5e8c6dc670017ded90c1a37e6b6e") # alexanderliteplo@gmail.com
-        set_api_key("e3fdda5cd97c9767a319acab0518e1dc") # xanderliteplo@gmail.com
+        elevenlabs.set_api_key("9bcf5e8c6dc670017ded90c1a37e6b6e") # alexanderliteplo@gmail.com
+        # set_api_key("e3fdda5cd97c9767a319acab0518e1dc") # xanderliteplo@gmail.com
 
     # returns: {'file_name': audio_file_name, 'length': audio_length}
     def generate_audio(self,
                        audio_file_name,
                        text,
-                       voice="british_affirm_2",
-                       model="eleven_monolingual_v1"):
+                       voice):
         audio_file_path = os.path.join(self.audio_folder, audio_file_name)
         logging.info(f"Audio file path: {audio_file_path}")
         
@@ -29,43 +29,25 @@ class TextToSpeech:
                      'text': text,
                      'length': audio_length}
             return audio
-
-        audio = generate(
-            text=str(text),
-            voice=str(voice),
-            model=str(model)
+        
+        audio = elevenlabs.generate(
+            text=text,
+            voice=elevenlabs.Voice(
+                voice_id=voice,
+                settings=elevenlabs.VoiceSettings(stability=0.5, similarity_boost=0.8, style=0.0, use_speaker_boost=True)
+            )
         )
-
-        try:
-            # Save the original audio temporarily
-            with open(audio_file_path, 'wb') as f:
-                f.write(audio)
-
-            
-            # Load the audio and adjust its speed
-            audio_clip = AudioFileClip(audio_file_path)
-            
-            slowed_audio = audio_clip.fx(vfx.speedx, AUDIO_SLOWDOWN_AMOUNT)
-            
-            # Save the slowed audio to the same file
-            slowed_audio.write_audiofile(audio_file_path)
-
-            logging.info(f"Audio file saved as {audio_file_path}")
-
-            audio_length = slowed_audio.duration
-            
-            audio = {'file_name': audio_file_name,
-                     'text': text,
-                    'length': audio_length}
-
-            return audio
-
-        except Exception as e:
-            print(e)
-
-        logging.info(f"Audio file saved as {audio_file_path}")
-
-        audio_length = slowed_audio.duration
+        
+        elevenlabs.play(audio)
+        elevenlabs.save(audio, audio_file_path)
+        
+        raw_sound = AudioSegment.from_file(audio_file_path)
+        normalized_sound = effects.normalize(raw_sound)
+        
+        normalized_sound.export(audio_file_path, format="mp3")
+        
+        audio_clip = AudioFileClip(audio_file_path)
+        audio_length = audio_clip.duration
 
         audio = {'file_name': audio_file_name,
                  'text': text,
@@ -82,3 +64,8 @@ class TextToSpeech:
 # tts = TextToSpeech(path)
 
 # tts.generate_audio(audio_file_name="molecular.mp3",  text=text)e
+
+raw_sound = AudioSegment.from_file("../../media_storage/video_maker/audio_input/archeaoaccoustics.mp3")
+normalized_sound = effects.normalize(raw_sound)
+# save the normalized audio to a file
+normalized_sound.export("../../media_storage/video_maker/audio_input/archeaoaccoustics_normalized.mp3", format="mp3")

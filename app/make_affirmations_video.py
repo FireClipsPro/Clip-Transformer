@@ -62,9 +62,9 @@ def main():
     subtitle_adder = SubtitleAdder(input_folder_path=directories.AFFIRMATION_WATERMARKED,
                                    output_folder_path=directories.SUBTITLED_AFFIRMATIONS)
     
-    music_adder = MusicAdder(music_file_paths=directories.AFFIRMATIONS_MUSIC,
+    music_adder = MusicAdder(music_folder=directories.AFFIRMATIONS_MUSIC,
                             input_video_folder=directories.SUBTITLED_AFFIRMATIONS,
-                            ouput_video_folder=directories.FINISHED_AFFIRMATIONS,
+                            output_video_folder=directories.FINISHED_AFFIRMATIONS,
                             music_categories=None,
                             affirmation_music_folder=directories.AFFIRMATIONS_MUSIC)
 
@@ -129,7 +129,7 @@ def main():
             interval=theme["SUBTITLE_DURATION"])
         
         
-        music_adder.add_music_to_video(
+        music_adder.add_music_to(
             music_file_name=theme['BACKGROUND_MUSIC'],
             video_name=video_with_subtitles_name,
             output_video_name=affirmation_track['file_name'][:-4] + '.mp4',

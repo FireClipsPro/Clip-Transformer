@@ -9,22 +9,18 @@ logging.basicConfig(level=logging.INFO)
 MUSIC_VOLUME_FACTOR = 0.2
 
 class MusicAdder:
-
     def __init__(self,
-                 music_file_paths,
+                 music_folder,
                  input_video_folder,
-                 ouput_video_folder,
-                 music_categories,
-                 affirmation_music_folder=None):
-        self.music_files_paths = music_file_paths
-        self.video_files_path = input_video_folder
-        self.output_path = ouput_video_folder
-        self.affirmation_music_folder = affirmation_music_folder
+                 output_video_folder,
+                 music_categories):
+        self.music_folder = music_folder
+        self.input_video_folder = input_video_folder
+        self.output_video_folder = output_video_folder
         if music_categories is None:
             music_categories = {}
         else:
             self.music_categories = music_categories.keys()
-        self.music_folder = affirmation_music_folder
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
     def add_music_to_video_by_category(self,
                            music_category,
@@ -46,8 +42,8 @@ class MusicAdder:
 
         self.ensure_song_exists(music_file_path)
 
-        video_clip = VideoFileClip(self.video_files_path + video_name)
-        video_audio_loudness = self.measure_loudness(self.video_files_path + video_name)  # removed use_max=True
+        video_clip = VideoFileClip(self.input_video_folder + video_name)
+        video_audio_loudness = self.measure_loudness(self.input_video_folder + video_name)  # removed use_max=True
 
         full_audio_clip = AudioFileClip(music_file_path)
         music_loudness = self.measure_loudness(music_file_path)
@@ -76,32 +72,33 @@ class MusicAdder:
         video_clip = video_clip.set_audio(CompositeAudioClip([video_clip.audio, full_audio_clip]))
 
         # Write the video with music to the output path
-        video_clip.write_videofile(self.output_path + output_video_name, codec='libx264', threads=4)
+        video_clip.write_videofile(self.output_video_folder + output_video_name, codec='libx264', threads=4)
 
         return output_video_name
 
-    def add_music_to_video(self,
-                           music_file_name,
-                           video_name,
-                           output_video_name,
-                           video_length,
-                           background_music_volume):
+    def add_music_to(self,
+                    music_file_name,
+                    video_name,
+                    output_video_name,
+                    video_length,
+                    background_music_volume):
         logging.info(f'Adding music to video {video_name}')
 
         output_video_name = self.__ensure_mp4_extension(output_video_name)
 
-        music_file_path = self.affirmation_music_folder + music_file_name
+        music_file_path = self.music_folder + music_file_name
 
         self.ensure_song_exists(music_file_path)
 
-        video_clip = VideoFileClip(self.video_files_path + video_name)
-        # video_audio_loudness = self.measure_loudness(self.video_files_path + video_name)  # removed use_max=True
+        logging.info(self.input_video_folder)
+        video_clip = VideoFileClip(self.input_video_folder + video_name)
+        video_audio_loudness = self.measure_loudness(self.input_video_folder + video_name)  # removed use_max=True
 
         full_audio_clip = AudioFileClip(music_file_path)
-        # music_loudness = self.measure_loudness(music_file_path)
+        music_loudness = self.measure_loudness(music_file_path)
 
         # # adjust music volume to be 80% of the video's average audio volume
-        # volume_ratio = 0.7 * (10 ** (video_audio_loudness / 20)) / (10 ** (music_loudness / 20)) * background_music_volume
+        volume_ratio = 0.7 * (10 ** (video_audio_loudness / 20)) / (10 ** (music_loudness / 20)) * background_music_volume
 
         if video_length <= full_audio_clip.duration:
             logging.info(f'Video length: {video_length} is shorter than the song')
@@ -118,13 +115,13 @@ class MusicAdder:
             logging.info(f'Video length: {video_length}')
 
         # Apply the volume adjustment to the audio clip
-        # full_audio_clip = full_audio_clip.volumex(volume_ratio)
+        full_audio_clip = full_audio_clip.volumex(volume_ratio)
 
         # Combine the original video audio with the music audio
         video_clip = video_clip.set_audio(CompositeAudioClip([video_clip.audio, full_audio_clip]))
 
         # Write the video with music to the output path
-        video_clip.write_videofile(self.output_path + output_video_name, codec='libx264', threads=4)
+        video_clip.write_videofile(self.output_video_folder + output_video_name, codec='libx264', threads=4)
 
         return output_video_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,7 +132,7 @@ class MusicAdder:
             return output_video_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __choose_song(self, music_category):
-        music_folder_path = self.music_files_paths[music_category]
+        music_folder_path = self.music_folder[music_category]
         #choose a random song from the music folder
         music_file_path = music_folder_path + random.choice(os.listdir(music_folder_path))
         logging.info(f'Chosen music file: {music_file_path}')

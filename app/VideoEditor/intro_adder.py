@@ -6,15 +6,15 @@ import numpy as np
 
 SILENCE_DURATION = 5
 class IntroAdder:
-    def __init__(self, intro_audio_folder, audio_folder, output_folder):
-        self.intro_audio_folder = intro_audio_folder
-        self.audio_folder = audio_folder
+    def __init__(self, intro_video_folder, video_folder, output_folder):
+        self.intro_video_folder = intro_video_folder
+        self.video_folder = video_folder
         self.output_folder = output_folder
     
     def add_audio_intro(self, affirmations_track_filename, intro_file_name, transcript):
         
         # Construct the paths for the audio and intro files
-        intro_path = os.path.join(self.intro_audio_folder, intro_file_name)
+        intro_path = os.path.join(self.intro_video_folder, intro_file_name)
         audio_path = os.path.join(self.audio_folder, affirmations_track_filename)
         
         # Check if the files exist
@@ -75,7 +75,7 @@ class IntroAdder:
         """
         
         # Load the intro and main video
-        intro_clip = VideoFileClip(f"{self.intro_vid_folder}/{intro_file_name}")
+        intro_clip = VideoFileClip(f"{self.intro_video_folder}/{intro_file_name}")
         main_clip = VideoFileClip(f"{self.video_folder}/{video_file_name}")
         
         # Concatenate the two clips
