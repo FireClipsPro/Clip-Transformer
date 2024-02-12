@@ -245,8 +245,8 @@ class SubtitleAdder:
                                 y_percent,
                                 number_of_characters_per_line):
         # if video already exists don't make it again
-        # if os.path.exists(self.output_folder_path + output_file_name):
-        #     return output_file_name
+        if os.path.exists(self.output_folder_path + output_file_name):
+            return output_file_name
         transcription = self.edit_punctuation_and_caps(transcription, all_caps, punctuation)
         
         clip = VideoFileClip(self.input_folder_path + video_file_name)

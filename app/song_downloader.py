@@ -8,20 +8,18 @@ logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s 
 
 folder = directories.VM_SONGS
 downloader = YoutubeVideoDownloader(output_folder=folder,
-                                    downloaded_videos_file=folder)
-video_clipper = VideoClipper(input_video_file_path=folder,
-                             output_file_path=folder)
-audio_extractor = AudioExtractor(input_file_path=folder,
-                                 audio_extraction_path=folder)
+                                    downloaded_videos_folder=folder)
+video_clipper = VideoClipper(input_folder=folder,
+                             output_folder=folder)
 
-link = "https://www.youtube.com/watch?v=4JZ-o3iAJv4&ab_channel=LudwigG%C3%B6ransson-Topic"
-# start_time = "0"
-# end_time = "3:12"
+link = "https://www.youtube.com/watch?v=LlN8MPS7KQs&ab_channel=dreamscape"
+# start_time = "40"
+# end_time = "9:23"
 
 song = downloader.download_youtube_audio(link)
 
 print("cwd:", os.getcwd())
-# video_clipper.clip_song(song_name="four_seasons.mp3", 
+# video_clipper.clip_song(song_name=song, 
 #                         start_time=start_time,
 #                         end_time=end_time)
 

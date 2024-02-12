@@ -33,7 +33,8 @@ themes = {
                                     (255,255,0), # yellow
                                     (255,48,48), # red
                                     (0,191,255)], # blue
-        "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny"],
+        # "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny", "serious"],
+        "MUSIC_CATEGORY_OPTIONS" : ["serious"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,

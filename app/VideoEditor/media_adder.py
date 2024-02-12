@@ -37,7 +37,7 @@ class MediaAdder:
     #   Overlay zone is the area of the original clip where the video will be added
     #   x: the x coordinate of the top left corner of the overlay zone
     #   y: the y coordinate of the top left corner of the video
-    def add_videos_to_original_clip(self,
+    def add_media_to_video(self,
                                     original_clip,
                                     videos,
                                     original_clip_width,

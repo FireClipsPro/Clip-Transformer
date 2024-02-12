@@ -7,7 +7,7 @@ from video_downloader import YoutubeVideoDownloader
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder
 import configuration.directories as directories
-import configuration.presets as presets
+import configuration.pod_clips_presets as presets
 import os
 import math
 import logging
@@ -21,15 +21,17 @@ def main():
     raw_videos = get_raw_videos()
     print(raw_videos)
     
-    video_clipper = VideoClipper(input_video_file_path=directories.RAW_VIDEO_FOLDER,
-                                 output_file_path=directories.INPUT_FOLDER)
+    video_clipper = VideoClipper(input_folder=directories.RAW_VIDEO_FOLDER,
+                                 output_folder=directories.INPUT_FOLDER)
     
     audio_extractor = AudioExtractor(directories.INPUT_FOLDER,
                                      directories.AUDIO_EXTRACTIONS_FOLDER)
 
-    transcriber = WhisperTranscriber(directories.AUDIO_EXTRACTIONS_FOLDER, directories.TRANSCRIPTS_FOLDER)
+    transcriber = WhisperTranscriber(directories.AUDIO_EXTRACTIONS_FOLDER, 
+                                     directories.TRANSCRIPTS_FOLDER)
     
-    pause_remover = PauseRemover(directories.INPUT_FOLDER, directories.RESIZED_FOLDER)
+    pause_remover = PauseRemover(directories.INPUT_FOLDER, 
+                                 directories.RESIZED_FOLDER)
     
     head_tracker = HeadTrackingCropper(directories.RESIZED_FOLDER,
                                        directories.RESIZED_FOLDER)
@@ -57,13 +59,14 @@ def main():
                                     image_classifier,
                                     image_evaluator)
     
-    image_getter = ImageGetter(directories.IMAGE_FOLDER,
-                               image_scraper,
-                               image_evaluator)
-
     dall_e = DALL_E(directories.IMAGE_FOLDER,
                     directories.GENERATED_PROMPTS_FOLDER)
     
+    image_getter = ImageGetter(directories.IMAGE_FOLDER,
+                               image_scraper,
+                               image_evaluator,
+                               dall_e)
+
     fullscreen_image_selector = FullScreenImageSelector(directories.IMAGE_FOLDER,
                                                         image_evaluator=image_evaluator)
 
@@ -160,7 +163,7 @@ def main():
                 theme['OVERLAY_ZONE_HEIGHT'],
                 theme['ZOOM_SPEED'])
             
-            clipped_video = media_adder.add_videos_to_original_clip(original_clip=clipped_video,
+            clipped_video = media_adder.add_media_to_video(original_clip=clipped_video,
                 videos=video_data,
                 original_clip_width=presets.VERTICAL_VIDEO_WIDTH,
                 original_clip_height=presets.VERTICAL_VIDEO_HEIGHT * 2,
@@ -237,7 +240,7 @@ def get_raw_videos():
             lines_read += 1
     
     downloader = YoutubeVideoDownloader(output_folder=directories.RAW_VIDEO_FOLDER,
-                                        downloaded_videos_file=directories.DOWNLOADED_VIDEOS_FILE)
+                                        downloaded_videos_folder=directories.DOWNLOADED_VIDEOS_FILE)
     raw_videos = downloader.download_videos(raw_videos)
     
     return raw_videos

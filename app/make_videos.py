@@ -69,7 +69,7 @@ def main():
                                                  image_2_videos_folder=directories.VM_VIDEOS_MADE_FROM_IMAGES,
                                                  image_evaluator=image_evaluator)
 
-    media_adder = MediaAdder(input_video_folder=directories.VM_BLANK_VIDEOS,
+    media_adder = MediaAdder(input_video_folder=directories.VM_VIDEOS_WITH_MUSIC,
                     media_added_vidoes_file_path=directories.VM_VIDEOS_WITH_MEDIA,
                     image_videos_file_path=directories.VM_VIDEOS_MADE_FROM_IMAGES,
                     final_output_file_path=directories.VM_VIDEOS_WITH_MEDIA)
@@ -93,8 +93,7 @@ def main():
         preset = presets.preset[audio_file['preset']]
         
         if audio_file['file_name'].endswith('.txt'):
-            audio_file['file_name'] = create_audio_file(text_2_speech, audio_file, preset)
-                                            
+            audio_file['file_name'] = create_audio_file(text_2_speech, audio_file, preset)         
         
         # create a blank video that is 1920 x 1080 that is the same length of the mp3 file
         blank_video = blank_video_creator.create_horizontal(audio_file_name=audio_file['file_name'],
@@ -152,7 +151,7 @@ def main():
         logging.info(str(video_with_sound_effects))
         
         #original clip needs 'file_name', 'end_time_sec' and 'start_time_sec' added to it
-        video_with_media = media_adder.add_videos_to_original_clip(original_clip=video_with_sound_effects,
+        video_with_media = media_adder.add_media_to_video(original_clip=video_with_sound_effects,
             videos=video_data,
             original_clip_width=presets.VERTICAL_VIDEO_WIDTH,
             original_clip_height=presets.VERTICAL_VIDEO_HEIGHT * 2,

@@ -75,8 +75,8 @@ class IntroAdder:
         """
         
         # Load the intro and main video
-        intro_clip = VideoFileClip(f"{self.intro_video_folder}/{intro_file_name}")
-        main_clip = VideoFileClip(f"{self.video_folder}/{video_file_name}")
+        intro_clip = VideoFileClip(f"{self.intro_video_folder}{intro_file_name}")
+        main_clip = VideoFileClip(f"{self.video_folder}{video_file_name}")
         
         # Concatenate the two clips
         final_clip = concatenate_videoclips([intro_clip, main_clip])
