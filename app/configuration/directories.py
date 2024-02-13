@@ -2,6 +2,9 @@ pod_clips_root = "../media_storage/pod_clips/"
 video_maker_root = "../media_storage/video_maker/"
 affirmations_root = "../media_storage/affirmations/"
 
+ELEVENLABS_KEY_PATH = "../../elevenlabs_key.txt"
+OPENAI_API_KEY_PATH = "../../openai_key.txt"
+
 AUDIO_TO_VIDEO_INPUT_INFO = f"{pod_clips_root}audio_to_video_input_info.csv"
 TRANSCRIPTS_FOLDER = f'{pod_clips_root}transcripts/'
 ANGRY_MUSIC_FOLDER = f'{pod_clips_root}songs/angry/'

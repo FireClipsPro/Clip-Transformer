@@ -18,7 +18,7 @@ link = "https://www.youtube.com/watch?v=LlN8MPS7KQs&ab_channel=dreamscape"
 
 song = downloader.download_youtube_audio(link)
 
-print("cwd:", os.getcwd())
+# print("cwd:", os.getcwd())
 # video_clipper.clip_song(song_name=song, 
 #                         start_time=start_time,
 #                         end_time=end_time)

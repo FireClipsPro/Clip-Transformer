@@ -47,6 +47,7 @@ preset = {
         "WATERMARK": 'curious_primates.png',
         "WATERMARK_LOCATION": top_left_hor,
         "INTRO_FILE": "brain_boost_daily_hor.mp4",
+        "WANTS_INTRO": True,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
         # "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
         "AUDIO_ONLY_BACKGROUND_MEDIA": ["wormhole.mp4"],

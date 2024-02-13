@@ -10,10 +10,14 @@ logging.basicConfig(level=logging.INFO)
 # AUDIO_SLOWDOWN_AMOUNT = 0.93
 
 class TextToSpeech:
-    def __init__(self, audio_folder):
+    def __init__(self, 
+                 audio_folder, 
+                 elevenlabs_api_key_path="../../elevenlabs_key.txt"):
         self.audio_folder = audio_folder
-        elevenlabs.set_api_key("9bcf5e8c6dc670017ded90c1a37e6b6e") # alexanderliteplo@gmail.com
-        # set_api_key("e3fdda5cd97c9767a319acab0518e1dc") # xanderliteplo@gmail.com
+        # read the .txt file to get the API key
+        with open(elevenlabs_api_key_path, "r") as file:
+            elevenlabs_api_key = file.read().strip()
+        elevenlabs.set_api_key(elevenlabs_api_key)
 
     # returns: {'file_name': audio_file_name, 'length': audio_length}
     def generate_audio(self,
