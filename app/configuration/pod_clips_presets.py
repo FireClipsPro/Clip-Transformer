@@ -306,7 +306,7 @@ themes = {
         "WATERMARK_LOCATION": top_right_hor,
         "INTRO_FILE": None,
     },
-    "Kinvestor":
+    "no_images":
     {
         "HEAD_TRACKING_ENABLED" : True,
         "SECONDS_PER_PHOTO" : 4,
@@ -336,6 +336,7 @@ themes = {
         "WANTS_SOUND_EFFECTS": True,
         "ZOOM_SPEED": 'fast',
         "WANTS_ROYALTY_FREE_IMAGES": False,
+        "WANTS_WATERMARK": False,
         "WATERMARK": None,
         "WATERMARK_LOCATION": center,
         "INTRO_FILE": None,

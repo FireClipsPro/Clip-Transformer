@@ -111,7 +111,8 @@ def main():
         watermarked_video = watermark_adder.add_watermark(
             image_file_name=theme['WATERMARK'],
             video_file_name=complete_video_name,
-            location=theme['WATERMARK_LOCATION'])
+            location=theme['WATERMARK_LOCATION'],
+            wantsf_watermark=theme['WANTS_WATERMARK'])
     
         video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(
             video_file_name=watermarked_video,
@@ -145,5 +146,4 @@ def remove_line_of_input_info():
         file.writelines(lines[1:])  # Skip the first line
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- 
 main()

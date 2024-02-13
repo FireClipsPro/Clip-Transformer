@@ -189,7 +189,8 @@ def main():
 
         watermarked_video = watermark_adder.add_watermark(image_file_name=theme['WATERMARK'],
             video_file_name=video_with_subtitles_name,
-            location=theme['WATERMARK_LOCATION'])
+            location=theme['WATERMARK_LOCATION'],
+            wants_watermark=theme['WANTS_WATERMARK'])
         
         video_with_music_name = music_adder.add_music_to_video_by_category(music_category=clipped_video['transcription_info']['category'],
             video_name=watermarked_video,
