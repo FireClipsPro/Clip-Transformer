@@ -270,4 +270,24 @@ dmypy.json
 /media_storage/affirmations/affirmation_json/*
 /media_storage/affirmations/intro_videos/*
 
+!/media_storage/affirmations/affirmations/.gitkeep
+!/media_storage/affirmations/intros/.gitkeep
+!/media_storage/affirmations/finished_videos/.gitkeep
+!/media_storage/affirmations/background_music/.gitkeep
+!/media_storage/affirmations/audio_tracks/.gitkeep
+!/media_storage/affirmations/blank_videos/.gitkeep
+!/media_storage/affirmations/watermarked_videos/.gitkeep
+!/media_storage/affirmations/subtitled_videos/.gitkeep
+!/media_storage/affirmations/videos_with_intro/.gitkeep
+!/media_storage/affirmations/outro_audio/.gitkeep
+!/media_storage/affirmations/intro_text/.gitkeep
+!/media_storage/affirmations/outro_text/.gitkeep
+!/media_storage/affirmations/intro_audio/.gitkeep
+!/media_storage/affirmations/videos_with_outro/.gitkeep
+!/media_storage/affirmations/outro_audio/.gitkeep
+!/media_storage/affirmations/images/.gitkeep
+!/media_storage/affirmations/videos/.gitkeep
+!/media_storage/affirmations/affirmation_json/.gitkeep
+!/media_storage/affirmations/intro_videos/.gitkeep
+
 media_storage/pod_clips/songs/Pastlives.mp3
