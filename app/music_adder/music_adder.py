@@ -128,11 +128,10 @@ class MusicAdder:
         logging.info(f"Output Video Loudness: {output_video_loudness} dBFS")
         return output_video_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def normalize_audio_chunks(self, 
-                               audio: AudioSegment,
-                               target_loudness=-24.0):
+    # this method currently has a problem with the last segment being too short then it cannot
+    # measure the loudness of the last segment
+    def normalize_audio_chunks(self, audio: AudioSegment, target_loudness=-24.0):
         logging.info(f"Normalizing audio: {audio}")
-        # Load the audio file with pydub
         meter = pyln.Meter(audio.frame_rate)  # Initialize loudness meter
 
         normalized_audio_chunks = []
@@ -141,6 +140,11 @@ class MusicAdder:
         chunk_length_ms = 10 * 1000  # 10 seconds in milliseconds
         for i in range(0, len(audio), chunk_length_ms):
             chunk = audio[i:i+chunk_length_ms]
+            
+            # Ensure chunk is longer than block size required by pyloudnorm
+            if len(chunk) < meter.block_size:
+                logging.warning("Skipping chunk due to insufficient length for loudness measurement.")
+                continue
             
             # Convert PyDub segment to NumPy array
             samples = np.array(chunk.get_array_of_samples())
@@ -162,6 +166,45 @@ class MusicAdder:
         
         logging.info(f"Audio normalized: {normalized_audio}")
         return normalized_audio
+    
+    # def normalize_audio_chunks(self, audio: AudioSegment, target_loudness=-24.0):
+    #     logging.info(f"Normalizing audio: {audio}")
+    #     meter = pyln.Meter(audio.frame_rate)  # Initialize loudness meter
+
+    #     normalized_audio_chunks = []
+
+    #     # Process audio in 10-second chunks
+    #     chunk_length_ms = 10 * 1000  # 10 seconds in milliseconds
+    #     for i in range(0, len(audio), chunk_length_ms):
+    #         chunk = audio[i:i+chunk_length_ms]
+            
+    #         # Check if chunk needs padding
+    #         original_length = len(chunk)
+    #         if original_length < meter.block_size:
+    #             # Pad the chunk with silence to ensure it meets the minimum length requirement
+    #             padding_length = meter.block_size - original_length
+    #             chunk += AudioSegment.silent(duration=padding_length)
+            
+    #         samples = np.array(chunk.get_array_of_samples())
+    #         if chunk.channels == 2:
+    #             samples = np.reshape(samples, (-1, 2))
+    #         samples_float = samples.astype(np.float32) / (2**15)
+            
+    #         loudness = meter.integrated_loudness(samples_float)
+            
+    #         gain = target_loudness - loudness
+    #         normalized_chunk = chunk.apply_gain(gain)
+            
+    #         # If the chunk was padded, remove the added silence after normalization
+    #         if original_length < meter.block_size:
+    #             normalized_chunk = normalized_chunk[:original_length]
+            
+    #         normalized_audio_chunks.append(normalized_chunk)
+        
+    #     normalized_audio = sum(normalized_audio_chunks)
+    #     logging.info(f"Audio normalized: {normalized_audio}")
+    #     return normalized_audio
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __ensure_mp4_extension(self, output_video_name):
         if output_video_name[-4:] != '.mp4':
