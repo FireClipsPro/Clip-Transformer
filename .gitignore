@@ -228,6 +228,7 @@ dmypy.json
 /media_storage/video_maker/subtitled_videos/*
 /media_storage/video_maker/videos_with_overlayed_media/*
 /media_storage/video_maker/text_input/*
+/media_storage/video_maker/images_0/
 
 !/media_storage/video_maker/media_added_videos/.gitkeep
 !/media_storage/video_maker/intro_videos/.gitkeep
