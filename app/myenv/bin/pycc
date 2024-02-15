@@ -1,0 +1,3 @@
+#!/Users/joonjang/Documents/code/Clip-Transform-Container/Clip-Transformer/app/myenv/bin/python
+from numba.pycc import main
+main()

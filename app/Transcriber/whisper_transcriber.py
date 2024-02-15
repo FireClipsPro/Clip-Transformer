@@ -36,9 +36,11 @@ class WhisperTranscriber:
             device = "cuda"
         else:
             device = "cpu"
-        model = whisperx.load_model(LARGE_MODEL_SIZE, device=device)
+        model = whisperx.load_model("large-v2", device, compute_type="float32")
+        
+        audio = whisperx.load_audio(self.audio_files_path + audio_file)
 
-        result = model.transcribe(self.audio_files_path + audio_file)
+        result = model.transcribe(audio, batch_size = 16)
 
         logging.info(result["segments"]) # before alignment
 
@@ -50,8 +52,8 @@ class WhisperTranscriber:
 
         logging.info("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         logging.info(result_aligned["segments"]) # after alignment
-        logging.info("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        logging.info(result_aligned["word_segments"]) # after alignment 
+        # logging.info("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # logging.info(result_aligned["word_segments"]) # after alignment 
 
         transcription = self.parse_transcription(result_aligned)
         
@@ -95,12 +97,20 @@ class WhisperTranscriber:
     def parse_transcription(self, result_aligned):
         transcription = {'word_segments': [],
                          'segments': []}
-        
-        for word_segment in result_aligned['word_segments']:
-            new_word_segment = { 'text': word_segment['text'],  'start': word_segment['start'], 'end': word_segment['end']}
-            transcription['word_segments'].append(new_word_segment)
+
+
+        words = []
+        for element in result_aligned['segments']:
+            words.extend(element['words'])
             
+        print(result_aligned)
         
+        print(words)
+        # words should be [{'word':'the', 'start': 0.78, 'end': 1.23},{},]
+        for word_segment in words:
+            new_word_segment = { 'text': word_segment['word'],  'start': word_segment['start'], 'end': word_segment['end']}
+            transcription['word_segments'].append(new_word_segment)
+    
         for segment in result_aligned['segments']:
             new_segment = { 'text': segment['text'],  'start': segment['start'], 'end': segment['end']}
             transcription['segments'].append(new_segment)
