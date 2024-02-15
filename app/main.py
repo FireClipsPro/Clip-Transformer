@@ -1,3 +1,5 @@
+# pip install tkinterdnd2-universal
+
 import tkinter as tk
 from tkinter import scrolledtext 
 from tkinterdnd2 import DND_FILES, TkinterDnD

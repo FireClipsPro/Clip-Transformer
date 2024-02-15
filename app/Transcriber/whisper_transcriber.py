@@ -98,7 +98,6 @@ class WhisperTranscriber:
         transcription = {'word_segments': [],
                          'segments': []}
 
-
         words = []
         for element in result_aligned['segments']:
             words.extend(element['words'])
