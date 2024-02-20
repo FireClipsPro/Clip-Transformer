@@ -136,5 +136,5 @@ class VideoClipper:
 # input_path = "../../media_storage/video_maker/audio_input/"
 # output_path = "../../media_storage/video_maker/audio_input/"
 # clipper = VideoClipper(input_path, output_path)
-# clipper.clip_song("Joe_Beast_1_(0 0)_(1 0).mp3", "0", "0:10")
+# clipper.clip_song("Joe_Beast_1_(0 0)_(1 0).mp3", "0", "0:6")
 # clipper.clip_song("jocko.mp3", "5:00", "10:00")

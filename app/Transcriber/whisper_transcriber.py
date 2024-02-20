@@ -36,31 +36,26 @@ class WhisperTranscriber:
             device = "cuda"
         else:
             device = "cpu"
-        model = whisperx.load_model("large-v2", device, compute_type="float32")
         
+        compute_type = "int8"
+        model = whisperx.load_model("large-v2", device, compute_type=compute_type)
         audio = whisperx.load_audio(self.audio_files_path + audio_file)
 
         result = model.transcribe(audio, batch_size = 16)
-
         logging.info(result["segments"]) # before alignment
 
         # load alignment model and metadata
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
+        result_aligned = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
 
-        # align whisper output
-        result_aligned = whisperx.align(result["segments"], model_a, metadata, self.audio_files_path + audio_file, device)
-
-        logging.info("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        logging.info(result_aligned["segments"]) # after alignment
+        # logging.info("Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # logging.info(result_aligned["segments"]) # after alignment
         # logging.info("Word Segments: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         # logging.info(result_aligned["word_segments"]) # after alignment 
 
         transcription = self.parse_transcription(result_aligned)
-        
         transcription = self.clean_transcription(transcription, censor_profanity)
-        
         transcription = self.ensure_transcription_has_text(transcription)
-        
         transcription = self.fix_numerical_transcriptions(transcription)
         
         self.store_transcription(audio_file, transcription)

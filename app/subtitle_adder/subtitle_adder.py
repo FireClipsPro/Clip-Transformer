@@ -1,9 +1,7 @@
 from PIL import Image, ImageFont, ImageDraw
 import numpy as np
 from moviepy.editor import ImageClip, VideoFileClip, CompositeVideoClip
-import math
 import logging
-import matplotlib
 import os
 
 logging.basicConfig(level=logging.ERROR)
