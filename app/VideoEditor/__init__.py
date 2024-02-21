@@ -7,3 +7,6 @@ from .head_tracking_cropper import HeadTrackingCropper
 from .image_spacer import ImageSpacer
 from .pause_remover import PauseRemover
 from .sound_effect_adder import SoundEffectAdder
+from .background_creator import BackgroundCreator
+from .intro_adder import IntroAdder
+from .watermark_adder import WatermarkAdder

@@ -1,5 +1,8 @@
 import subprocess
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class AudioExtractor:
     
@@ -8,23 +11,24 @@ class AudioExtractor:
                  audio_extraction_path):
         self._input_file_path = input_file_path
         self._audio_extraction_path = audio_extraction_path
-        print("AudioExtractor created")
+        logging.info("AudioExtractor created")
     
     # converts mp4 to mp3
         # ab = audio bitrate
         # ar = audio sample rate
-    def extract_mp3_from_mp4(self, input_file):
+    def extract(self, input_file):
         output_audio_path = self._audio_extraction_path + input_file[:-4] + ".mp3"
         # if audio file already exists return it
         if os.path.exists(output_audio_path):
+            logging.info(f"Audio file {output_audio_path} already exists")
             return input_file[:-4] + ".mp3"
         
-        print("\n\n\n\n\n\nExtracting audio from " + input_file + "\n\n\n\n\n\n")
+        logging.info("\n\n\n\n\n\nExtracting audio from " + input_file + "\n\n\n\n\n\n")
         input_video_path = self._input_file_path + input_file
         
         # if input video does not exist, return None
         if not os.path.exists(input_video_path):
-            print("Current working directory:", os.getcwd())
+            logging.info("Current working directory:", os.getcwd())
             raise Exception(f'Input video {input_video_path} does not exist')
 
         command = [
@@ -38,8 +42,12 @@ class AudioExtractor:
         ]
         subprocess.run(command)
         
-        print(f'Extracted audio from {input_file}' + "\n\n")
-        print(f'saved to {output_audio_path}' + "\n\n")
+        logging.info(f'Extracted audio from {input_file}' + "\n\n")
+        logging.info(f'saved to {output_audio_path}' + "\n\n")
+        
+        if not os.path.exists(output_audio_path):
+            raise Exception(f'Output audio file {output_audio_path} does not exist.')
+        
         return input_file[:-4] + ".mp3"
         
 # Test code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

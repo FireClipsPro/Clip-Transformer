@@ -6,10 +6,10 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 class VideoClipper:
     def __init__(self,
-                 input_video_file_path,
-                 output_file_path):
-        self.input_video_folder_path = input_video_file_path
-        self.output_file_path = output_file_path
+                 input_folder,
+                 output_folder):
+        self.input_video_folder_path = input_folder
+        self.output_file_path = output_folder
     
     # time strings can be in the following formats:
     # "1:11:40.5" or "1:11:40" or "1:11" or "1"
@@ -34,7 +34,7 @@ class VideoClipper:
             raise ValueError("Start time must be before end time")
         
         
-        # if the video has already been clipped, return the file name
+        # if the video has already been clipped, return the clip name
         if os.path.exists(self.output_file_path + tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4'):
             return {'file_name': tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4',
                     'start_time_sec': start_time_sec,
@@ -45,7 +45,7 @@ class VideoClipper:
         input_video = self.input_video_folder_path + video_name
         if not os.path.exists(input_video):
             print(f'Input video {input_video} does not exist')
-            return None
+            raise ValueError(f'Input video {input_video} does not exist')
         
         # initialize the output video path
         output_video = self.output_file_path + tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4'
@@ -133,7 +133,8 @@ class VideoClipper:
 # clipper.clip_video("lost.mp4", "0", "59")
 
 
-# RAW_VIDEO_FILE_PATH = "../../media_storage/songs/fascinating/"
-# INPUT_FILE_PATH = "../../media_storage/songs/fascinating/"
-# clipper = VideoClipper(RAW_VIDEO_FILE_PATH, INPUT_FILE_PATH)
-# clipper.clip_song("tell_em.mp3", "38", "4:10")
+# input_path = "../../media_storage/video_maker/audio_input/"
+# output_path = "../../media_storage/video_maker/audio_input/"
+# clipper = VideoClipper(input_path, output_path)
+# clipper.clip_song("Joe_Beast_1_(0 0)_(1 0).mp3", "0", "0:10")
+# clipper.clip_song("jocko.mp3", "5:00", "10:00")

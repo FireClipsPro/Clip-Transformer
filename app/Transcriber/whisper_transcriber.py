@@ -32,7 +32,7 @@ class WhisperTranscriber:
         if not os.path.exists(self.audio_extractions_folder + audio_file):
             raise Exception('Audio file does not exist')
         else:
-            print("Audio file found, transcribing...")
+            logging.info("Audio file found, transcribing...")
             
         # check if json file exists
         if os.path.exists(self.transcripts_folder + audio_file[:-3] + ".json"):
@@ -41,6 +41,8 @@ class WhisperTranscriber:
                 transcription = json.load(f)
                 transcription = self.assign_clusters(transcription)
             return transcription
+        else:
+            logging.info("JSON file not found, transcribing...")
         
         if torch.cuda.is_available():
             device = "cuda"
@@ -50,7 +52,7 @@ class WhisperTranscriber:
 
         result = model.transcribe(self.audio_extractions_folder + audio_file)
 
-        print(result["segments"]) # before alignment
+        logging.info(result["segments"]) # before alignment
 
         # load alignment model and metadata
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)

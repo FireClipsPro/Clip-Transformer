@@ -4,23 +4,31 @@ from math import ceil
 import logging
 import re
 import json
+import nltk
+from nltk.tokenize import word_tokenize
+from .openai_api import OpenaiApi
 
 class TranscriptAnalyzer:
     def __init__(self,
-             AI_PARSED_INFORMATION_FILE_PATH,
-             CATEGORY_LIST,
-             openai_api):
-        self.TRANSCRIPTION_INFO_FILE_PATH = AI_PARSED_INFORMATION_FILE_PATH
+             video_info_folder,
+             music_category_list,
+             openai_api: OpenaiApi):
+        self.TRANSCRIPTION_INFO_FILE_PATH = video_info_folder
         self.CATEGORY_LIST_STRING = ""
         self.openai_api = openai_api
         # get the keys from the dictionary category list
-        CATEGORY_LIST.keys()
-        for key in CATEGORY_LIST.keys():
+        music_category_list.keys()
+        for key in music_category_list.keys():
             self.CATEGORY_LIST_STRING += key + ", "
             
-    def get_info(self, clipped_video, transcription, podcast_title, music_category_options):
+    def get_clip_info(self, 
+                      clipped_video,
+                      transcription,
+                      podcast_title,
+                      music_category_options):
         # if the file already exists, then we don't need to query the AI
         if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json"):
+            logging.info(f"File already exists. Loading from file: {self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + '.json'}")
             with open(self.TRANSCRIPTION_INFO_FILE_PATH + clipped_video['file_name'][:-4] + ".json", "r") as f:
                 transcription_info = json.load(f)
             clipped_video['transcription_info'] = transcription_info
@@ -31,9 +39,15 @@ class TranscriptAnalyzer:
             transcription_text += text_segment['text']
             
         transcription_info = self.__query_gpt_for_json(transcription_text,
-                                                     clipped_video,
-                                                     podcast_title=podcast_title,
-                                                     music_category_options=music_category_options)
+                                                        clipped_video,
+                                                        podcast_title=podcast_title,
+                                                        music_category_options=music_category_options)
+        
+        # set the start and end times for the description
+        transcription_info['descriptions'] = [{
+            'description': transcription_info['description'],
+            'start': transcription['word_segments'][0]['start'],
+            'end': transcription['word_segments'][-1]['end']}]
         
         # add transcription_info dictionary to clipped_video dictionary
         clipped_video['transcription_info'] = transcription_info
@@ -44,25 +58,109 @@ class TranscriptAnalyzer:
         
         return clipped_video
     
-    def __query_gpt_for_json(self, 
+    # returns a list of dictionaries
+    # each dictionary contains the description and the start and end time of the segment
+    def get_info_for_entire_pod(self, 
+                                video_file_name,
+                                transcription,
+                                podcast_title):
+        # if the file already exists, then we don't need to query the AI
+        if os.path.exists(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json"):
+            with open(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json", "r") as f:
+                video_info_list = json.load(f)
+            return video_info_list
+
+        #split the transcription into 4096 token chunks
+        chunks = self.split_transcript_into_chunks(transcription)
+        
+        video_info_list = []
+        for chunk in chunks:
+            logging.info(str(chunk))
+            description = self.__query_gpt_for_segment_description(chunk['text'],
+                                                     podcast_title=podcast_title)
+            video_info_list.append({'description': description,
+                                    'start': chunk['start'],
+                                    'end': chunk['end']})
+            
+        # Save the transcription info to a file
+        with open(self.TRANSCRIPTION_INFO_FILE_PATH + video_file_name[:-4] + ".json", "w+") as f:
+            json.dump(video_info_list, f)
+        
+        return video_info_list
+    
+    def split_transcript_into_chunks(self, transcript):
+        chunks = []
+        current_chunk = []
+        current_token_count = 0
+        start_time_of_current_chunk = None
+
+        for text_segment in transcript['word_segments']:
+            tokens = word_tokenize(text_segment['text'])
+            for token in tokens:
+                if start_time_of_current_chunk is None:
+                    start_time_of_current_chunk = text_segment['start']
+
+                # We cut it down to smaller token chunks because that is a good sized context window
+                if current_token_count + len(token) > 800:
+                    end_time_of_last_chunk = text_segment['start']  # The start time of the current segment is the end time of the last chunk
+                    chunks.append({
+                        'text': ' '.join(current_chunk),
+                        'start': start_time_of_current_chunk,
+                        'end': end_time_of_last_chunk
+                    })
+
+                    current_chunk = [token]
+                    current_token_count = len(token)
+                    start_time_of_current_chunk = text_segment['start']
+                else:
+                    current_chunk.append(token)
+                    current_token_count += len(token)
+
+        # Don't forget to add the last chunk if it's non-empty
+        if current_chunk:
+            chunks.append({
+                'text': ' '.join(current_chunk),
+                'start': start_time_of_current_chunk,
+                'end': text_segment['end']
+            })
+
+        return chunks
+
+    
+    def __query_gpt_for_segment_description(self, 
                            transcription_text,
-                           clipped_video,
-                           podcast_title,
-                           music_category_options):
+                           podcast_title):
         podcast_title = self.__make_title_info_string(podcast_title)
         
         logging.info("Querying openai for transcript info.")
         model="gpt-3.5-turbo"
         
-        system_prompt = self.__create_system_prompt(music_category_options, podcast_title)
-
+        system_prompt = f"""You will be given a transcript of a section of a podcast.
+        {podcast_title}.
+        Your task is to create a 1 sentence description of the transcript that is passed to you.
+        Return the one sentence description and nothing else."""
+        user_prompt = "Here is the transcript section: " + transcription_text + "."
         
+        response = self.openai_api.query(system_prompt, user_prompt, model)
+        logging.info(f"Response: {response}")
+
+        return response
+
+    def __query_gpt_for_json(self, 
+                             transcription_text,
+                             clipped_video,
+                             podcast_title,
+                             music_category_options):
+        podcast_title = self.__make_title_info_string(podcast_title)
+        
+        logging.info("Querying openai for transcript info.")
+        model="gpt-3.5-turbo"
+        
+        system_prompt = self.__create_system_prompt(music_category_options, podcast_title)        
         user_prompt = "Here is the text: " + transcription_text + ". Reply with only the json and nothing else."
         
         response = self.openai_api.query(system_prompt, user_prompt, model)
-               
         logging.info(f"Response: {response}")
- 
         json_string = response
         
         video_info_dictionary = self.__parse_json_string(json_string, clipped_video)
@@ -82,7 +180,8 @@ class TranscriptAnalyzer:
                     "Please return in json format, the following 3 things: "
                     "1. 'description': a 1 sentence description of the transcript "
                     "2. 'title': a clickbait title for the video that is as intriguing and attention grabbing as possible."
-                    "The best title must be, concise and short, refuting something, epic or extreme, include a time, contain an authority, invoke curiosity fear or negativity, have a timeframe."
+                    "The best title must be, concise and short, refuting something, epic or extreme," 
+                    "have a timeframe, contain an authority, invoke curiosity fear or negativity." 
                     "3. 'category': for this transcript. Choose the BEST option from: " + self.CATEGORY_LIST_STRING + ".")
         else: 
             system_prompt = ("You will be given a transcript of a video. "
@@ -118,7 +217,7 @@ class TranscriptAnalyzer:
             return {"description": json_string, "hashtags": ["", ""], "title": clipped_video['file_name'], "category": "motivational"}
         except TypeError as t:
             print(f"Error parsing JSON string: {t}")
-            return {"description": json_string, "hashtags": ["", ""], "title": clipped_video['file_name'], "category": "motivational"}
+            return {"description": {json_string}, "hashtags": ["", ""], "title": clipped_video['file_name'], "category": "motivational"}
         
     def __validate_dict(self, json_dict):
         required_fields = ["description", "hashtags", "title", "category"]

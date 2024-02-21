@@ -2,6 +2,9 @@ import os
 import logging
 import json
 import subprocess
+from .image_evaluator import ImageEvaluator
+from .google_images_api import GoogleImagesAPI
+from .dall_e import DALL_E
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,12 +16,17 @@ logging.basicConfig(
 )
 
 class ImageGetter:
-    def __init__(self, image_file_path, image_scraper, image_evaluator):
+    def __init__(self,
+                 image_file_path,
+                 image_scraper: GoogleImagesAPI,
+                 image_evaluator: ImageEvaluator,
+                 image_generator: DALL_E):
         self.image_file_path = image_file_path
         self.image_scraper = image_scraper
         self.image_evaluator = image_evaluator
+        self.image_generator = image_generator
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def get_images(self, query_list):
+    def get_images(self, query_list, wants_to_use_dall_e=False):
         logging.info('Starting get_images method')
 
         time_stamped_images = []
@@ -28,32 +36,34 @@ class ImageGetter:
         for query in query_file_list:
             if os.path.exists(self.image_file_path + query['image_file_name']):
                 logging.info(f"Download unecessary: Image file already exists: {self.image_file_path + query['image_file_name']}.")
-                image_width, image_height = self.image_evaluator.get_image_dimensions(self.image_file_path + query['image_file_name'])
+                
+                image_width, image_height = self.image_evaluator.get_dimensions(self.image_file_path + query['image_file_name'])
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
                                             'image': query['image_file_name'],
                                             'width': image_width,
                                             'height': image_height})
                 continue
+            if wants_to_use_dall_e:
+                image_was_found, width, height = self.image_generator.generate_and_save_image(prompt=query['query'],
+                                                                           file_name=query['image_file_name'])
+            else:
+                logging.info(f"Download required for query: {query['query']}, using image_scraper")
+                width, height = self.image_evaluator.get_dimensions(self.image_file_path + query['image_file_name'])
+                image_was_found = self.image_scraper.get_image_from_google(query=query['query'],
+                                                                       output_file_name=query['image_file_name'])
             
-            logging.info(f"Download required for query: {query['query']}, using image_scraper")
-            image_found = self.image_scraper.get_image_from_google(query['query'],
-                                                                   query['image_file_name'])
-            
-            if not image_found:
+            if image_was_found:
+                time_stamped_images.append({'image': query['image_file_name'],
+                                            'start_time': query['start'],
+                                            'end_time': query['end'],
+                                            'width': width,
+                                            'height': height})
+            else:
                 logging.info(f"No image found for query: {query['query']}")
                 time_stamped_images.append({'start_time': query['start'],
                                             'end_time': query['end'],
                                             'image': '_Nothing_Found_' + query['query']})
-            else:
-                logging.info(f"Image found for query: {query['query']}")
-                image_width, image_height = self.image_evaluator.get_image_dimensions(self.image_file_path + query['image_file_name'])
-                time_stamped_images.append({'start_time': query['start'],
-                                            'end_time': query['end'],
-                                            'image': query['image_file_name'],
-                                            'width': image_width,
-                                            'height': image_height})
-        
         self.image_scraper.tear_down()
         
         logging.info('Ending get_images method')
@@ -95,24 +105,3 @@ class ImageGetter:
             })
 
         return result_list
-
-#tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# from image_classifier import ImageClassifier
-# from google_images_api import GoogleImagesAPI
-# from image_evaluator import ImageEvaluator
-# root = "../../"
-# IMAGE_FILE_PATH = f"{root}media_storage/images/"
-
-# get the queries from the json file
-# with open(f"{root}media_storage/queries/JordanClip_(0, 0)_(0, 54)_centered.json", 'r') as f:
-#     query_list = json.load(f)
-    
-# image_classifier = ImageClassifier(IMAGE_FILE_PATH)
-# image_evaluator = ImageEvaluator(IMAGE_FILE_PATH)
-
-# image_scraper = GoogleImagesAPI(IMAGE_FILE_PATH,
-#                                 image_classifier,
-#                                 image_evaluator)
-# image_getter = ImageGetter(IMAGE_FILE_PATH, image_scraper)
-# time_stamped_images = image_getter.get_images(query_list)

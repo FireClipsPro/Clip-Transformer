@@ -152,7 +152,7 @@ class FullScreenImageSelector:
             #if image does not have key height or width, add them
             if 'height' not in image or 'width' not in image:
                 logging.info(f"Image {image['image']} does not have height or width, calculating them")
-                image['width'], image['height'] = self.image_evaluator.get_image_dimensions(image['image'])
+                image['width'], image['height'] = self.image_evaluator.get_image_dimensions(self.image_folder_path + image['image'])
             # h * x = H -> x = H/h -> w * x = new_w -> w * (H/h) = new_w : make sure new_w <= 2 * screen_width
             if (image['height'] >= .6 * screen_height 
                 and image['width'] * (screen_height / image['height']) <= 2 * screen_width):

@@ -15,7 +15,7 @@ class PauseRemover:
 
         # Write the new video
         clipped_video['file_name'] = clipped_video['file_name'].split('.')[0] + '_no_pauses.mp4'
-        new_video.write_videofile(self.output_video_folder + clipped_video['file_name'])
+        new_video.write_videofile(self.output_video_folder + clipped_video['file_name'], threads=4)
         
         new_transcript = self.remove_transcript_pauses(transcript, maximum_pause_length)
 

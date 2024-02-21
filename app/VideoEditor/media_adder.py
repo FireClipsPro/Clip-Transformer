@@ -7,12 +7,12 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 class MediaAdder:
     def __init__(self,
-                 input_videos_file_path,
+                 input_video_folder,
                  media_added_vidoes_file_path,
                  image_videos_file_path,
                  final_output_file_path):
         
-        self.input_videos_file_path = input_videos_file_path
+        self.input_videos_file_path = input_video_folder
         self.output_file_path = media_added_vidoes_file_path
         self.image_videos_file_path = image_videos_file_path
         self.final_output_file_path = final_output_file_path
@@ -37,7 +37,7 @@ class MediaAdder:
     #   Overlay zone is the area of the original clip where the video will be added
     #   x: the x coordinate of the top left corner of the overlay zone
     #   y: the y coordinate of the top left corner of the video
-    def add_videos_to_original_clip(self,
+    def add_media_to_video(self,
                                     original_clip,
                                     videos,
                                     original_clip_width,
@@ -84,7 +84,7 @@ class MediaAdder:
                                    overlay_zone_height)
         
         final_video = CompositeVideoClip(composite_clips)
-        final_video.write_videofile(output_video)
+        final_video.write_videofile(output_video, threads=4)
         
         return original_clip
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

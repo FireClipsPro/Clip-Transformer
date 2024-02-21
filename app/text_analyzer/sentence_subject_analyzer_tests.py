@@ -1,10 +1,10 @@
 import unittest
-from sentence_subject_analyzer import SentenceSubjectAnalyzer
+from sentence_subject_analyzer import ImageQueryCreator
 
 class TestSentenceSubjectAnalyzer(unittest.TestCase):
 
     def test_process_transcription(self):
-        analyzer = SentenceSubjectAnalyzer()
+        analyzer = ImageQueryCreator()
         transcription = [
             {'text': 'Hello world', 'start': 0, 'end': 5},
             {'text': 'This is a test', 'start': 5, 'end': 10},
@@ -21,7 +21,7 @@ class TestSentenceSubjectAnalyzer(unittest.TestCase):
         self.assertGreater(len(query_list), 0)
 
     def test_assign_query_to_time_chunk(self):
-        analyzer = SentenceSubjectAnalyzer()
+        analyzer = ImageQueryCreator()
         sentence_list = ['Hello world', 'This is a test', 'Unit tests are important']
         i = 0
         query = analyzer.assign_query_to_time_chunk(sentence_list, i)
@@ -32,7 +32,7 @@ class TestSentenceSubjectAnalyzer(unittest.TestCase):
         self.assertNotEqual(query, 'Null')
 
     def test_create_queries_for_null_time_chunks(self):
-        analyzer = SentenceSubjectAnalyzer()
+        analyzer = ImageQueryCreator()
         query_list = [
             {'query': None, 'start': 0, 'end': 5},
             {'query': 'Test query', 'start': 5, 'end': 10},
@@ -47,7 +47,7 @@ class TestSentenceSubjectAnalyzer(unittest.TestCase):
             self.assertIsNotNone(query['query'])
 
     def test_parse_sentence_subject(self):
-        analyzer = SentenceSubjectAnalyzer()
+        analyzer = ImageQueryCreator()
         sentence = "Hello world"
         query = analyzer.parse_sentence_subject(sentence)
 
