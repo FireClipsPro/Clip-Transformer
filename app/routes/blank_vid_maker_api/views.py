@@ -1,7 +1,7 @@
 from flask import send_file, abort
 from app.configuration import directories
-from app.content_generation import  
-# from . import blank_vid_maker_api_bp  # Import the Blueprint
+# from app.content_generation import  
+from . import blank_vid_maker_api_bp  # Import the Blueprint
 import logging
 import os
 
