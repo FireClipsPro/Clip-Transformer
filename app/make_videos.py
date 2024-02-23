@@ -1,17 +1,12 @@
 from VideoEditor import MediaAdder, ImageSpacer, SoundEffectAdder, BackgroundCreator, IntroAdder, WatermarkAdder
-from content_generation import TextToSpeech, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
-from Transcriber import WhisperTranscriber, AudioExtractor
+from content_generation import TextToSpeech, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator
+from Transcriber import WhisperTranscriber
 from text_analyzer import ImageQueryCreator, TranscriptAnalyzer, OpenaiApi
-from file_organisation import FileDeleter, FinishedVideoSorter
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder
 import configuration.directories as directories
 import configuration.video_maker_presets as presets
-import os
-import math
 import logging
-import csv
-import time
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 def main():
