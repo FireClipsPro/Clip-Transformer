@@ -7,7 +7,6 @@ import app.configuration.buckets as buckets
 import boto3
 
 class TestS3(unittest.TestCase):
-
     def setUp(self):
         s3 = boto3.client('s3')
         self.s3 = S3(s3=s3)
