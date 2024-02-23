@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 class S3():
-    def __init__(self, s3):
+    def __init__(self, s3: boto3.client):
         self.temp_files = []
         self.aws_s3 = s3
         
