@@ -27,15 +27,15 @@ class AWSBackgroundCreator:
                       width,
                       height):
         # Determine audio duration
-        audio_clip = AudioFileClip(os.path.join(self.audio_bucket, audio_id))
+        audio_clip = self.s3.get_audiofileclip(audio_id, 
+                                              bucket_name=self.audio_bucket)
         audio_duration = audio_clip.duration
-        audio_clip = self.s3.get_audiofileclip(audio_id)
         
         clips = []
         
         for id in background_media_ids:
             bg_vid = self.s3.get_videofileclip(video_id= id, 
-                                                              bucket_name=self.bg_video_bucket)
+                                               bucket_name=self.bg_video_bucket)
             bg_vid = bg_vid.resize(newsize=(width, height))
             clips.append(bg_vid)
 
@@ -63,6 +63,4 @@ class AWSBackgroundCreator:
         self.s3.dispose_temp_files()
         
         return True
-    
-
     

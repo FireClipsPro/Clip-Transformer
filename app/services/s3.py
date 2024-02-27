@@ -53,8 +53,8 @@ class S3():
     
         file_buffer = BytesIO()
         self.aws_s3.download_fileobj(Bucket=bucket_name,
-                            Key=file_key,
-                            Fileobj=file_buffer)
+                                    Key=file_key,
+                                    Fileobj=file_buffer)
         
         # Use tempfile to create a temp file on disk
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
