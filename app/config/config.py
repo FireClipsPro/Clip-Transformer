@@ -1,7 +1,7 @@
 class Config:
     SECRET_KEY = 'your_secret_key_here'
     DEBUG = True
-    LOG_LEVEL = 'DEBUG'
+    LOG_LEVEL = 'INFO'
     # Database configuration
     SQLALCHEMY_DATABASE_URI = 'sqlite:///yourdatabase.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
