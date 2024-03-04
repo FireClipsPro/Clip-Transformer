@@ -11,7 +11,27 @@ The keys should be placed one level up from the actual repository in the files:
 elevnlabs_key.txt and OPENAI_API_KEY.txt.
 So if your repository is in /code/Clip-Transformer/, then the files should be in the /code/ folder.
 
-## Programs
+# How to run the API tests
+1. cd to the root directory of the git
+2. run `python -m unittest tests.s3_tests`
+
+# How to test API endpoint
+1. cd to run.py and run `python run.py`
+2. in browser enter your endpoint for example: http://localhost:5000/background_maker_api/video/
+3. enter parameters in the endpoint
+
+# AWS
+## How to log into aws:
+1. make sure the aws CLI is downloaded and any AWS packages
+2. type `aws configure`
+3. log in with your access keys
+- access keys are stored on aws -> IAM -> users -> find your user account and either generate a new key or use the stored key of your user
+
+## How to list aws buckets:
+`aws s3 ls`
+
+## Running Local Version
+# Programs
 
 There are three programs in this repository:
 
@@ -54,22 +74,3 @@ panda.txt,curious_primates_long_form
 6. **Adding a background video**: These videos are the visuals that play in the background of your video. The best place to find royalty-free background videos is Pixabay: <https://pixabay.com/>. Add your background video (`.mp4`) to `/media_storage/video_maker/backgrounds/`. Then, go back to `/app/configuration/video_maker_presets.py` and in the `"AUDIO_ONLY_BACKGROUND_MEDIA"` field, enter the name of your video. If you have one video, it should look like `["your_video_name.mp4"]`. If you have multiple videos, list them in the array to make the program cycle through them.
 
 7. **Congratulations, you made it!** You are ready to run `make_videos.py`.
-
-# How to run the API tests
-1. cd to the root directory of the git
-2. run `python -m unittest tests.s3_tests`
-
-# How to test API endpoint
-1. cd to run.py and run `python run.py`
-2. in browser enter your endpoint for example: http://localhost:5000/background_maker_api/video/
-3. enter parameters in the endpoint
-
-# AWS
-## How to log into aws:
-1. make sure the aws CLI is downloaded and any AWS packages
-2. type `aws configure`
-3. log in with your access keys
-- access keys are stored on aws -> IAM -> users -> find your user account and either generate a new key or use the stored key of your user
-
-## How to list aws buckets:
-`aws s3 ls`
