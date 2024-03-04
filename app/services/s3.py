@@ -5,6 +5,7 @@ import boto3
 from io import BytesIO
 import tempfile
 import logging
+import json
 
 logging.basicConfig(level=logging.INFO)
 
@@ -13,6 +14,51 @@ class S3():
         self.temp_files = []
         self.aws_s3: boto3.client = s3
         
+    def get_dict_from_video_data(self,
+                                 project_id,
+                                 file_name,
+                                 bucket_name):
+        # Construct the file name or key in the bucket
+        file_key = f"{project_id}/{file_name}"
+        
+        try:
+            # Use the S3 client to get the object
+            obj = self.aws_s3.get_object(Bucket=bucket_name, Key=file_key)
+            # Read the file's content and decode it
+            json_content = obj['Body'].read().decode('utf-8')
+            # Convert JSON content to a dictionary
+            dict_from_s3 = json.loads(json_content)
+            logging.info(f"Successfully retrieved transcription for project_id: {project_id}")
+            return dict_from_s3
+        except self.aws_s3.exceptions.NoSuchKey:
+            logging.error(f"Transcription file does not exist for project_id: {project_id}")
+            return None
+        except Exception as e:
+            logging.error(f"Failed to get transcription for project_id: {project_id}. Error: {str(e)}")
+            return None
+
+    def write_dict_to_video_data(self, 
+                                 project_id,
+                                 dict,
+                                 file_name,
+                                 bucket_name):
+        # Construct the file name or key in the bucket, including the "folder" path
+        file_key = f"{project_id}/{file_name}"
+        
+        try:
+            # Serialize the transcription dictionary to a JSON string
+            json_data = json.dumps(dict)
+            # Convert the JSON string to bytes
+            transcription_bytes = json_data.encode('utf-8')
+            # Use the S3 client to put the object. This automatically "creates" the folder if it doesn't exist.
+            self.aws_s3.put_object(Bucket=bucket_name, Key=file_key, Body=transcription_bytes)
+            logging.info(f"Successfully wrote transcription for project_id: {project_id}")
+            return True
+        except Exception as e:
+            logging.error(f"Failed to write transcription for project_id: {project_id}. Error: {str(e)}")
+            return False
+    
+    
     def write_videofileclip(self,
                             clip: VideoFileClip,
                             video_id,

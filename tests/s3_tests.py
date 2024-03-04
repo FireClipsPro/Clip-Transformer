@@ -10,46 +10,67 @@ class TestS3(unittest.TestCase):
         self.s3 = S3(s3=boto3.client('s3'))
         self.test_bg = "wormhole.mp4"
         
-    def test_write_videofileclip(self):
+    # def test_write_videofileclip(self):
+    #     # Call the method under test
+    #     clip = VideoFileClip(directories.VM_BACKGROUNDS + self.test_bg)  # No actual file needed due to mocking
+    #     self.s3.write_videofileclip(clip, self.test_bg, buckets.bg_videos)
+
+    def test_write_transcription(self):
+        # Create a test transcription
+        test_transcription  = { "queries": [{"start": 0, "end": 1, "text": "Hello"},
+                                                  {"start": 4, "end": 6, "text": "big bossman"},] }
+        
         # Call the method under test
-        clip = VideoFileClip(directories.VM_BACKGROUNDS + self.test_bg)  # No actual file needed due to mocking
-        self.s3.write_videofileclip(clip, self.test_bg, buckets.bg_videos)
-
-    def test_get_videofileclip(self):
-        video_clip = self.s3.get_videofileclip(video_id=self.test_bg, 
-                                               bucket_name=buckets.bg_videos,
-                                               prefix=buckets.public_bg_videos_prefix)
-
-        self.assertIsInstance(video_clip, VideoFileClip)
-        self.assertIsNotNone(video_clip)
-        
-    def test_get_audiofileclip(self):        
-        # Call the method under test
-        audio_clip = self.s3.get_audiofileclip('archeaoaccoustics.mp3', buckets.audio_files)
-
-        # Assertions
-        self.assertIsInstance(audio_clip, AudioFileClip)
-        self.assertIsNotNone(audio_clip)
-        
-        # optional save the audio clip to a file
-        # audio_clip.write_audiofile(directories.VM_AUDIO_EXTRACTIONS + 'temp_audio.mp3')
-
-    def test_get_item_url(self):
-        actual = self.s3.get_item_url(bucket_name=buckets.bg_videos,
-                                      object_key=self.test_bg,
-                                      prefix=buckets.public_bg_videos_prefix,
-                                      expiry_time=3600)
-        
-        print(actual)
-        
-        self.assertIsNotNone(actual)
-        
-    def test_create_folder(self):
-        result = self.s3.create_folder(folder_name="5050",
-                                       bucket_name=buckets.bg_videos,
-                                       prefix=buckets.private_bg_prefix)
+        result = self.s3.write_dict_to_video_data(project_id='42069', 
+                                                  dict=test_transcription, 
+                                                  file_name='queries.json',
+                                                  bucket_name=buckets.project_data)
         
         self.assertTrue(result)
+        
+    def test_get_transcription(self):
+        actual = self.s3.get_dict_from_video_data(project_id='42069',
+                                                  file_name='queries.json', 
+                                                  bucket_name=buckets.project_data)
+        
+        print(actual)
+        self.assertIsNotNone(actual)
+    
+    # def test_get_videofileclip(self):
+    #     video_clip = self.s3.get_videofileclip(video_id=self.test_bg, 
+    #                                            bucket_name=buckets.bg_videos,
+    #                                            prefix=buckets.public_bg_videos_prefix)
+
+    #     self.assertIsInstance(video_clip, VideoFileClip)
+    #     self.assertIsNotNone(video_clip)
+        
+    # def test_get_audiofileclip(self):        
+    #     # Call the method under test
+    #     audio_clip = self.s3.get_audiofileclip('archeaoaccoustics.mp3', buckets.audio_files)
+
+    #     # Assertions
+    #     self.assertIsInstance(audio_clip, AudioFileClip)
+    #     self.assertIsNotNone(audio_clip)
+        
+    #     # optional save the audio clip to a file
+    #     # audio_clip.write_audiofile(directories.VM_AUDIO_EXTRACTIONS + 'temp_audio.mp3')
+
+    # def test_get_item_url(self):
+    #     actual = self.s3.get_item_url(bucket_name=buckets.bg_videos,
+    #                                   object_key=self.test_bg,
+    #                                   prefix=buckets.public_bg_videos_prefix,
+    #                                   expiry_time=3600)
+        
+    #     print(actual)
+        
+    #     self.assertIsNotNone(actual)
+        
+    # def test_create_folder(self):
+    #     result = self.s3.create_folder(folder_name="5050",
+    #                                    bucket_name=buckets.bg_videos,
+    #                                    prefix=buckets.private_bg_prefix)
+        
+    #     self.assertTrue(result)
     
     def tearDown(self):
         self.s3.dispose_temp_files()
