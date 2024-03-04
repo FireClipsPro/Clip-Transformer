@@ -40,7 +40,7 @@ class OpenaiApi:
                     ]
                 )
                 logging.info(f"OpenAI response: {response}")
-                return response['choices'][0]['message']['content']
+                return response.choices[0].message.content
                 
             except openai.APIError as e:
                 logging.info(f"APIError occurred: {e}. Retrying in 5 seconds...")
