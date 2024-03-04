@@ -12,3 +12,5 @@ blank_videos = "blank-videos-69"
 videos_with_media = "videos-with-media-69"
 # The bucket where the animates images that get overlayed on the video are stored
 image_videos = "image-videos-69"
+# The bucket where the image queries and transcripts are stored
+project_data = "project-data-69"

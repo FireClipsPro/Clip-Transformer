@@ -5,6 +5,7 @@ from app.config import Config
 from app.routes.background_maker_api import background_maker_api_bp
 from app.routes.media_adder_api import media_adder_api_bp 
 from app.routes.account_setup_api import account_setup_api_bp
+from app.routes.query_maker_api import query_maker_api_bp
 
 def create_app():
     app = Flask(__name__)
@@ -14,5 +15,6 @@ def create_app():
     app.register_blueprint(background_maker_api_bp, url_prefix='/background_maker_api')
     app.register_blueprint(media_adder_api_bp, url_prefix='/media_adder_api')
     app.register_blueprint(account_setup_api_bp, url_prefix='/account_setup_api')
+    app.register_blueprint(query_maker_api_bp, url_prefix='/query_maker_api')
     
     return app

@@ -15,6 +15,27 @@ class TestS3(unittest.TestCase):
         clip = VideoFileClip(directories.VM_BACKGROUNDS + self.test_bg)  # No actual file needed due to mocking
         self.s3.write_videofileclip(clip, self.test_bg, buckets.bg_videos)
 
+    def test_write_transcription(self):
+        # Create a test transcription
+        test_transcription  = { "queries": [{"start": 0, "end": 1, "text": "Hello"},
+                                                  {"start": 4, "end": 6, "text": "big bossman"},] }
+        
+        # Call the method under test
+        result = self.s3.write_dict_to_video_data(project_id='42069', 
+                                                  dict=test_transcription, 
+                                                  file_name='queries.json',
+                                                  bucket_name=buckets.project_data)
+        
+        self.assertTrue(result)
+        
+    def test_get_transcription(self):
+        actual = self.s3.get_dict_from_video_data(project_id='42069',
+                                                  file_name='queries.json', 
+                                                  bucket_name=buckets.project_data)
+        
+        print(actual)
+        self.assertIsNotNone(actual)
+    
     def test_get_videofileclip(self):
         video_clip = self.s3.get_videofileclip(video_id=self.test_bg, 
                                                bucket_name=buckets.bg_videos,
