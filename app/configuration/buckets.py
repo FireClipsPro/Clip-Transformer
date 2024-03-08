@@ -14,3 +14,4 @@ videos_with_media = "videos-with-media-69"
 image_videos = "image-videos-69"
 # The bucket where the image queries and transcripts are stored
 project_data = "project-data-69"
+images_folder = "/images/"

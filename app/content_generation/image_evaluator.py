@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import logging
 import os
-import subprocess
 from moviepy.editor import VideoFileClip
 from PIL import Image
 

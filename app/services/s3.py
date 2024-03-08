@@ -1,11 +1,15 @@
 from moviepy.editor import *
 import os
-from moviepy.editor import concatenate_videoclips
 import boto3
 from io import BytesIO
 import tempfile
 import logging
 import json
+import json
+import logging
+from pathlib import Path
+from base64 import b64decode
+import boto3
 
 logging.basicConfig(level=logging.INFO)
 
@@ -203,6 +207,30 @@ class S3():
             return False
 
         return True
+    
+    def save_image_to_s3(self, 
+                         json_image_data,
+                         file_name,
+                         bucket_name,
+                         prefix=''):
+        response = json_image_data
+        full_key_path = f"{prefix}{file_name}" if prefix else file_name
+
+        for index, image_dict in enumerate(response.data):
+            image_data = b64decode(image_dict.b64_json)
+            
+            try:
+                self.aws_s3.put_object(Bucket=bucket_name,
+                                       Key=full_key_path,
+                                       Body=image_data,
+                                       ContentType='image/png')
+            except Exception as e:
+                logging.error(f"Error uploading file to S3: {e}")
+                raise
+            
+        logging.info(f"Saved image to S3: {file_name}")
+        return True
+
 
     # ALWAYS CALL THIS AFTER YOU ARE DONE USING THIS CLASS
     def dispose_temp_files(self):
