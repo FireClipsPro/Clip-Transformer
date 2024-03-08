@@ -4,6 +4,7 @@ from app.services.s3 import S3
 from app.models.image_model import ImageModel
 from app.content_generation import GoogleImagesAPI, DALL_E
 from flask import jsonify
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import uuid
 import boto3
 import app.configuration.buckets as buckets
@@ -55,28 +56,58 @@ def create_images():
     
     return jsonify(response), 200
 
-def generate_and_scrape_images(project_id,
-                               queries, 
-                               dall_e: DALL_E,
-                               s3: S3,
-                               image_scraper: GoogleImagesAPI):
-        for query in queries:
-            if query.is_dall_e:
-                image_json_data = dall_e.generate_image_json(prompt=query.query)
+# def generate_and_scrape_images(project_id,
+#                                queries, 
+#                                dall_e: DALL_E,
+#                                s3: S3,
+#                                image_scraper: GoogleImagesAPI):
+#         for query in queries:
+#             if query.is_dall_e:
+#                 image_json_data = dall_e.generate_image_json(prompt=query.query)
                 
-                s3.save_image_to_s3(json_image_data=image_json_data,
-                                    file_name=query.uid + ".png",
-                                    bucket_name=buckets.project_data,
-                                    prefix=project_id + buckets.images_folder)
+#                 s3.save_image_to_s3(json_image_data=image_json_data,
+#                                     file_name=query.uid + ".png",
+#                                     bucket_name=buckets.project_data,
+#                                     prefix=project_id + buckets.images_folder)
                 
-                query.url = s3.get_item_url(bucket_name=buckets.project_data,
-                                            object_key=query.uid + ".png",
-                                            expiry_time=url_expiry_time,
-                                            prefix=project_id + buckets.images_folder)
-            else:
-                query.url = image_scraper.get_image_link(query=query.query)
+#                 query.url = s3.get_item_url(bucket_name=buckets.project_data,
+#                                             object_key=query.uid + ".png",
+#                                             expiry_time=url_expiry_time,
+#                                             prefix=project_id + buckets.images_folder)
+#             else:
+#                 query.url = image_scraper.get_image_link(query=query.query)
         
-        return queries
+#         return queries
+
+def generate_and_scrape_image(query, dall_e, s3, image_scraper, project_id):
+    if query.is_dall_e:
+        image_json_data = dall_e.generate_image_json(prompt=query.query)
+
+        s3.save_image_to_s3(json_image_data=image_json_data,
+                            file_name=query.uid + ".png",
+                            bucket_name=buckets.project_data,
+                            prefix=project_id + buckets.images_folder)
+
+        query.url = s3.get_item_url(bucket_name=buckets.project_data,
+                                    object_key=query.uid + ".png",
+                                    expiry_time=url_expiry_time,
+                                    prefix=project_id + buckets.images_folder)
+    else:
+        query.url = image_scraper.get_image_link(query=query.query)
+    return query
+
+def generate_and_scrape_images(project_id, queries, dall_e, s3, image_scraper):
+    # Use ThreadPoolExecutor to execute tasks concurrently
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        # Schedule the execution of each task and return futures
+        futures = [executor.submit(generate_and_scrape_image, query, dall_e, s3, image_scraper, project_id) for query in queries]
+
+        # Wait for the futures to complete and collect the results
+        results = []
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    return results
 
 def build_image_models(query_list):
     image_models = []
