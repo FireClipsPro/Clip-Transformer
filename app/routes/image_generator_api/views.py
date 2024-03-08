@@ -98,7 +98,7 @@ def generate_and_scrape_image(query, dall_e, s3, image_scraper, project_id):
 
 def generate_and_scrape_images(project_id, queries, dall_e, s3, image_scraper):
     # Use ThreadPoolExecutor to execute tasks concurrently
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=20) as executor:
         # Schedule the execution of each task and return futures
         futures = [executor.submit(generate_and_scrape_image, query, dall_e, s3, image_scraper, project_id) for query in queries]
 
