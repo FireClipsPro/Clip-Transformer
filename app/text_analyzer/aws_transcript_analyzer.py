@@ -1,4 +1,3 @@
-import os
 import logging
 import json
 from nltk.tokenize import word_tokenize

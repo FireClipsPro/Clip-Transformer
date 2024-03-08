@@ -45,7 +45,7 @@ class ImageGetter:
                                             'height': image_height})
                 continue
             if wants_to_use_dall_e:
-                image_was_found, width, height = self.image_generator.generate_and_save_image(prompt=query['query'],
+                image_was_found, width, height = self.image_generator.generate_image_json(prompt=query['query'],
                                                                            file_name=query['image_file_name'])
             else:
                 logging.info(f"Download required for query: {query['query']}, using image_scraper")

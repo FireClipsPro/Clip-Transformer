@@ -3,7 +3,6 @@ from requests.exceptions import Timeout
 import os
 import logging
 import cv2
-import numpy as np
 from PIL import Image
 from .image_evaluator import ImageEvaluator
 from .image_classifier import ImageClassifier
@@ -12,26 +11,26 @@ logging.basicConfig(level=logging.INFO)
 
 class GoogleImagesAPI:
     def __init__(self, 
-                 image_file_path,
-                 image_classifier: ImageClassifier,
-                 image_evaluator: ImageEvaluator):
+                 image_evaluator: ImageEvaluator = None,
+                 image_file_path = None):
+        self.api_key = "AIzaSyDq--kNy4Vot0SGaSRtbJ-CKDAa2qhOlrc"
+        self.cx = "815224a42049e43d7"
         self.IMAGE_FILE_PATH = image_file_path
         self.used_links = []
         self.num_links_per_query = {}
-        self.image_classifier = image_classifier
         self.IMAGE_CLASSIFIER_THRESHOLD = 6.5
         self.image_evaluator = image_evaluator
         self.wants_royalty_free = False
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def get_image_link(self, query, api_key, cx, link_needed):
+    def get_image_link(self, query, link_start_loc=1):
         url = "https://www.googleapis.com/customsearch/v1"
         
         params = {
             "q": query,
-            "key": api_key,
-            "cx": cx,
+            "key": self.api_key,
+            "cx": self.cx,
             "searchType": "image",
-            "start": link_needed,  # 'start' parameter specifies the first result to return
+            "start": link_start_loc,  # 'start' parameter specifies the first result to return
             "num": 1  # 'num' parameter specifies the number of search results to return
         }
         
@@ -51,7 +50,9 @@ class GoogleImagesAPI:
 
         return None
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def download_image(self, url, output_path):
+    def download_image(self, 
+                       url,
+                       output_path):
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537"
         }
@@ -89,9 +90,10 @@ class GoogleImagesAPI:
         
         return True
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def get_image_from_google(self, query, output_file_name):
-        api_key = "AIzaSyDq--kNy4Vot0SGaSRtbJ-CKDAa2qhOlrc"
-        cx = "815224a42049e43d7"
+    def get_image_from_google(self, 
+                              query,
+                              output_file_name):
+        
         # Store a dictionary representing the number of links found for each query
         if self.num_links_per_query.get(query) is not None:
             link_needed = self.num_links_per_query.get(query)
@@ -100,7 +102,7 @@ class GoogleImagesAPI:
             self.num_links_per_query[query] = 1
 
         while link_needed < 50:
-            fetched_link = self.get_image_link(query, api_key, cx, link_needed)
+            fetched_link = self.get_image_link(query, self.api_key, self.cx, link_needed)
             if fetched_link is None:
                 logging.info(f"Could not find image link for query: {query}")
                 return False
@@ -119,7 +121,7 @@ class GoogleImagesAPI:
             if download_success:
                 logging.info(f"Downloaded image {fetched_link}")
                 self.used_links.append(fetched_link)
-                
+
                 is_classified_and_colorful, link_needed = self.image_is_relevant_and_colorful(fetched_link,
                                                        output_file_name,
                                                        query,
@@ -137,7 +139,7 @@ class GoogleImagesAPI:
                     
         return False
     
-    def image_is_relevant_and_colorful(self, fetched_link, output_file_name, query, link_needed):
+    def image_is_relevant_and_colorful(self, fetched_link, output_file_name, link_needed):
         # Classify image
         # if self.image_classifier.classify(output_file_name, query) < self.IMAGE_CLASSIFIER_THRESHOLD:
         #     logging.info(f"Image {fetched_link} was not classified as {query}. Trying again.")
