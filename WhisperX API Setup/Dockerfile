@@ -15,9 +15,6 @@ RUN apt-get update && apt-get install -y ffmpeg git \
 
 RUN pip install -r requirements.txt
 
-# Install PyTorch and torchvision using pip
-RUN pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1
-
 # Install whisperx from github repository using pip
 RUN pip install "git+https://github.com/m-bain/whisperx.git"
 
