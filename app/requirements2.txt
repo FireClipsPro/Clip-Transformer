@@ -1,0 +1,8 @@
+flask
+moviepy
+opencv-python
+boto3
+openai
+nltk
+matplotlib
+Pillow==9.5.0
