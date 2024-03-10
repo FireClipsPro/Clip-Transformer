@@ -1,43 +1,26 @@
 from moviepy.editor import *
-import os
 from moviepy.editor import concatenate_videoclips
 import logging
-from app.services.s3 import S3
 
 logging.basicConfig(level=logging.DEBUG)
 
 class AWSBackgroundCreator:
-    def __init__(self,
-                 audio_bucket,
-                 output_video_bucket,
-                 background_video_bucket,
-                 s3: S3):
-        self.audio_bucket = audio_bucket
-        self.output_video_bucket = output_video_bucket
-        self.bg_video_bucket = background_video_bucket
-        self.s3 = s3
-    
-    # returns:
-    # video = {'file_name': background_video_name,
-    #             'start_time_sec': 0,
-    #             'end_time_sec': audio_duration}
+    def __init__(self):
+        logging.info("AWSBackgroundCreator initialized")
+        
+    # returns: VideoFileClip
     def create_horizontal(self, 
-                      audio_id,
-                      background_media_ids,
-                      width,
-                      height):
+                          audio_clip: AudioFileClip,
+                          background_videos: [VideoFileClip],
+                          width,
+                          height):
         # Determine audio duration
-        audio_clip = self.s3.get_audiofileclip(audio_id, 
-                                              bucket_name=self.audio_bucket)
         audio_duration = audio_clip.duration
         
         clips = []
-        
-        for id in background_media_ids:
-            bg_vid = self.s3.get_videofileclip(video_id= id, 
-                                               bucket_name=self.bg_video_bucket)
-            bg_vid = bg_vid.resize(newsize=(width, height))
-            clips.append(bg_vid)
+        for video in background_videos:
+            video = video.resize(newsize=(width, height))
+            clips.append(video)
 
         # Concatenate all clips
         concatenated_clip = concatenate_videoclips(clips)
@@ -55,12 +38,5 @@ class AWSBackgroundCreator:
         # Add fps attribute to the clip
         clip.fps = 24
 
-        # Write the final video to s3
-        self.s3.write_videofileclip(clip=clip, 
-                                    id = audio_id,
-                                    bucket_name=self.output_video_bucket)
-        
-        self.s3.dispose_temp_files()
-        
-        return True
+        return clip
     

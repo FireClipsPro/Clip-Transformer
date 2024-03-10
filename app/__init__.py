@@ -7,6 +7,8 @@ from app.routes.media_adder_api import media_adder_api_bp
 from app.routes.account_setup_api import account_setup_api_bp
 from app.routes.query_maker_api import query_maker_api_bp
 from app.routes.image_generator_api import image_generator_api_bp
+from app.routes.project_creation_api import project_creation_api_bp
+from app.routes.upload_audio_api import upload_audio_api_bp
 
 def create_app():
     app = Flask(__name__)
@@ -18,5 +20,7 @@ def create_app():
     app.register_blueprint(account_setup_api_bp, url_prefix='/account_setup_api')
     app.register_blueprint(query_maker_api_bp, url_prefix='/query_maker_api')
     app.register_blueprint(image_generator_api_bp, url_prefix='/image_generator_api')
+    app.register_blueprint(project_creation_api_bp, url_prefix='/project_creation_api')
+    app.register_blueprint(upload_audio_api_bp, url_prefix='/upload_audio_api')
     
     return app

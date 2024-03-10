@@ -7,9 +7,11 @@ import logging
 import json
 import json
 import logging
-from pathlib import Path
 from base64 import b64decode
 import boto3
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,6 +19,65 @@ class S3():
     def __init__(self, s3: boto3.client):
         self.temp_files = []
         self.aws_s3: boto3.client = s3
+        
+    def upload_mp4(self, 
+                   file_name: str,
+                   file: FileStorage,
+                   bucket_name: str,
+                   prefix: str = '') -> str:
+        """
+        Uploads a video file directly to an S3 bucket without saving it as a temporary file,
+        ensuring it is stored as an .mp4 file.
+
+        :param file_name: The name of the file to upload
+        :param file: FileStorage object from Flask request
+        :param bucket_name: Name of the S3 bucket
+        :param prefix: Optional prefix path within the bucket
+        :return: URL of the uploaded video file
+        """
+        # Secure the filename and ensure it ends with .mp4
+        file_name = secure_filename(file_name)
+        if not file_name.endswith('.mp4'):
+            file_name += '.mp4'
+
+        # If a prefix is provided, ensure it ends with a slash for proper path construction
+        if prefix and not prefix.endswith('/'):
+            prefix += '/'
+
+        object_key = f"{prefix}{file_name}"  # Combine prefix and file name to form the full object key
+
+        self.aws_s3.upload_fileobj(file, Bucket=bucket_name, Key=object_key)
+
+        # Construct the URL for the uploaded video file
+        # Note: Consider using the AWS SDK to generate the URL if your bucket name or object key contains characters that require URL encoding
+        file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
+
+        return file_url
+        
+        
+        
+    def upload_mp3(self, file_name: str, file: FileStorage, bucket_name: str, prefix: str = '') -> bool:
+        """
+        Uploads an audio file directly to an S3 bucket without saving it as a temporary file,
+        ensuring it is stored as an .mp3 file.
+        """
+        # Secure the filename and ensure it ends with .mp3
+        file_name = secure_filename(file_name)
+        if not file_name.endswith('.mp3'):
+            file_name += '.mp3'  # Append .mp3 if it's not already part of the filename
+
+        full_key_path = f"{prefix}/{file_name}" if prefix else f"{file_name}"
+        logging.info(f"Uploading audio to S3 bucket {bucket_name} under prefix '{prefix}' with filename {file_name}")
+
+        # Specify the content type for the .mp3 file
+        content_type = 'audio/mpeg'
+
+        # Upload the file-like object directly to S3, with content type set
+        self.aws_s3.upload_fileobj(Fileobj=file, Bucket=bucket_name, Key=full_key_path, ExtraArgs={'ContentType': content_type})
+
+        logging.info(f"Successfully uploaded audio as .mp3 to S3 bucket {bucket_name} under prefix '{prefix}'")
+        
+        return True
         
     def get_dict_from_video_data(self,
                                  project_id,
@@ -90,11 +151,11 @@ class S3():
                           prefix=''):
         full_key_path = f"{prefix}{video_id}" if prefix else video_id
         logging.info(f"Getting Video {full_key_path} from S3 bucket {bucket_name}")
-    
+
         file_buffer = BytesIO()
         self.aws_s3.download_fileobj(Bucket=bucket_name,
-                                    Key=full_key_path,
-                                    Fileobj=file_buffer)
+                                        Key=full_key_path,
+                                        Fileobj=file_buffer)
         
         # Use tempfile to create a temp file on disk for the video
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
@@ -104,6 +165,8 @@ class S3():
             
             # Now that the file is saved to disk, we can load it with VideoFileClip
             video_clip = VideoFileClip(tmp_file.name)
+            
+            logging.info(f"Successfully retrieved video {video_id} from S3 bucket {bucket_name}")
         
         self.temp_files.append(tmp_file.name)
         return video_clip
@@ -132,6 +195,8 @@ class S3():
 
         # Optionally keep track of temp files for cleanup, assumed self.temp_files is initialized elsewhere
         self.temp_files.append(tmp_file.name)
+        
+        logging.info(f"Successfully retrieved audio {audio_id} from S3 bucket {bucket_name}")
         return audio_clip
 
     def get_item_url(self,

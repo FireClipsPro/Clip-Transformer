@@ -7,60 +7,39 @@ from app.models.overlay_video import OverlayVideo
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 class AWSMediaAdder:
-    def __init__(self,
-                 input_video_bucket,
-                 media_addied_videos_bucket,
-                 image_videos_bucket,
-                 output_video_bucket,
-                 s3: S3):
-        
-        self.input_video_bucket = input_video_bucket
-        self.output_file_path = media_addied_videos_bucket
-        self.image_videos_bucket = image_videos_bucket
-        self.output_video_bucket = output_video_bucket
-        self.s3: S3 = s3
-        
+    def __init__(self):
         logging.info("MediaAdder created")
     
     def add_media_to_video(self,
-                            original_vid_id,
+                            original_vid: VideoFileClip,
                             videos: [OverlayVideo],
                             overlay_zone_top_left,
                             overlay_zone_width,
-                            overlay_zone_height):
-        original_vid = self.s3.get_videofileclip(original_vid_id, self.input_video_bucket)
+                            overlay_zone_height) -> VideoFileClip:
         composite_clips = [original_vid]
         
-        
         for video in videos:
-            # initialize the overlay video path
-            overlay_video = self.s3.get_videofileclip(video.id, self.image_videos_bucket)
-            
             composite_clips = self.add_clip_to_video(original_vid,
                                                      composite_clips,
                                                      video,
-                                                     overlay_video,
                                                      overlay_zone_top_left,
                                                      overlay_zone_width,
                                                      overlay_zone_height)
         
         final_video = CompositeVideoClip(composite_clips)
         
-        self.s3.write_videofileclip(final_video, original_vid_id, self.output_video_bucket)
-        
-        return True
+        return final_video
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def add_clip_to_video(self, 
                           base_vid: VideoFileClip,
                           composite_clips,
                           overlay_video: OverlayVideo,
-                          overlay_vid: VideoFileClip,
                           overlay_zone_top_left,
                           overlay_zone_width,
                           overlay_zone_height):
 
-        overlay_top_left_x, overlay_top_left_y = self.calculate_top_left_xy(overlay_vid.w,
-                                                                            overlay_vid.h,
+        overlay_top_left_x, overlay_top_left_y = self.calculate_top_left_xy(overlay_video.video.w,
+                                                                            overlay_video.video.h,
                                                                             overlay_zone_width,
                                                                             overlay_zone_height,
                                                                             overlay_zone_top_left[0],
