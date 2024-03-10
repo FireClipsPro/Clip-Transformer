@@ -19,11 +19,11 @@ app = FastAPI()
 
 s3_client = boto3.client('s3')
 
-BUCKET_NAME_TO_GET_AUDIO_FILE = 'audio-files-69'
-BUCKET_NAME_TO_UPLOAD_TRANSCRIPT = 'project-data-69'
-
 # Transcribe the audio file and upload the result to S3
-def transcribe_audio_async(temp_file_path: str, project_id: str):
+# temp_file_path: the path to the temporary file where the audio is stored
+# bucket_id: the ID of the S3 bucket where the project data is stored
+# key_to_upload_transcription: the key in the S3 bucket where the transcription should be uploaded
+def transcribe_audio_async(temp_file_path: str, bucket_id: str, key_to_upload_transcription: str):
     try:
         # Load the WhisperX model
         audio = whisperx.load_audio(temp_file_path)
@@ -31,15 +31,18 @@ def transcribe_audio_async(temp_file_path: str, project_id: str):
 
         # Align whisper output
         model_a, metadata = whisperx.load_align_model(language_code=transcription_result["language"], device=DEVICE)
-        result_with_alignment = whisperx.align(transcription_result["segments"], model_a, metadata, audio, DEVICE, return_char_alignments=False)
 
+        result_with_alignment = whisperx.align(transcription_result["segments"], model_a, metadata, audio, DEVICE, return_char_alignments=False)
+        
         # Convert the transcription result to JSON
-        transcription_json = json.dumps(result_with_alignment)
+        transcription_json = json.dumps({"word_segments": result_with_alignment['word_segments']})
 
         # Convert the JSON string to bytes
         transcription_bytes = transcription_json.encode()
 
-        s3_client.put_object(Body=transcription_bytes, Bucket=BUCKET_NAME_TO_UPLOAD_TRANSCRIPT, Key=f'{project_id}/transcription.json')
+        s3_client.put_object(Body=transcription_bytes, Bucket=bucket_id, Key=key_to_upload_transcription)
+
+        print(f"Transcription complete. Uploaded to S3: {key_to_upload_transcription}")
     except Exception as e:
         print(f"Error transcribing audio: {str(e)}")
     finally:
@@ -48,20 +51,25 @@ def transcribe_audio_async(temp_file_path: str, project_id: str):
             os.remove(temp_file_path)
 
 @app.post("/transcribe")
-# audio_file_id is the ID of the S3 object
+# bucket_id is the ID of the S3 bucket where the project data is stored
+# user_id is the ID of the user in the S3 bucket
 # project_id is the ID of the S3 project to which we should store the transcription
-async def handler(audio_file_id: str, project_id: str, background_tasks: BackgroundTasks):
-    if not audio_file_id or not project_id:
-        raise HTTPException(status_code=400, detail="No Audio file ID or Project ID provided")
+async def handler(bucket_id: str, user_id: str, project_id: str, background_tasks: BackgroundTasks):
+    if not user_id or not project_id or not bucket_id:
+        raise HTTPException(status_code=400, detail="Incorrect Params provided")
     
     # Define where to temporarily save the downloaded file
-    temp_file_path = f"temp_{os.path.basename(audio_file_id)}"
+    temp_file_path = f"temp_{os.path.basename(user_id)}"
+
+    key_to_download_audio = f'{user_id}/{project_id}/audio/audio.mp3'
+    key_to_upload_transcription = f'{user_id}/{project_id}/transcription/transcription.json'
 
     try:
         # Download the file from S3
-        s3_client.download_file(BUCKET_NAME_TO_GET_AUDIO_FILE, audio_file_id, temp_file_path)
+        s3_client.download_file(bucket_id, key_to_download_audio, temp_file_path)
+
         # Start the transcription process in the background (asynchronously)
-        background_tasks.add_task(transcribe_audio_async, temp_file_path, project_id)
+        background_tasks.add_task(transcribe_audio_async, temp_file_path, bucket_id, key_to_upload_transcription)
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Error downloading file from S3")
