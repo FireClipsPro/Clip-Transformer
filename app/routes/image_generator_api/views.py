@@ -22,7 +22,8 @@ url_expiry_time = 3600*5 #(5 hours)
 def create_images():
     '''
     This function takes in the following json payload:
-    {
+    {   
+        "user_id": "panda@example.com",
         "project_id": "42069",
         "queries": [{   "query": "cherry blossom tree",
                         "is_dall_e": "true",
@@ -37,6 +38,7 @@ def create_images():
     if not is_valid:
         return jsonify({"error": message}), 400
     
+    user_id = payload['user_id']
     project_id = payload['project_id']
     query_list = payload['queries']
     images = build_image_models(query_list)
@@ -46,7 +48,8 @@ def create_images():
                                             images,
                                             DALL_E(),
                                             S3(boto3.client('s3')),
-                                            GoogleImagesAPI())
+                                            GoogleImagesAPI(),
+                                            user_id)
     except Exception as e:
         # Log the exception and return a 500 error
         logging.exception("Failed to create video")
@@ -56,51 +59,45 @@ def create_images():
     
     return jsonify(response), 200
 
-# def generate_and_scrape_images(project_id,
-#                                queries, 
-#                                dall_e: DALL_E,
-#                                s3: S3,
-#                                image_scraper: GoogleImagesAPI):
-#         for query in queries:
-#             if query.is_dall_e:
-#                 image_json_data = dall_e.generate_image_json(prompt=query.query)
-                
-#                 s3.save_image_to_s3(json_image_data=image_json_data,
-#                                     file_name=query.uid + ".png",
-#                                     bucket_name=buckets.project_data,
-#                                     prefix=project_id + buckets.images_folder)
-                
-#                 query.url = s3.get_item_url(bucket_name=buckets.project_data,
-#                                             object_key=query.uid + ".png",
-#                                             expiry_time=url_expiry_time,
-#                                             prefix=project_id + buckets.images_folder)
-#             else:
-#                 query.url = image_scraper.get_image_link(query=query.query)
-        
-#         return queries
-
-def generate_and_scrape_image(query, dall_e, s3, image_scraper, project_id):
+def generate_and_scrape_image(query, 
+                              dall_e,
+                              s3,
+                              image_scraper,
+                              project_id,
+                              user_id):
     if query.is_dall_e:
         image_json_data = dall_e.generate_image_json(prompt=query.query)
 
+        bucket_path = user_id + "/" + project_id + "/" + buckets.images_folder
         s3.save_image_to_s3(json_image_data=image_json_data,
                             file_name=query.uid + ".png",
                             bucket_name=buckets.project_data,
-                            prefix=project_id + buckets.images_folder)
+                            prefix=bucket_path)
 
         query.url = s3.get_item_url(bucket_name=buckets.project_data,
                                     object_key=query.uid + ".png",
                                     expiry_time=url_expiry_time,
-                                    prefix=project_id + buckets.images_folder)
+                                    prefix=bucket_path)
     else:
         query.url = image_scraper.get_image_link(query=query.query)
     return query
 
-def generate_and_scrape_images(project_id, queries, dall_e, s3, image_scraper):
+def generate_and_scrape_images(project_id,
+                               queries,
+                               dall_e,
+                               s3,
+                               image_scraper,
+                               user_id):
     # Use ThreadPoolExecutor to execute tasks concurrently
     with ThreadPoolExecutor(max_workers=20) as executor:
         # Schedule the execution of each task and return futures
-        futures = [executor.submit(generate_and_scrape_image, query, dall_e, s3, image_scraper, project_id) for query in queries]
+        futures = [executor.submit(generate_and_scrape_image, 
+                                   query,
+                                   dall_e,
+                                   s3,
+                                   image_scraper,
+                                   project_id,
+                                   user_id) for query in queries]
 
         # Wait for the futures to complete and collect the results
         results = []
@@ -146,6 +143,10 @@ def validate_payload(payload):
     if not isinstance(payload['queries'], list):
         return False, "'queries' must be a list."
     
+    for required_field in ["user_id", "project_id"]:
+        if required_field not in payload:
+            return False, f"Missing '{required_field}' in payload."
+    
     for query in payload['queries']:
         required_fields = ["query", "is_dall_e", "start", "end"]
         for field in required_fields:
@@ -153,6 +154,6 @@ def validate_payload(payload):
                 return False, f"Missing '{field}' in query."
             if field == "is_dall_e" and not isinstance(query[field], bool):
                 return False, f"'{field}' must be a boolean."
-            if field in ["start", "end"] and not isinstance(query[field], float):
+            if field in ["start", "end"] and not (isinstance(query[field], float) or isinstance(query[field], int)):
                 return False, f"'{field}' must be an float."
     return True, "Valid payload."

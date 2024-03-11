@@ -5,7 +5,6 @@ import logging
 import cv2
 from PIL import Image
 from .image_evaluator import ImageEvaluator
-from .image_classifier import ImageClassifier
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,7 +21,7 @@ class GoogleImagesAPI:
         self.image_evaluator = image_evaluator
         self.wants_royalty_free = False
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def get_image_link(self, query, link_start_loc=1):
+    def get_image_link_from_query(self, query, link_start_loc=1):
         url = "https://www.googleapis.com/customsearch/v1"
         
         params = {
@@ -47,8 +46,20 @@ class GoogleImagesAPI:
         
         if "items" in results and len(results["items"]) > 0:
             return results["items"][0]['link']
-
+        
         return None
+    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    def get_image_link(self, query):
+        link_needed = 1
+        while True:
+            fetched_link = self.get_image_link_from_query(query, link_start_loc=link_needed)
+            # Filter out youtube thumbnails, amazon images, alamy images, and quote images
+            if "youtube.com" in fetched_link or "amazon.com" in fetched_link or "alamy.com" in fetched_link or "quote" in fetched_link:
+                    logging.info(f"Found image link for query: {query}, but it was a youtube link. Trying again.")
+                    link_needed += 1
+            else:
+                return fetched_link
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def download_image(self, 
                        url,
@@ -122,7 +133,7 @@ class GoogleImagesAPI:
                 logging.info(f"Downloaded image {fetched_link}")
                 self.used_links.append(fetched_link)
 
-                is_classified_and_colorful, link_needed = self.image_is_relevant_and_colorful(fetched_link,
+                is_classified_and_colorful, link_needed = self.image_is_colorful(fetched_link,
                                                        output_file_name,
                                                        query,
                                                        link_needed)
@@ -139,18 +150,7 @@ class GoogleImagesAPI:
                     
         return False
     
-    def image_is_relevant_and_colorful(self, fetched_link, output_file_name, link_needed):
-        # Classify image
-        # if self.image_classifier.classify(output_file_name, query) < self.IMAGE_CLASSIFIER_THRESHOLD:
-        #     logging.info(f"Image {fetched_link} was not classified as {query}. Trying again.")
-        #     # delete image
-        #     os.remove(self.IMAGE_FILE_PATH + output_file_name)
-        #     self.used_links.append(fetched_link)
-        #     link_needed += 1
-        #     return False, link_needed
-        # else:
-        #     logging.info(f"Image {fetched_link} was classified as {query}.")
-        # Evaluate image
+    def image_is_colorful(self, fetched_link, output_file_name, link_needed):
         if not self.image_evaluator.is_colorful_enough(output_file_name):
             logging.info(f"Image {fetched_link} is not colorful enough. Trying again.")
             # delete image

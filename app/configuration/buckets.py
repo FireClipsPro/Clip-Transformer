@@ -1,19 +1,27 @@
-# The bucket where the user inputted audio files are stored
-audio_files = "audio-files-69"
 # The bucket where the public background videos are stored
 bg_videos = "bg-videos-69"
 public_bg_videos_prefix = "public/"
-# accessed by bg-videos-69/private/user_id/video_id
-private_bg_prefix = "private/"
-# The bucket where the user uploaded background videos are stored 
-# The bucket where the blank videos will be stored (these are videos that have the audio but no background video)
-blank_videos = "blank-videos-69"
-# The bucket where the videos that have overlayed animated images are stored
-videos_with_media = "videos-with-media-69"
-# The bucket where the animates images that get overlayed on the video are stored
-image_videos = "image-videos-69"
+
 # The bucket where the image queries and transcripts are stored
 project_data = "project-data-69"
-images_folder = "/images/"
-# The bucket where videos with subtitles are stored
-videos_with_subtitles = "videos-with-subtitles-69"
+
+# Folder within the project_data bucket where the different types of media are stored
+images_folder = "images/"
+music_folder = "music/"
+audio_folder = "audio/"
+blank_videos_folder = "blank-videos/"
+video_with_media_folder = "video-with-media/"
+image_videos_folder = "image-videos/"
+background_videos_folder = "background-videos/"
+transcripts_folder = "transcription/"
+queries_folder = "queries/"
+subtitled_vid_folder = "subtitled-vids/"
+video_with_music_folder = "video-with-music/"
+
+audio_fname = "audio.mp3"
+transcription_fname = "transcription.json"
+query_fname = "queries.json"
+blank_video_fname = "blank_video.mp4"
+video_with_media_fname = "video_with_media.mp4"
+subtitled_vid_fname = "video_with_subtitles.mp4"
+video_with_music_fname = "video_with_music.mp4"
