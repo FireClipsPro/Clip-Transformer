@@ -1,0 +1,12 @@
+# Used to create the web application and API.
+fastapi==0.110.0
+# ASGI server for serving the FastAPI application.
+uvicorn==0.27.1
+# AWS SDK for Python, used for interacting with S3.
+boto3==1.34.59
+# Core neural network library, version specified for compatibility with model code and features.
+torch==2.0.0 
+# Provides common datasets, model architectures, and image transformations for computer vision. Version matched with torch for compatibility.
+torchvision==0.15.1 
+# Offers audio processing tools and datasets. Version chosen for compatibility with torch.
+torchaudio==2.0.1

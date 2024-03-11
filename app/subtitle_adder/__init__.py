@@ -1,1 +1,1 @@
-from .subtitle_adder import SubtitleAdder
+from .aws_subtitle_adder import AWSSubtitleAdder
