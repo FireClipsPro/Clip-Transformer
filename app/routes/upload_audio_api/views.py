@@ -49,25 +49,29 @@ def upload():
         
         if file:
             s3 = S3(boto3.client('s3'))
-            s3.upload_mp3(file_name=buckets.audio_file_name,
+            bucket_path = user_id + "/" + project_id + "/" + buckets.audio_folder
+            logging.info(f"Uploading audio file to {bucket_path}")
+            s3.upload_mp3(file_name=buckets.audio_fname,
                             file=file,
                             bucket_name=buckets.project_data,
-                            prefix=user_id + "/" + project_id + "/" + buckets.audio_folder)
+                            prefix=bucket_path)
 
             url = s3.get_item_url(bucket_name=buckets.project_data,
-                                    object_key=buckets.audio_file_name,
+                                    object_key=buckets.audio_fname,
                                     expiry_time=url_expiry_time,
-                                    prefix=user_id + "/" + project_id + "/" + buckets.audio_folder)
+                                    prefix=bucket_path)
     except Exception as e:
         logging.exception("Failed to upload audio file")
         return jsonify({'error': 'Failed to upload audio file'}), 500
-    
-    return jsonify({'message': 'File uploaded successfully', 'url': url}), 200
+    if url:
+        return jsonify({'message': 'File uploaded successfully', 'url': url}), 200
+    else:
+        return jsonify({'error': 'Failed to upload audio file'}), 500
 
         
     
 # example curl command
 # curl -X POST http://localhost:5000/upload_audio_api/upload \
 #      -F "user_id=SnoopDoggyDog@weed.com" \
-#      -F "project_id=a6b121a3-e67c-41a8-8f52-aac375934a02" \
-#      -F "audio_file=@/Users/alexander/Documents/Code/Clip_Transformer/Clip-Transformer/media_storage/video_maker/audio_input/short_test.mp3"
+#      -F "project_id=19b112e0-e393-4247-9d36-7d9e54cfa222" \
+#      -F "audio_file=@/Users/alexander/Documents/Code/Clip_Transformer/Clip-Transformer/media_storage/video_maker/audio_input/joe_beast.mp3"

@@ -20,11 +20,12 @@ def make_queries() -> Any:
         
     Params:
     {
+        'user_id': 'panda@example.com',
+        'project_id': '42069',
         'seconds_per_photo': 5,
-        'project_id': '1234',
     }
-    Returns: 
-    {   
+    Returns:
+    {
         'queries': [{'query': query, 
                      'start': time_chunk_start,
                      'end': time_chunk_end,
@@ -36,6 +37,7 @@ def make_queries() -> Any:
     }
     """
     request_data = validate_request_data(request.json)
+    user_id = request_data['user_id']
     project_id = request_data['project_id']
     seconds_per_photo = request_data['seconds_per_photo']
     
@@ -43,8 +45,9 @@ def make_queries() -> Any:
     
     s3 = S3(boto3.client('s3'))
     
-    transcription = s3.get_dict_from_video_data(project_id=project_id,
-                                                file_name='transcription.json',
+    transcription_bucket_path = user_id + "/" + project_id + "/" + buckets.transcripts_folder
+    transcription = s3.get_dict_from_video_data(prefix=transcription_bucket_path,
+                                                file_name=buckets.transcription_fname,
                                                 bucket_name=buckets.project_data)
     
     transcript_analyzer = AWSTranscriptAnalyzer(music_category_list=directories.MUSIC_CATEGORY_PATH_DICT,
@@ -54,13 +57,17 @@ def make_queries() -> Any:
 
     description_list = transcript_analyzer.get_info_for_entire_pod(transcription)
     query_dict = image_query_creator.process_transcription(transcription['word_segments'],
-                                                           transcription['word_segments'][-1]['end'],
-                                                           seconds_per_photo,
-                                                           description_list,
-                                                           wants_free_images=True)
+                                                            transcription['word_segments'][-1]['end'],
+                                                            seconds_per_photo,
+                                                            description_list,
+                                                            wants_free_images=True)
 
     logging.info(f"Query list: {query_dict}")
-    if not s3.write_dict_to_video_data(project_id, query_dict, "queries.json", buckets.project_data):
+    query_bucket_path = user_id + "/" + project_id + "/" + buckets.queries_folder
+    if not s3.write_dict_to_video_data(prefix=query_bucket_path, 
+                                        dictionary=query_dict,
+                                        file_name=buckets.query_fname,
+                                        bucket_name=buckets.project_data):
         abort(500)
 
     return jsonify(query_dict)
@@ -81,7 +88,7 @@ def validate_request_data(request_json: Dict[str, Any]) -> Dict[str, Any]:
     if not request_json:
         abort(400, description="Request data is missing.")
 
-    required_fields = {'seconds_per_photo': int, 'project_id': str}
+    required_fields = {'user_id': str, 'seconds_per_photo': int, 'project_id': str}
     for field, expected_type in required_fields.items():
         if field not in request_json or not isinstance(request_json[field], expected_type):
             abort(400, description=f"Invalid or missing '{field}'.")

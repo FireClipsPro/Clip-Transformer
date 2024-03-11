@@ -82,11 +82,22 @@ def generate_and_scrape_image(query,
         query.url = image_scraper.get_image_link(query=query.query)
     return query
 
-def generate_and_scrape_images(project_id, queries, dall_e, s3, image_scraper, user_id):
+def generate_and_scrape_images(project_id,
+                               queries,
+                               dall_e,
+                               s3,
+                               image_scraper,
+                               user_id):
     # Use ThreadPoolExecutor to execute tasks concurrently
     with ThreadPoolExecutor(max_workers=20) as executor:
         # Schedule the execution of each task and return futures
-        futures = [executor.submit(generate_and_scrape_image, query, dall_e, s3, image_scraper, project_id, user_id) for query in queries]
+        futures = [executor.submit(generate_and_scrape_image, 
+                                   query,
+                                   dall_e,
+                                   s3,
+                                   image_scraper,
+                                   project_id,
+                                   user_id) for query in queries]
 
         # Wait for the futures to complete and collect the results
         results = []
@@ -132,15 +143,17 @@ def validate_payload(payload):
     if not isinstance(payload['queries'], list):
         return False, "'queries' must be a list."
     
+    for required_field in ["user_id", "project_id"]:
+        if required_field not in payload:
+            return False, f"Missing '{required_field}' in payload."
+    
     for query in payload['queries']:
-        required_fields = ["user_id", "project_id", "query", "is_dall_e", "start", "end"]
+        required_fields = ["query", "is_dall_e", "start", "end"]
         for field in required_fields:
             if field not in query:
                 return False, f"Missing '{field}' in query."
-            if field in ["user_id", "project_id", "query"] and not isinstance(query[field], str):
-                return False, f"'{field}' must be a string."
             if field == "is_dall_e" and not isinstance(query[field], bool):
                 return False, f"'{field}' must be a boolean."
-            if field in ["start", "end"] and not isinstance(query[field], float):
+            if field in ["start", "end"] and not (isinstance(query[field], float) or isinstance(query[field], int)):
                 return False, f"'{field}' must be an float."
     return True, "Valid payload."

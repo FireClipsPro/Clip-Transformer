@@ -37,6 +37,7 @@ class AWSMediaAdder:
                           overlay_zone_top_left,
                           overlay_zone_width,
                           overlay_zone_height):
+        logging.info(f"Adding {overlay_video} to base video")
 
         overlay_top_left_x, overlay_top_left_y = self.calculate_top_left_xy(overlay_video.video.w,
                                                                             overlay_video.video.h,
@@ -44,7 +45,7 @@ class AWSMediaAdder:
                                                                             overlay_zone_height,
                                                                             overlay_zone_top_left[0],
                                                                             overlay_zone_top_left[1])
-            
+        overlay_vid = overlay_video.video
         end_time = self.get_end_time(base_vid=base_vid, overlay_vid_end_time=overlay_video.end)
         overlay_vid = overlay_vid.set_start(overlay_video.start)
         overlay_vid = overlay_vid.set_end(end_time)

@@ -159,7 +159,6 @@ class AWSTranscriptAnalyzer:
         for category in music_category_options:
             self.CATEGORY_LIST_STRING += category + ", "
     
-    # TODO Handle the case where the json string is not valid
     def __parse_json_string(self, json_string, clipped_video):
         try:
             json_dict = json.loads(json_string)

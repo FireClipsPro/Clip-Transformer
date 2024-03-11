@@ -6,7 +6,6 @@ import app.configuration.buckets as buckets
 from flask import Flask, request, jsonify, abort, Blueprint
 import boto3
 from werkzeug.utils import secure_filename
-import os
 
 # from app.content_generation import  
 from . import background_maker_api_bp  # Import the Blueprint
@@ -27,11 +26,10 @@ def make_background():
         "project_id": "42069",
         "background_videos": [{"file_name": "media_id1",
                                "bucket": "project-data-69",
-                               "bucket_path": "panda@example.com/42069/bg_videos"}, ...],
+                               "is_private": true}, ...],
         "width": 1920,
         "height": 1080
     }
-    d
     Audio ID must first be put in the database
     '''
     logging.info("Creating video")
@@ -51,7 +49,7 @@ def make_background():
     
     try:
         audio_bucket_path = user_id + "/" + project_id + "/" + buckets.audio_folder
-        audio_clip = s3.get_audiofileclip(audio_id=buckets.audio_file_name,
+        audio_clip = s3.get_audiofileclip(audio_id=buckets.audio_fname,
                                           bucket_name=buckets.project_data,
                                           prefix=audio_bucket_path)
         
@@ -59,9 +57,15 @@ def make_background():
         for video in background_videos:
             logging.info(f"Getting video {video['file_name']}")
             
-            bucket_path = user_id + "/" + video['bucket_path']
+            if video['is_private']:
+                bucket_path = user_id + "/" + project_id + "/" + buckets.background_videos_folder
+                bucket = buckets.project_data
+            else:
+                bucket_path = buckets.public_bg_videos_prefix
+                bucket = buckets.bg_videos
+            
             background_videofileclips.append(s3.get_videofileclip(video_id=video['file_name'],
-                                                                    bucket_name=video['bucket'],
+                                                                    bucket_name=bucket,
                                                                     prefix=bucket_path))
         
         video_clip = bg_creator.create_horizontal(audio_clip=audio_clip,
@@ -71,12 +75,12 @@ def make_background():
         
         video_clip_path = user_id + "/" + project_id + "/" + buckets.blank_videos_folder
         result = s3.write_videofileclip(clip=video_clip,
-                                        video_id=buckets.blank_video_file_name,
+                                        video_id=buckets.blank_video_fname,
                                         bucket_name=buckets.project_data,
                                         prefix=video_clip_path)
         
         url = s3.get_item_url(bucket_name=buckets.project_data,
-                              object_key=buckets.blank_video_file_name,
+                              object_key=buckets.blank_video_fname,
                               expiry_time=url_expiry_time,
                               prefix=video_clip_path)
         
@@ -113,7 +117,7 @@ def get_blank_video():
     try:
         video_clip_path = user_id + "/" + project_id + "/" + buckets.blank_videos_folder
         s3 = S3(boto3.client('s3'))
-        url = s3.get_videofileclip(video_id=buckets.blank_video_file_name,
+        url = s3.get_videofileclip(video_id=buckets.blank_video_fname,
                                     bucket_name=buckets.project_data,
                                     prefix=video_clip_path,
                                     expiry_time=url_expiry_time)
@@ -238,12 +242,10 @@ def validate_payload(payload):
         return False, "'background_videos' must be a non-empty list."
     
     for item in payload["background_videos"]:
-        required_media_keys = ["file_name", "bucket", "bucket_path"]
+        required_media_keys = ["file_name", "is_private"]
         for media_key in required_media_keys:
             if media_key not in item:
                 return False, f"Missing '{media_key}' in background_videos item."
-            if not isinstance(item[media_key], str):
-                return False, f"'{media_key}' in background_videos item must be a string."
     
     if not isinstance(payload["width"], int) or payload["width"] <= 0:
         return False, "'width' must be a positive integer."

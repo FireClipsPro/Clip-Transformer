@@ -59,6 +59,15 @@ def create():
         s3.create_folder(folder_name=buckets.image_videos_folder[:-1],
                             bucket_name=buckets.project_data,
                             prefix=user_project_folder)
+        s3.create_folder(folder_name=buckets.transcripts_folder[:-1],
+                            bucket_name=buckets.project_data,
+                            prefix=user_project_folder)
+        s3.create_folder(folder_name=buckets.queries_folder[:-1],
+                            bucket_name=buckets.project_data,
+                            prefix=user_project_folder)
+        s3.create_folder(folder_name=buckets.video_with_music_folder[:-1],
+                            bucket_name=buckets.project_data,
+                            prefix=user_project_folder)
     
     except Exception as e:
         logging.exception("Failed to create project folder")

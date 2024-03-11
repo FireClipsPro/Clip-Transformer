@@ -15,7 +15,6 @@ logging.basicConfig(level=logging.INFO)
 
 url_expiry_time = 3600*5 #(5 hours)
 
-# TODO: test refactor
 @media_adder_api_bp.route('/add_media', methods=['POST'])
 def add_media():
     '''
@@ -60,7 +59,7 @@ def add_media():
                                       s3=s3)
         
         bucket_path = user_id + "/" + project_id + "/" + buckets.blank_videos_folder
-        blank_video = s3.get_videofileclip(video_id=buckets.blank_video_file_name,
+        blank_video = s3.get_videofileclip(video_id=buckets.blank_video_fname,
                                              bucket_name=buckets.project_data,
                                              prefix=bucket_path)
         
@@ -72,12 +71,14 @@ def add_media():
         
         bucket_path = user_id + "/" + project_id + "/" + buckets.video_with_media_folder
         response = s3.write_videofileclip(clip=video_with_media,
+                                            video_id=buckets.video_with_media_fname,
                                             bucket_name=buckets.project_data,
                                             prefix=bucket_path)
         if  response:
             url = s3.get_item_url(bucket_name=buckets.project_data,
-                                object_key=bucket_path + video_with_media.filename,
-                                expiry_time=url_expiry_time)
+                                    object_key=buckets.video_with_media_fname,
+                                    expiry_time=url_expiry_time,
+                                    prefix=bucket_path)
         
     except Exception as e:
         # Log the exception and return a 500 error
@@ -94,8 +95,8 @@ def add_media():
 def create_video_objects(user_id, project_id, videos, s3: S3):
     video_objects = []
     for video in videos:
-        bucket_path = user_id + "/" + project_id + "/" + buckets.image_videos_folder
         
+        bucket_path = user_id + "/" + project_id + "/" + buckets.image_videos_folder
         video_file_clip = s3.get_videofileclip(video_id=video['id'],
                                                bucket_name=buckets.project_data,
                                                prefix=bucket_path)
@@ -103,7 +104,9 @@ def create_video_objects(user_id, project_id, videos, s3: S3):
         video_objects.append(OverlayVideo(video=video_file_clip,
                                          start=video['start'],
                                          end=video['end']))
-        logging.info(f"Video object created: {video_objects[-1]}")
+        
+        logging.info(f"Video object created with id: {video['id']} and start: {video['start']} and end: {video['end']}")
+        
     return video_objects
 
 @media_adder_api_bp.route('/get_video', methods=['GET'])

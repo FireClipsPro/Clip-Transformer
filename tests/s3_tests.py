@@ -21,15 +21,15 @@ class TestS3(unittest.TestCase):
                                                   {"start": 4, "end": 6, "text": "big bossman"},] }
         
         # Call the method under test
-        result = self.s3.write_dict_to_video_data(project_id='42069', 
-                                                  dict=test_transcription, 
+        result = self.s3.write_dict_to_video_data(prefix='42069', 
+                                                  dictionary=test_transcription, 
                                                   file_name='queries.json',
                                                   bucket_name=buckets.project_data)
         
         self.assertTrue(result)
         
     def test_get_transcription(self):
-        actual = self.s3.get_dict_from_video_data(project_id='42069',
+        actual = self.s3.get_dict_from_video_data(prefix='42069',
                                                   file_name='queries.json', 
                                                   bucket_name=buckets.project_data)
         
