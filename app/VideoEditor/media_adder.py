@@ -83,7 +83,7 @@ class MediaAdder:
                                    overlay_zone_height)
         
         final_video = CompositeVideoClip(composite_clips)
-        final_video.write_videofile(output_video, threads=4)
+        final_video.write_videofile(output_video, audio_codec='aac', threads=4)
         
         return original_clip
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

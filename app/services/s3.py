@@ -90,13 +90,13 @@ class S3():
             json_content = obj['Body'].read().decode('utf-8')
             # Convert JSON content to a dictionary
             dict_from_s3 = json.loads(json_content)
-            logging.info(f"Successfully retrieved transcription for project_id: {prefix}")
+            logging.info(f"Successfully retrieved transcription for file key: {file_key}")
             return dict_from_s3
         except self.aws_s3.exceptions.NoSuchKey:
-            logging.error(f"Transcription file does not exist for project_id: {prefix}")
+            logging.error(f"Transcription file does not exist for file key: {file_key}")
             return None
         except Exception as e:
-            logging.error(f"Failed to get transcription for project_id: {prefix}. Error: {str(e)}")
+            logging.error(f"Failed to get transcription for file key: {file_key}. Error: {str(e)}")
             return None
 
     def write_dict_to_video_data(self, 

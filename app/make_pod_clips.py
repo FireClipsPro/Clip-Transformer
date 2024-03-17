@@ -30,6 +30,7 @@ def main():
     transcriber = WhisperTranscriber(directories.AUDIO_EXTRACTIONS_FOLDER, 
                                      directories.TRANSCRIPTS_FOLDER)
     
+    
     pause_remover = PauseRemover(directories.INPUT_FOLDER, 
                                  directories.RESIZED_FOLDER)
     

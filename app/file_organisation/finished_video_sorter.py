@@ -23,7 +23,7 @@ class FinishedVideoSorter:
             #if folder path: finished_videos_folder/shorts/raw_video_name/ does not exist
             shorts_folder_path = os.path.join(self.finished_videos_folder, "shorts/", raw_video_name)
             os.makedirs(shorts_folder_path, exist_ok=True)
-            short_video.write_videofile(os.path.join(shorts_folder_path, finished_video_name), threads=4)
+            short_video.write_videofile(os.path.join(shorts_folder_path, finished_video_name), audio_codec='aac',threads=4)
             
             # if folder path: finished_videos_folder/tiktok/raw_video_name/ does exist create it
             tiktok_folder_path = os.path.join(self.finished_videos_folder, "tiktok/", raw_video_name)

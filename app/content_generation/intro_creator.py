@@ -121,7 +121,7 @@ class IntroCreator:
         output_file_path = os.path.join(self.intro_video_folder, affirmation_track_filename)
         
         # Write the intro video to the intro file
-        intro_video.write_videofile(output_file_path, codec='libx264', threads=4)
+        intro_video.write_videofile(output_file_path, codec='libx264',audio_codec='aac', threads=4)
         
         return affirmation_track_filename
 
@@ -152,7 +152,8 @@ class IntroCreator:
                                     fps=24,
                                     codec='libx264',
                                     threads=4,
-                                    preset='ultrafast')
+                                    preset='ultrafast',
+                                    audio_codec='aac',)
         
         logging.info('Intro video added to ' + affirmation_track_filename)
         logging.info("Saved to " + output_file_path)

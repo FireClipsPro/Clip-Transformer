@@ -74,7 +74,7 @@ class MusicAdder:
         video_clip = video_clip.set_audio(CompositeAudioClip([video_clip.audio, full_audio_clip]))
 
         # Write the video with music to the output path
-        video_clip.write_videofile(self.output_video_folder + output_video_name, codec='libx264', threads=4)
+        video_clip.write_videofile(self.output_video_folder + output_video_name,audio_codec='aac', codec='libx264', threads=4)
 
         return output_video_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,7 +121,7 @@ class MusicAdder:
         video_clip = video_clip.set_audio(CompositeAudioClip([video_clip.audio, music_clip]))
 
         # Write the video with music to the output path
-        video_clip.write_videofile(self.output_video_folder + output_video_name, codec='libx264', threads=4)
+        video_clip.write_videofile(self.output_video_folder + output_video_name, audio_codec='aac', codec='libx264', threads=4)
         
         # mesaure the loudness of the output video
         output_video_loudness = self.measure_loudness(self.output_video_folder + output_video_name)
@@ -130,7 +130,7 @@ class MusicAdder:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # this method currently has a problem with the last segment being too short then it cannot
     # measure the loudness of the last segment
-    def normalize_audio_chunks(self, audio: AudioSegment, target_loudness=-24.0):
+    def normalize_audio_chunks(self, audio: AudioSegment, target_loudness=-29.0):
         logging.info(f"Normalizing audio: {audio}")
         meter = pyln.Meter(audio.frame_rate)  # Initialize loudness meter
 

@@ -213,7 +213,7 @@ class SubtitleAdder:
             clips.append(txt_clip)
             
         final = CompositeVideoClip([clip] + clips)
-        final.write_videofile(self.output_folder_path + output_file_name, codec='libx264', threads=4)
+        final.write_videofile(self.output_folder_path + output_file_name, codec='libx264', audio_codec='aac', threads=4)
         
         return output_file_name
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

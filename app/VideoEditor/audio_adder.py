@@ -26,7 +26,9 @@ class AudioAdder:
                                     codec='libx264',
                                     temp_audiofile=temp_audio_path,
                                     audio=True,
-                                    remove_temp=True, threads=4)
+                                    remove_temp=True, 
+                                    threads=4,
+                                    audio_codec='aac')
         video.close()
         audio.close()
         final_video.close()

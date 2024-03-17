@@ -59,7 +59,7 @@ class VideoClipper:
             os.rename(input_video, output_video)
         else:
             video_clip = video_clip.subclip(start_time, end_time)
-            video_clip.write_videofile(output_video, threads=4, preset='ultrafast')
+            video_clip.write_videofile(output_video, audio_codec='aac', threads=4, preset='ultrafast')
         
         return {'file_name': tag + video_name[:-4] + f'_{start_time}_{end_time}.mp4',
                 'start_time_sec': start_time_sec,
@@ -136,5 +136,4 @@ class VideoClipper:
 # input_path = "../../media_storage/video_maker/audio_input/"
 # output_path = "../../media_storage/video_maker/audio_input/"
 # clipper = VideoClipper(input_path, output_path)
-# clipper.clip_song("Joe_Beast_1_(0 0)_(1 0).mp3", "0", "0:10")
-# clipper.clip_song("jocko.mp3", "5:00", "10:00")
+# clipper.clip_song("Dune_Part_2.mp3", "13:47", "14:34")

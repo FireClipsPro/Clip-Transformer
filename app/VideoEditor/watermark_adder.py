@@ -85,7 +85,7 @@ class WatermarkAdder:
 
         # Save new vid to output file
         output_file_path = os.path.join(self.output_video_folder, video_file_name)
-        final.write_videofile(output_file_path, threads=4)
+        final.write_videofile(output_file_path, audio_codec='aac', threads=4)
 
         # Close clips to free memory
         watermark.close()

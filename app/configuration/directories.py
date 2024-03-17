@@ -1,5 +1,5 @@
 pod_clips_root = "../media_storage/pod_clips/"
-video_maker_root = "./media_storage/video_maker/"
+video_maker_root = "../media_storage/video_maker/"
 affirmations_root = "../media_storage/affirmations/"
 
 ELEVENLABS_KEY_PATH = "../../elevenlabs_key.txt"

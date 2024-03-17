@@ -83,7 +83,7 @@ class IntroAdder:
         
         # Save the result
         output_file_path = f"{self.output_folder}/{video_file_name}"
-        final_clip.write_videofile(output_file_path, threads=4)
+        final_clip.write_videofile(output_file_path, audio_codec='aac', threads=4)
         
         # Close the clips to free up memory
         intro_clip.close()

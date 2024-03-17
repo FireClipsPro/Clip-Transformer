@@ -73,7 +73,7 @@ class BackgroundCreator:
         clip.fps = 24
 
         # Write the final video
-        clip.write_videofile(background_video_path, codec='libx264', fps=24, threads=4)
+        clip.write_videofile(background_video_path, codec='libx264', audio_codec='aac', fps=24, threads=4)
 
         video = {'file_name': background_video_name,
                 'start_time_sec': 0,

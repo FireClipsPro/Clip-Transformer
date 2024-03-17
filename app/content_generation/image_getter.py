@@ -45,8 +45,13 @@ class ImageGetter:
                                             'height': image_height})
                 continue
             if wants_to_use_dall_e:
-                image_was_found, width, height = self.image_generator.generate_image_json(prompt=query['query'],
-                                                                           file_name=query['image_file_name'])
+                logging.info(f"Query: {query['query']}, using DALL-E")
+                json_image_data = self.image_generator.generate_image_json(prompt=query['query'])
+                width = 1024
+                height = 1024
+                image_was_found = self.image_generator.save_image_to_folder(json_data=json_image_data,
+                                                                            file_name=query['image_file_name'],
+                                                                            output_folder=self.image_file_path)
             else:
                 logging.info(f"Download required for query: {query['query']}, using image_scraper")
                 width, height = self.image_evaluator.get_dimensions(self.image_file_path + query['image_file_name'])

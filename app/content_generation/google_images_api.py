@@ -50,8 +50,7 @@ class GoogleImagesAPI:
         return None
     
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
-    def get_image_link(self, query):
-        link_needed = 1
+    def get_image_link(self, query, link_needed=1):
         while True:
             fetched_link = self.get_image_link_from_query(query, link_start_loc=link_needed)
             # Filter out youtube thumbnails, amazon images, alamy images, and quote images
@@ -113,7 +112,7 @@ class GoogleImagesAPI:
             self.num_links_per_query[query] = 1
 
         while link_needed < 50:
-            fetched_link = self.get_image_link(query, self.api_key, self.cx, link_needed)
+            fetched_link = self.get_image_link(query, link_needed)
             if fetched_link is None:
                 logging.info(f"Could not find image link for query: {query}")
                 return False
@@ -134,9 +133,8 @@ class GoogleImagesAPI:
                 self.used_links.append(fetched_link)
 
                 is_classified_and_colorful, link_needed = self.image_is_colorful(fetched_link,
-                                                       output_file_name,
-                                                       query,
-                                                       link_needed)
+                                                                                    output_file_name,
+                                                                                    link_needed)
                 
                 if is_classified_and_colorful:
                     return True

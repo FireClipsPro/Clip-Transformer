@@ -44,7 +44,7 @@ class SoundEffectAdder:
         video_clip.audio = composite_audio_clip
 
         output_video_path = os.path.join(self.output_folder, 'eff_' + video['file_name'])
-        video_clip.write_videofile(output_video_path, threads=4)
+        video_clip.write_videofile(output_video_path, audio_codec='aac', threads=4)
         
         video['file_name'] = 'eff_' + video['file_name']
         

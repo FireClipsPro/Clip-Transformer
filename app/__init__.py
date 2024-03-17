@@ -11,6 +11,8 @@ from app.routes.project_creation_api import project_creation_api_bp
 from app.routes.upload_audio_api import upload_audio_api_bp
 from app.routes.image_animator_api import image_animator_api_bp
 from app.routes.music_adder_api import music_adder_api_bp
+from app.routes.transcriber_api import transcriber_api_bp
+from app.routes.subtitle_adder_api import subtitle_adder_api_bp
 
 def create_app():
     app = Flask(__name__)
@@ -26,5 +28,7 @@ def create_app():
     app.register_blueprint(upload_audio_api_bp, url_prefix='/upload_audio_api')
     app.register_blueprint(image_animator_api_bp, url_prefix='/image_animator_api')
     app.register_blueprint(music_adder_api_bp, url_prefix='/music_adder_api')
+    app.register_blueprint(transcriber_api_bp, url_prefix='/transcriber_api')
+    app.register_blueprint(subtitle_adder_api_bp, url_prefix='/subtitle_adder_api')
     
     return app

@@ -1,11 +1,13 @@
 from VideoEditor import MediaAdder, ImageSpacer, SoundEffectAdder, BackgroundCreator, IntroAdder, WatermarkAdder
 from content_generation import TextToSpeech, ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator
-from Transcriber import WhisperTranscriber
+from Transcriber import CloudTranscriber
 from text_analyzer import ImageQueryCreator, TranscriptAnalyzer, OpenaiApi
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder
 import configuration.directories as directories
 import configuration.video_maker_presets as presets
+import boto3
+from services import S3
 import logging
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -20,16 +22,17 @@ def main():
     blank_video_creator = BackgroundCreator(input_audio_folder=directories.VM_AUDIO_INPUT,
                                             output_video_folder=directories.VM_BLANK_VIDEOS,
                                             background_media_folder=directories.VM_BACKGROUNDS)
-
-    transcriber = WhisperTranscriber(audio_files_folder=directories.VM_AUDIO_INPUT, 
-                                     transcripts_folder=directories.VM_TRANSCRIPTS)
+    
+    transcriber = CloudTranscriber(s3=S3(boto3.client('s3')),
+                                   output_folder=directories.VM_TRANSCRIPTS,
+                                   input_audio_folder=directories.VM_AUDIO_INPUT)
     
     music_adder = MusicAdder(music_folder=directories.VM_SONGS,
                              input_video_folder=directories.VM_BLANK_VIDEOS,
                              output_video_folder=directories.VM_VIDEOS_WITH_MUSIC,
                              music_categories=directories.MUSIC_CATEGORY_PATH_DICT)
                              
-    openai_api = OpenaiApi()
+    openai_api = OpenaiApi(api_key_path="../../OPENAI_API_KEY.txt")
 
     transcription_analyzer = TranscriptAnalyzer(video_info_folder=directories.VM_VIDEO_INFO,
                                                 music_category_list=directories.MUSIC_CATEGORY_PATH_DICT,
@@ -44,16 +47,14 @@ def main():
                                           video_input_folder=directories.VM_BLANK_VIDEOS,
                                           output_folder=directories.VM_BLANK_VIDEOS)
     
-    image_classifier = ImageClassifier(image_folder_path=directories.VM_IMAGES)
+    # image_classifier = ImageClassifier(image_folder_path=directories.VM_IMAGES)
     
     image_evaluator = ImageEvaluator(image_file_path=directories.VM_IMAGES)
 
     image_scraper = GoogleImagesAPI(image_file_path=directories.VM_IMAGES,
-                                    image_classifier=image_classifier,
                                     image_evaluator=image_evaluator)
     
-    dall_e = DALL_E(output_folder=directories.VM_IMAGES,
-                    dalle_prompt_folder=directories.GENERATED_PROMPTS_FOLDER)
+    dall_e = DALL_E(api_key_path="../../OPENAI_API_KEY.txt")
     
     image_getter = ImageGetter(directories.VM_IMAGES,
                                image_scraper=image_scraper,
@@ -104,8 +105,7 @@ def main():
                                  video_length=blank_video['end_time_sec'],
                                  background_music_volume=0.75)
 
-        transcription = transcriber.transcribe(audio_file['file_name'],
-                                               preset['CENSOR_PROFANITY'])
+        transcription = transcriber.transcribe(audio_file['file_name'])
         
         if transcription == None:
             continue
@@ -130,9 +130,6 @@ def main():
         
         image_scraper.wants_royalty_free = preset['WANTS_ROYALTY_FREE_IMAGES']
         time_stamped_images = image_getter.get_images(query_list=query_list, wants_to_use_dall_e=preset['WANTS_DALL_E_IMAGES'])
-        
-        # where images could not be found, DALL-E will be used to generate images
-        time_stamped_images = dall_e.create_missing_images(time_stamped_images)
         
         # print the _time_stamped_images array
         print(time_stamped_images)

@@ -54,7 +54,7 @@ def add_subtitles():
 
     clip = s3.get_videofileclip(video_id=video_id, bucket_name=buckets.videos_with_media)
     transcription = s3.get_dict_from_video_data(project_id=project_id ,
-                                                file_name='transcription.json', # TODO: update naming system
+                                                file_name='transcription.json',
                                                 bucket_name=buckets.project_data)
     
     subtitle_adder = AWSSubtitleAdder()

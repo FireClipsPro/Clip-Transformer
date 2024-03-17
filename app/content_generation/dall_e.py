@@ -1,24 +1,15 @@
-import os
 import openai
-import json
 import logging
-import json
-import os
-from io import BytesIO
-import openai
-from PIL import Image
 from base64 import b64decode
 from pathlib import Path
 
-
 logging.basicConfig(level=logging.INFO)
 
-
-
 class DALL_E():
-    def __init__(self):
+    def __init__(self, api_key_path="../OPENAI_API_KEY.txt"):
         self.dall_e_image_width = 1024
         self.dall_e_image_height = 1024
+        self.key_path = api_key_path
         openai.api_key = self.get_api_key()
 
     def generate_image_json(self, prompt):
@@ -57,33 +48,30 @@ class DALL_E():
         return prompt
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def save_image_to_folder(self, 
-                             json_file,
+                             json_data,
                              file_name,
                              output_folder):
-        DATA_DIR = Path.cwd()
-        JSON_FILE = DATA_DIR / json_file
 
         image_path = Path(output_folder)
         image_path.mkdir(parents=True, exist_ok=True)
 
-        with open(JSON_FILE, mode="r", encoding="utf-8") as file:
-            response = json.load(file)
+        response = json_data
 
-        for index, image_dict in enumerate(response["data"]):
-            image_data = b64decode(image_dict["b64_json"])
+        for index, image_dict in enumerate(response.data):
+            image_data = b64decode(image_dict.b64_json)
             with open(output_folder + file_name, mode="wb") as png:
                 png.write(image_data)
                 
             logging.info(f"Saved image to: {file_name}")
+        return True
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
     def get_api_key(self):
-        file_path = "../OPENAI_API_KEY.txt"  # path to the file with the API key
         try:
-            with open(file_path, 'r') as file:
+            with open(self.key_path, 'r') as file:
                 api_key = file.readline().strip()  # Read the first line and remove any leading/trailing white spaces
             return api_key
         except FileNotFoundError:
-            print(f"API key file not found at {file_path}")
+            print(f"API key file not found at {self.key_path}")
             return None
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def generate_prompt(self, text):
@@ -124,7 +112,8 @@ class DALL_E():
 
 # convert.py
 
-# dall_e = DALL_E('../media_storage/images/', '../media_storage/generated_prompts/')
+# dall_e = DALL_E()
 
-# PROMPT = "Jaguar following its prey in the jungle."
+# json_data = dall_e.generate_image_json("A cute cat playing with a ball of yarn.")
 
+# dall_e.save_image_to_folder(json_data, "cat_playing_with_yarn.png", "./")

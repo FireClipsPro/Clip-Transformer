@@ -25,12 +25,13 @@ preset = {
         "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
         "FONT_COLOR" : (255, 255, 255), # white
         "WANTS_IMAGES" : True,
-        "WANTS_DALL_E_IMAGES": False,
-        "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
-                                    (0,245,255), # cyan
-                                    (255,255,0), # yellow
-                                    (255,48,48), # red
-                                    (0,191,255)], # blue
+        "WANTS_DALL_E_IMAGES": True,
+        # "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
+        #                             (0,245,255), # cyan
+        #                             (255,255,0), # yellow
+        #                             (255,48,48), # red
+        #                             (0,191,255)], # blue
+        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
         "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
@@ -50,8 +51,9 @@ preset = {
         "WANTS_INTRO": True,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
         # "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
-        "AUDIO_ONLY_BACKGROUND_MEDIA": ["wormhole.mp4"],
-        "VOICE": "hHOm3UWNabBYnTSFnrPx", # old British guy
-        "SONG":  "four_seasons.mp3"
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds.mp4"],
+        # "VOICE": "hHOm3UWNabBYnTSFnrPx", # British narrator
+        "VOICE": "P46e4SVL1KUVuleGYhXu", # American narrator
+        "SONG":  "no_copyright_jazz.mp3"
     },
 }

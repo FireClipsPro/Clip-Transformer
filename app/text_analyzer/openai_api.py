@@ -7,11 +7,12 @@ from openai import OpenAI
 logging.basicConfig(level=logging.ERROR)
 
 class OpenaiApi:
-    def __init__(self):
+    def __init__(self, api_key_path="../OPENAI_API_KEY.txt"):
+        self.api_key_path = api_key_path
         logging.info("Created OpenaiApi object")
     
     def get_api_key(self):
-        file_path = "../OPENAI_API_KEY.txt"  # path to the file with the API key
+        file_path = self.api_key_path
         try:
             with open(file_path, 'r') as file:
                 api_key = file.readline().strip()  # Read the first line and remove any leading/trailing white spaces

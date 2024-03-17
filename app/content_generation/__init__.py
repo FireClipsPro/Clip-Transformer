@@ -1,4 +1,4 @@
-# from .image_to_video_creator import ImageToVideoCreator
+from .image_to_video_creator import ImageToVideoCreator
 from .dall_e import DALL_E
 from .image_getter import ImageGetter
 from .google_images_api import GoogleImagesAPI

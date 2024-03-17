@@ -43,6 +43,7 @@ class ImageQueryCreator:
             sentence = ""
 
             for word in transcription:
+                logging.info(f"Word: {word}")
                 if ((word['start'] >= time_chunk_start and word['start'] <= time_chunk_end)
                     or (word['end'] >= time_chunk_start and word['end'] <= time_chunk_end)
                     or (word['start'] <= time_chunk_start and word['end'] >= time_chunk_end)):
