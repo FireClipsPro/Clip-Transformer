@@ -7,6 +7,9 @@ __pycache__/
 # C extensions
 *.so
 
+# environment
+.fire_clips_env
+
 # Distribution / packaging
 .Python
 build/
@@ -129,6 +132,14 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Other shit
+/test_material/*
+/fire_clips_env/*
+
+/WhisperX_API_Setup/*
+README.md
+
+/media_storage/
 /media_storage/pod_clips/transcripts/*
 /media_storage/pod_clips/songs/angry/*
 /media_storage/pod_clips/songs/cute/*
@@ -293,7 +304,3 @@ dmypy.json
 !/media_storage/affirmations/intro_videos/.gitkeep
 
 media_storage/pod_clips/songs/Pastlives.mp3
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml

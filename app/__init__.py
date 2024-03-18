@@ -20,7 +20,7 @@ def create_app():
     app.config.from_object(Config)
     app.logger.setLevel(app.config['LOG_LEVEL'])
     
-    app.register_blueprint(background_maker_api_bp, url_prefix='/background_maker_api')
+    app.rsegister_blueprint(background_maker_api_bp, url_prefix='/background_maker_api')
     app.register_blueprint(media_adder_api_bp, url_prefix='/media_adder_api')
     app.register_blueprint(account_setup_api_bp, url_prefix='/account_setup_api')
     app.register_blueprint(query_maker_api_bp, url_prefix='/query_maker_api')
