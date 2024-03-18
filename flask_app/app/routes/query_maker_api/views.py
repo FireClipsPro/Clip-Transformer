@@ -41,7 +41,7 @@ def make_queries() -> Any:
     project_id = request_data['project_id']
     seconds_per_photo = request_data['seconds_per_photo']
     
-    openai_api = OpenaiApi()
+    openai_api = OpenaiApi(api_key_path=directories.OPENAI_API_KEY_PATH)
     
     s3 = S3(boto3.client('s3'))
     

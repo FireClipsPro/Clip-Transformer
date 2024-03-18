@@ -3,6 +3,7 @@ from flask import request
 from app.services.s3 import S3
 from app.models.image_model import ImageModel
 from app.content_generation import GoogleImagesAPI, DALL_E
+from app.configuration import directories
 from flask import jsonify
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import uuid
@@ -46,7 +47,7 @@ def create_images():
     try:
         images = generate_and_scrape_images(project_id,
                                             images,
-                                            DALL_E(),
+                                            DALL_E(api_key_path=directories.OPENAI_API_KEY_PATH,),
                                             S3(boto3.client('s3')),
                                             GoogleImagesAPI(),
                                             user_id)
