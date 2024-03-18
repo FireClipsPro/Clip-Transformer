@@ -8,7 +8,7 @@ import time
 logging.basicConfig(level=logging.INFO)
 
 class CloudTranscriber:
-    def __init__(self, s3, output_folder, input_audio_folder):
+    def __init__(self, s3=None, output_folder="", input_audio_folder=""):
         self.output_folder = output_folder
         self.input_audio_folder = input_audio_folder
         self.s3 = s3
@@ -55,6 +55,16 @@ class CloudTranscriber:
             else:
                 time.sleep(1)
         
+        self.clean_transcription(transcription)
+        
+        transcription_file = open(f"{self.output_folder}/{audio_file_name}.json", "w")
+        transcription_file.write(json.dumps(transcription))
+        end = time.time()
+        logging.info(f"Transcription found in {end - start} seconds")
+        
+        return transcription
+
+    def clean_transcription(self, transcription):
         for i in range(len(transcription["word_segments"])):
             transcription["word_segments"][i]['text'] = transcription["word_segments"][i]['word']
             del transcription["word_segments"][i]['word']
@@ -80,11 +90,5 @@ class CloudTranscriber:
                                 break
                     else:
                         transcription["word_segments"][i]['end'] = transcription["word_segments"][i]['start']
-        
-        transcription_file = open(f"{self.output_folder}/{audio_file_name}.json", "w")
-        transcription_file.write(json.dumps(transcription))
-        end = time.time()
-        logging.info(f"Transcription found in {end - start} seconds")
-        
         return transcription
     

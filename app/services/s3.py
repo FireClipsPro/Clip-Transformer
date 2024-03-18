@@ -98,6 +98,17 @@ class S3():
         except Exception as e:
             logging.error(f"Failed to get transcription for file key: {file_key}. Error: {str(e)}")
             return None
+    
+    def delete_item(self,
+                    bucket_name,
+                    object_key):
+        try:
+            self.aws_s3.delete_object(Bucket=bucket_name, Key=object_key)
+            logging.info(f"Deleted item from S3: {object_key}")
+            return True
+        except Exception as e:
+            logging.error(f"Failed to delete item from S3: {object_key}. Error: {str(e)}")
+            return False
 
     def write_dict_to_video_data(self, 
                                  prefix,
