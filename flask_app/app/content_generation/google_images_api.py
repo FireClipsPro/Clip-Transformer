@@ -2,15 +2,13 @@ import requests
 from requests.exceptions import Timeout
 import os
 import logging
-import cv2
 from PIL import Image
-from .image_evaluator import ImageEvaluator
 
 logging.basicConfig(level=logging.INFO)
 
 class GoogleImagesAPI:
     def __init__(self, 
-                 image_evaluator: ImageEvaluator = None,
+                 image_evaluator = None,
                  image_file_path = None):
         self.api_key = "AIzaSyDq--kNy4Vot0SGaSRtbJ-CKDAa2qhOlrc"
         self.cx = "815224a42049e43d7"

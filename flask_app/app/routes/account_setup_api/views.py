@@ -1,6 +1,5 @@
 from flask import abort
 from flask import request
-from app.VideoEditor import AWSBackgroundCreator
 from app.services.s3 import S3
 from flask import jsonify
 import boto3
