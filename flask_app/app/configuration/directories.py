@@ -45,7 +45,6 @@ INTRO_VIDEOS = f"{pod_clips_root}intro_videos/"
 WATERMARKS_FOLDER = f"{pod_clips_root}watermarks/"
 WATERMARKED_VIDEOS_FOLDER = f"{pod_clips_root}watermarked_videos/"
 
-
 VM_BACKGROUNDS = f"{video_maker_root}backgrounds/"
 VM_FINISHED_VIDEOS = f"{video_maker_root}finished_videos/"
 VM_INTRO_VIDOES = f"{video_maker_root}intro_videos/"

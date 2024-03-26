@@ -26,9 +26,9 @@ def make_queries() -> Any:
     }
     Returns:
     {
-        'queries': [{'query': query, 
-                     'start': time_chunk_start,
-                     'end': time_chunk_end,
+        'queries': [{'query': "Shubh eating lots of vegtables", 
+                     'start': 0,
+                     'end': 4,
                      'sentence': sentence,
                      'description': description['description'],
                      'description_start': description['start'],

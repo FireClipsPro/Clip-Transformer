@@ -30,7 +30,7 @@ def create_images():
                         "is_dall_e": "true",
                         "start": 0,
                         "end": 10
-                    }, ...],
+                    }, ...]
     }
     stores the images in the image bucket and returns a list of the image ids
     '''

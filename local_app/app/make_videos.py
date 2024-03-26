@@ -32,7 +32,7 @@ def main():
                              output_video_folder=directories.VM_VIDEOS_WITH_MUSIC,
                              music_categories=directories.MUSIC_CATEGORY_PATH_DICT)
                              
-    openai_api = OpenaiApi(api_key_path="../../OPENAI_API_KEY.txt")
+    openai_api = OpenaiApi()
 
     transcription_analyzer = TranscriptAnalyzer(video_info_folder=directories.VM_VIDEO_INFO,
                                                 music_category_list=directories.MUSIC_CATEGORY_PATH_DICT,
@@ -54,7 +54,7 @@ def main():
     image_scraper = GoogleImagesAPI(image_file_path=directories.VM_IMAGES,
                                     image_evaluator=image_evaluator)
     
-    dall_e = DALL_E(api_key_path="../../OPENAI_API_KEY.txt")
+    dall_e = DALL_E()
     
     image_getter = ImageGetter(directories.VM_IMAGES,
                                image_scraper=image_scraper,
@@ -156,7 +156,7 @@ def main():
             location=preset['WATERMARK_LOCATION'],
             wants_watermark=preset['WANTS_WATERMARK'])
     
-        video_with_subtitles_name = subtitle_adder.add_subtitles_no_grouping(video_file_name=watermarked_video,
+        video_with_subtitles_name = subtitle_adder.add_subtitles_to_video(video_file_name=watermarked_video,
             transcription=transcription['word_segments'],
             output_file_name='sub_' + video_with_media['file_name'],
             font_size=preset['FONT_SIZE'],

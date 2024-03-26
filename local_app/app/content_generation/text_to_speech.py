@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 class TextToSpeech:
     def __init__(self, 
                  audio_folder, 
-                 elevenlabs_api_key_path="../../elevenlabs_key.txt"):
+                 elevenlabs_api_key_path="../../../elevenlabs_key.txt"):
         self.audio_folder = audio_folder
         # read the .txt file to get the API key
         with open(elevenlabs_api_key_path, "r") as file:

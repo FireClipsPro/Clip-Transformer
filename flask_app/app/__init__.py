@@ -14,6 +14,8 @@ from app.routes.music_adder_api import music_adder_api_bp
 from app.routes.transcriber_api import transcriber_api_bp
 from app.routes.subtitle_adder_api import subtitle_adder_api_bp
 from app.routes.file_retriever_api import file_retriever_api_bp
+from app.routes.test_api import test_api_bp
+from app.routes.project_data_retriever_api import project_data_retriever_api_bp
 
 def create_app():
     application = Flask(__name__)
@@ -32,5 +34,7 @@ def create_app():
     application.register_blueprint(transcriber_api_bp, url_prefix='/transcriber_api')
     application.register_blueprint(subtitle_adder_api_bp, url_prefix='/subtitle_adder_api')
     application.register_blueprint(file_retriever_api_bp, url_prefix='/file_retriever_api')
+    application.register_blueprint(test_api_bp, url_prefix='/test_api')
+    application.register_blueprint(project_data_retriever_api_bp, url_prefix='/project_data_retriever_api')
     
     return application

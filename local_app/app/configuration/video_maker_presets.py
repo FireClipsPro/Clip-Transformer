@@ -10,8 +10,10 @@ bottom_right_hor = "bottom_right_hor"
 bottom_left_hor = "bottom_left_hor"
 center = "center"
 
+
+
 preset = {
-    "curious_primates_long_form":
+    "default":
     {
         "SECONDS_PER_PHOTO" : 4,
         "MAXIMUM_PAUSE_LENGTH" : 0.35,
@@ -31,15 +33,17 @@ preset = {
         #                             (255,255,0), # yellow
         #                             (255,48,48), # red
         #                             (0,191,255)], # blue
-        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        # "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "IMAGE_BORDER_COLOR(S)" : [(255, 255, 255)], # white
         "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,
         "ALL_CAPS": False,
         "PUNCTUATION": True,
-        "OVERLAY_ZONE_TOP_LEFT": [240, 135],
-        "OVERLAY_ZONE_WIDTH": 1920*0.75,
-        "OVERLAY_ZONE_HEIGHT": 1080*0.75,
+        # "OVERLAY_ZONE_TOP_LEFT": [240, 135], # 0.75 for horizontal
+        "OVERLAY_ZONE_TOP_LEFT": [960, 0],
+        "OVERLAY_ZONE_WIDTH": 1920*0.5,
+        "OVERLAY_ZONE_HEIGHT": 1080,
         "BACKGROUND_MUSIC_VOLUME": 0.65,
         "WANTS_SOUND_EFFECTS": False,
         "ZOOM_SPEED": 'fast',
@@ -51,9 +55,9 @@ preset = {
         "WANTS_INTRO": True,
         "AUDIO_ONLY_BACKGROUND_COLOR": (255, 255, 255),
         # "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds_1.mp4", "clouds_2.mp4", "clouds_3.mp4"],
-        "AUDIO_ONLY_BACKGROUND_MEDIA": ["clouds.mp4"],
+        "AUDIO_ONLY_BACKGROUND_MEDIA": ["dave.mp4"],
         # "VOICE": "hHOm3UWNabBYnTSFnrPx", # British narrator
         "VOICE": "P46e4SVL1KUVuleGYhXu", # American narrator
         "SONG":  "no_copyright_jazz.mp3"
-    },
+    }
 }

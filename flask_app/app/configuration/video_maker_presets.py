@@ -33,7 +33,8 @@ preset = {
         #                             (255,255,0), # yellow
         #                             (255,48,48), # red
         #                             (0,191,255)], # blue
-        "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        # "IMAGE_BORDER_COLOR(S)" : [(0, 0, 0)], # black
+        "IMAGE_BORDER_COLOR(S)" : [(255, 255, 255)], # white
         "MUSIC_CATEGORY_OPTIONS" : ["fascinating", "mystery", "motivational", "funny"],
         "WANTS_ADS" : False,
         "CENSOR_PROFANITY" : False,

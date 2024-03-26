@@ -6,7 +6,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 
 class DALL_E():
-    def __init__(self, api_key_path="../OPENAI_API_KEY.txt"):
+    def __init__(self, api_key_path="../../../OPENAI_API_KEY.txt"):
         self.dall_e_image_width = 1024
         self.dall_e_image_height = 1024
         self.key_path = api_key_path

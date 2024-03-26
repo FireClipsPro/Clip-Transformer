@@ -49,6 +49,14 @@ class S3():
         file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
 
         return file_url
+    
+    def download_file(self, 
+                      bucket_name,
+                      font_key, 
+                      local_font_path):
+        self.aws_s3.download_file(bucket_name, font_key, local_font_path)
+        logging.info(f"Downloaded font file from S3: {font_key}")
+        return True
         
     def upload_mp3(self, file_name: str, file: FileStorage, bucket_name: str, prefix: str = '') -> bool:
         """
@@ -369,7 +377,40 @@ class S3():
             
         logging.info(f"Saved image to S3: {file_name}")
         return True
+    
+    def get_list_of_projects(self, key, bucket_name):
+        # Initialize a list to hold the names of the projects
+        project_folders = []
 
+        # Use the S3 client to list objects with the specified prefix and delimiter
+        response = self.aws_s3.list_objects_v2(Bucket=bucket_name, Prefix=key, Delimiter='/')
+
+        # Check if the 'CommonPrefixes' key is in the response, which contains the folder names
+        if 'CommonPrefixes' in response:
+            for item in response['CommonPrefixes']:
+                # Extract the folder name, remove the user_id prefix and the trailing slash
+                folder_name = item['Prefix'][len(key):-1]
+                project_folders.append(folder_name)
+
+        return project_folders
+    
+    def get_list_of_objects(self, key, bucket_name):
+        # Initialize a list to hold the names of the files
+        file_names = []
+
+        # Use the S3 client to list objects with the specified prefix
+        response = self.aws_s3.list_objects_v2(Bucket=bucket_name, Prefix=key)
+
+        # Check if the 'Contents' key is in the response, which contains the file names
+        if 'Contents' in response:
+            for obj in response['Contents']:
+                # Check if the key is not just the folder name
+                if obj['Key'] != key:
+                    # Extract the file name from the key by removing the folder prefix
+                    file_name = obj['Key'][len(key):]
+                    file_names.append(file_name)
+
+        return file_names
 
     # ALWAYS CALL THIS AFTER YOU ARE DONE USING THIS CLASS
     def dispose_temp_files(self):

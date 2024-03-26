@@ -37,10 +37,10 @@ class AWSSubtitleAdder:
                                         text_color,
                                         outline_color,
                                         outline_width,
-                                        font_name):
+                                        font_path):
         outline_color = self.string_to_rgba(outline_color)
         text_color = self.string_to_rgba(text_color)
-        font = ImageFont.truetype(font_name, fontsize)
+        font = ImageFont.truetype(font_path, fontsize)
         text_width, text_height = font.getsize('text')
         logging.info(f"Text Width: {text_width}, Text Height: {text_height}")
         img = Image.new('RGBA',    # Change here: Use 'RGB' instead of 'RGBA'
@@ -61,7 +61,7 @@ class AWSSubtitleAdder:
                       clip,
                       transcription,
                       font_size,
-                      font_name,
+                      font_path,
                       outline_color,
                       outline_width,
                       font_color,
@@ -79,7 +79,7 @@ class AWSSubtitleAdder:
                                                       text_color=font_color,
                                                       outline_color=outline_color,
                                                       outline_width=outline_width,
-                                                      font_name=font_name)
+                                                      font_path=font_path)
             clip_height = clip.h
             txt_clip = ImageClip(np.array(img)).set_duration((float(subtitle['end']) - float(subtitle['start']))).set_start(float(subtitle['start'])).set_position(lambda t: ('center', y_percent * clip_height / 100))
             clips.append(txt_clip)

@@ -2,6 +2,8 @@
 bg_videos = "bg-videos-69"
 public_bg_videos_prefix = "public/"
 
+font_bucket = "fonts-69"
+
 # The bucket where the image queries and transcripts are stored
 project_data = "project-data-69"
 
