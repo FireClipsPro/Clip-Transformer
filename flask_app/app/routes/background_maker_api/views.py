@@ -211,8 +211,9 @@ def get_all_public_bgs():
     for id in bg_video_ids:
         bg_video_links.append(s3.get_item_url(bucket_name=buckets.bg_videos,
                                               object_key=id,
-                                              expiry_time=url_expiry_time,
-                                              prefix=buckets.public_bg_videos_prefix))
+                                              expiry_time=url_expiry_time))
+        
+
     return jsonify(bg_video_links)
 
 def validate_payload(payload):
