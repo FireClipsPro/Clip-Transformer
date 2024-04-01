@@ -1,15 +1,15 @@
-from flask import request
-from app.services.s3 import S3
-from flask import jsonify
-import boto3
-import app.configuration.buckets as buckets
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
+import logging
 import os
+
+import boto3
+from flask import Flask, jsonify, request
+from werkzeug.utils import secure_filename
+
+import app.configuration.buckets as buckets
+from app.services.s3 import S3
 
 # from app.content_generation import  
 from . import upload_audio_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

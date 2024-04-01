@@ -86,6 +86,17 @@ class MusicAdder:
                     background_music_volume):
         logging.info(f'Adding music to video {video_name}')
         
+        # if the music_file_name is None, don't add music just move the video to the output folder
+        if music_file_name is None:
+            output_video_name = self.__ensure_mp4_extension(output_video_name)
+            # if the video already exists in the output folder than we don't need to add music to it
+            if os.path.exists(self.output_video_folder + output_video_name):
+                logging.info(f'Video {output_video_name} already exists')
+                return output_video_name
+            video_clip = VideoFileClip(self.input_video_folder + video_name)
+            video_clip.write_videofile(self.output_video_folder + output_video_name, audio_codec='aac', codec='libx264', threads=4)
+            return output_video_name
+        
         # if the video already exists in the output folder than we don't need to add music to it
         if os.path.exists(self.output_video_folder + output_video_name):
             logging.info(f'Video {output_video_name} already exists')

@@ -1,8 +1,9 @@
-import requests
-from requests.exceptions import Timeout
-import os
 import logging
+import os
+
+import requests
 from PIL import Image
+from requests.exceptions import Timeout
 
 logging.basicConfig(level=logging.INFO)
 

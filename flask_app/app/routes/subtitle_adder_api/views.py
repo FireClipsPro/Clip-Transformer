@@ -1,15 +1,15 @@
-from flask import abort
-from flask import request
-from app.subtitle_adder import AWSSubtitleAdder
-from app.services.s3 import S3
-from flask import jsonify
+import logging
 import os
+
 import boto3
+from flask import abort, jsonify, request
+
 import app.configuration.buckets as buckets
 import app.configuration.video_maker_presets as presets
+from app.services.s3 import S3
+from app.subtitle_adder import AWSSubtitleAdder
 
 from . import subtitle_adder_api_bp
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

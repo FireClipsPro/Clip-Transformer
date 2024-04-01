@@ -1,14 +1,14 @@
-from moviepy.editor import VideoFileClip, AudioFileClip, CompositeAudioClip, concatenate_audioclips
-import random
+import logging
 import os
-import pyloudnorm as pyln
-import numpy as np
-import logging
-import logging
-import pydub
-from pydub import AudioSegment
-import pyloudnorm as pyln
+import random
 import tempfile
+
+import numpy as np
+import pydub
+import pyloudnorm as pyln
+from moviepy.editor import (AudioFileClip, CompositeAudioClip, VideoFileClip,
+                            concatenate_audioclips)
+from pydub import AudioSegment
 
 logging.basicConfig(level=logging.INFO)
 

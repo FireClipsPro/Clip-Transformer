@@ -1,7 +1,8 @@
-import openai
 import logging
 from base64 import b64decode
 from pathlib import Path
+
+import openai
 
 logging.basicConfig(level=logging.INFO)
 

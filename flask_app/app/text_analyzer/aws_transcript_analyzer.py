@@ -1,7 +1,10 @@
-import logging
 import json
+import logging
+
 from nltk.tokenize import word_tokenize
+
 from .openai_api import OpenaiApi
+
 
 class AWSTranscriptAnalyzer:
     def __init__(self,

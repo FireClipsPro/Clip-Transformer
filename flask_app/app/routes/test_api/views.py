@@ -1,10 +1,9 @@
-from flask import request
-from flask import jsonify
-from flask import abort
+import logging
+
+from flask import abort, jsonify, request
 
 # from app.content_generation import  
 from . import test_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

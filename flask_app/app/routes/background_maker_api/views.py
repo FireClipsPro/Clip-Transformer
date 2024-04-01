@@ -1,15 +1,15 @@
-from app.VideoEditor import AWSBackgroundCreator
-from app.services.s3 import S3
-from flask import jsonify
+import logging
+
 import boto3
-import app.configuration.buckets as buckets
-from flask import Flask, request, jsonify, abort, Blueprint
-import boto3
+from flask import Blueprint, Flask, abort, jsonify, request
 from werkzeug.utils import secure_filename
+
+import app.configuration.buckets as buckets
+from app.services.s3 import S3
+from app.VideoEditor import AWSBackgroundCreator
 
 # from app.content_generation import  
 from . import background_maker_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

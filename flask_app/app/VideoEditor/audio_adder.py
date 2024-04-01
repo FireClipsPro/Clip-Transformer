@@ -1,13 +1,15 @@
-from moviepy.editor import VideoFileClip, AudioFileClip
-from pathlib import Path
 import os
 import sys
+from pathlib import Path
+
+from moviepy.editor import AudioFileClip, VideoFileClip
 
 current_path = Path(os.path.abspath(__file__)).resolve()
 sys.path.append(str(current_path.parent))
 transcriber_path = os.path.join(current_path.parent.parent, 'Transcriber')
 sys.path.append(transcriber_path)
 import transcriber_utils as utils
+
 
 class AudioAdder:
 

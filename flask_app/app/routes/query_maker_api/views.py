@@ -1,11 +1,14 @@
-from flask import request, jsonify, abort
-from typing import Dict, Any
-from app.services import S3
-from app.text_analyzer import OpenaiApi
-from app.configuration import directories, buckets
-from app.text_analyzer import AWSTranscriptAnalyzer, AWSImageQueryCreator
 import logging
+from typing import Any, Dict
+
 import boto3
+from flask import abort, jsonify, request
+
+from app.configuration import buckets, directories
+from app.services import S3
+from app.text_analyzer import (AWSImageQueryCreator, AWSTranscriptAnalyzer,
+                               OpenaiApi)
+
 from . import query_maker_api_bp
 
 logging.basicConfig(level=logging.INFO)

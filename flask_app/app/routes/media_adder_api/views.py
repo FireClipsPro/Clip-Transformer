@@ -1,15 +1,15 @@
-from flask import abort
-from flask import request
-from app.VideoEditor import AWSMediaAdder
-from app.services.s3 import S3
-from app.models.overlay_video import OverlayVideo
-from flask import jsonify
+import logging
+
 import boto3
+from flask import abort, jsonify, request
+
 import app.configuration.buckets as buckets
+from app.models.overlay_video import OverlayVideo
+from app.services.s3 import S3
+from app.VideoEditor import AWSMediaAdder
 
 # from app.content_generation import  
 from . import media_adder_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

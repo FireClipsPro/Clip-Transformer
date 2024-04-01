@@ -9,6 +9,7 @@ __pycache__/
 
 # environment
 /fire_clips_env/
+/env/
 # Distribution / packaging
 .Python
 build/

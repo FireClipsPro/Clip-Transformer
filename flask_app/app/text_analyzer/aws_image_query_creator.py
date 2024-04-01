@@ -1,6 +1,7 @@
-from math import ceil
 import logging
 import re
+from math import ceil
+
 from .openai_api import OpenaiApi
 
 logging.basicConfig(level=logging.INFO)

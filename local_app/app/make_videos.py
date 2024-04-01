@@ -95,8 +95,8 @@ def main():
         blank_video = blank_video_creator.create_horizontal(audio_file_name=audio_file['file_name'],
                                                              background_media=preset['AUDIO_ONLY_BACKGROUND_MEDIA'],
                                                              background_color=preset['AUDIO_ONLY_BACKGROUND_COLOR'],
-                                                             width=presets.HORIZONTAL_VIDEO_WIDTH,
-                                                             height=presets.HORIZONTAL_VIDEO_HEIGHT)
+                                                             width=preset['VIDEO_WIDTH'],
+                                                             height=preset['VIDEO_HEIGHT'])
         
         logging.info('blank video created: ' + str(blank_video))
         music_adder.add_music_to(music_file_name=preset['SONG'],

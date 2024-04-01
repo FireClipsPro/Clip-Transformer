@@ -1,9 +1,10 @@
-import elevenlabs
-from moviepy.editor import AudioFileClip, vfx
-import os
 import logging
-import pyloudnorm as pyln
+import os
+
+import elevenlabs
 import numpy as np
+import pyloudnorm as pyln
+from moviepy.editor import AudioFileClip, vfx
 from pydub import AudioSegment, effects
 
 logging.basicConfig(level=logging.INFO)

@@ -1,13 +1,13 @@
-from flask import abort
-from flask import request
-from app.services.s3 import S3
-from flask import jsonify
+import logging
+
 import boto3
+from flask import abort, jsonify, request
+
 import app.configuration.buckets as buckets
+from app.services.s3 import S3
 
 # from app.content_generation import  
 from . import account_setup_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

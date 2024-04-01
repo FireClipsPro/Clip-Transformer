@@ -1,7 +1,8 @@
-import openai
-import os
 import logging
+import os
 import time
+
+import openai
 from openai import OpenAI
 
 logging.basicConfig(level=logging.ERROR)

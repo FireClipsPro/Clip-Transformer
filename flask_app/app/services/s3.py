@@ -1,17 +1,14 @@
-from moviepy.editor import *
+import json
+import logging
 import os
-import boto3
-from io import BytesIO
 import tempfile
-import logging
-import json
-import json
-import logging
 from base64 import b64decode
-import boto3
-from werkzeug.utils import secure_filename
-from werkzeug.datastructures import FileStorage
+from io import BytesIO
 
+import boto3
+from moviepy.editor import *
+from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
 
 logging.basicConfig(level=logging.INFO)
 

@@ -1,16 +1,16 @@
-from flask import abort
-from flask import request
-from app.content_generation import AWSImageToVideoCreator
-from app.services.s3 import S3
-from app.models.overlay_video import OverlayVideo
-from flask import jsonify
+import logging
+
 import boto3
+from flask import abort, jsonify, request
+
 import app.configuration.buckets as buckets
 import app.configuration.video_maker_presets as configuration
+from app.content_generation import AWSImageToVideoCreator
+from app.models.overlay_video import OverlayVideo
+from app.services.s3 import S3
 
 # from app.content_generation import  
 from . import image_animator_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

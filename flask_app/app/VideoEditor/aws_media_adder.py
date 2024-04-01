@@ -1,6 +1,8 @@
-import os
-from moviepy.editor import *
 import logging
+import os
+
+from moviepy.editor import *
+
 import app.services.s3 as S3
 from app.models.overlay_video import OverlayVideo
 

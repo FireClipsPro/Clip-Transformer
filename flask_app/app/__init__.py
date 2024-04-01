@@ -1,26 +1,31 @@
 # This file is the entry point for the application. 
 # It creates the Flask app and registers the blueprints.
 from flask import Flask
+from flask_cors import CORS
+
 from app.config import Config
-from app.routes.background_maker_api import background_maker_api_bp
-from app.routes.media_adder_api import media_adder_api_bp 
 from app.routes.account_setup_api import account_setup_api_bp
-from app.routes.query_maker_api import query_maker_api_bp
-from app.routes.image_generator_api import image_generator_api_bp
-from app.routes.project_creation_api import project_creation_api_bp
-from app.routes.upload_audio_api import upload_audio_api_bp
-from app.routes.image_animator_api import image_animator_api_bp
-from app.routes.music_adder_api import music_adder_api_bp
-from app.routes.transcriber_api import transcriber_api_bp
-from app.routes.subtitle_adder_api import subtitle_adder_api_bp
+from app.routes.background_maker_api import background_maker_api_bp
 from app.routes.file_retriever_api import file_retriever_api_bp
-from app.routes.test_api import test_api_bp
+from app.routes.image_animator_api import image_animator_api_bp
+from app.routes.image_generator_api import image_generator_api_bp
+from app.routes.media_adder_api import media_adder_api_bp
+from app.routes.music_adder_api import music_adder_api_bp
+from app.routes.project_creation_api import project_creation_api_bp
 from app.routes.project_data_retriever_api import project_data_retriever_api_bp
+from app.routes.query_maker_api import query_maker_api_bp
+from app.routes.subtitle_adder_api import subtitle_adder_api_bp
+from app.routes.test_api import test_api_bp
+from app.routes.transcriber_api import transcriber_api_bp
+from app.routes.upload_audio_api import upload_audio_api_bp
+
 
 def create_app():
     application = Flask(__name__)
     application.config.from_object(Config)
     application.logger.setLevel(application.config['LOG_LEVEL'])
+    
+    CORS(application)
     
     application.register_blueprint(background_maker_api_bp, url_prefix='/background_maker_api')
     application.register_blueprint(media_adder_api_bp, url_prefix='/media_adder_api')

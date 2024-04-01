@@ -1,16 +1,16 @@
-from flask import request
-from app.services.s3 import S3
-from flask import jsonify
+import logging
+import os
+
 import boto3
+from flask import Flask, abort, jsonify, request
+from werkzeug.utils import secure_filename
+
 import app.configuration.buckets as buckets
 from app.music_adder.aws_music_adder import AWSMusicAdder
-from flask import Flask, request, jsonify, abort
-from werkzeug.utils import secure_filename
-import os
+from app.services.s3 import S3
 
 # from app.content_generation import  
 from . import music_adder_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

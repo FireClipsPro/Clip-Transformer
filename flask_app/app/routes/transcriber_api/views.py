@@ -1,14 +1,14 @@
-from flask import abort
-from flask import request
-from flask import jsonify
+import logging
+
+import boto3
 import requests
+from flask import abort, jsonify, request
+
 import app.configuration.buckets as buckets
 from app.services.s3 import S3
-import boto3
 from app.Transcriber import CloudTranscriber
 
 from . import transcriber_api_bp
-import logging
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,8 +32,8 @@ def transcribe():
     project_id = data['project_id']
     user_id = data['user_id']
 
-    url = f"http://ec2-54-82-24-182.compute-1.amazonaws.com:8000/transcribe?bucket_id=project-data-69&project_id={project_id}&user_id={user_id}"
-
+    url = f"https://ydkkh6bb1a.execute-api.us-east-1.amazonaws.com/transcribe?bucket_id=project-data-69&project_id={project_id}&user_id={user_id}"
+    
     # Make the POST request
     response = requests.post(url)
 

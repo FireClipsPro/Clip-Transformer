@@ -32,11 +32,16 @@ class CloudTranscriber:
                             bucket_name="project-data-69",
                             prefix=prefix)
         
-        url = f"http://ec2-54-82-24-182.compute-1.amazonaws.com:8000/transcribe?bucket_id=project-data-69&project_id={folder_name}&user_id=420"
+        url = f"https://ydkkh6bb1a.execute-api.us-east-1.amazonaws.com/transcribe?bucket_id=project-data-69&project_id={folder_name}&user_id=420"
+        
+        # url = f"http://localhost:8000/transcribe?bucket_id=project-data-69&project_id={folder_name}&user_id=420"
+
         # Make the POST request
         response = requests.post(url)
         if response.status_code != 200:
             logging.error("Transcription Request failed")
+            # print the error message
+            logging.error(response.text)
             return None
         logging.info("Transcription Request sent successfully")
         

@@ -18,6 +18,9 @@ RUN pip install -r requirements.txt
 # Install whisperx from github repository using pip
 RUN pip install "git+https://github.com/m-bain/whisperx.git"
 
+ENV AWS_ACCESS_KEY_ID=AKIA5YMGV6ADBVMLNDGB
+ENV AWS_SECRET_ACCESS_KEY=29QkQJwb5EWSR/5dGbnw4YZMgTGZKQrv2sfb&DA7
+
 COPY . .
 
 EXPOSE 8000

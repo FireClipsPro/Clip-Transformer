@@ -1,3 +1,3 @@
-from .openai_api import OpenaiApi
 from .aws_image_query_creator import AWSImageQueryCreator
 from .aws_transcript_analyzer import AWSTranscriptAnalyzer
+from .openai_api import OpenaiApi

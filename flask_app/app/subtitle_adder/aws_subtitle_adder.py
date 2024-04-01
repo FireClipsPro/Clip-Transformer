@@ -1,7 +1,8 @@
-from PIL import Image, ImageFont, ImageDraw
-from moviepy.editor import ImageClip, VideoFileClip, CompositeVideoClip
 import logging
+
 import numpy as np
+from moviepy.editor import CompositeVideoClip, ImageClip, VideoFileClip
+from PIL import Image, ImageDraw, ImageFont
 
 logging.basicConfig(level=logging.DEBUG)
 

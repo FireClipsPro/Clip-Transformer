@@ -1,18 +1,18 @@
-from flask import abort
-from flask import request
-from app.services.s3 import S3
-from app.models.image_model import ImageModel
-from app.content_generation import GoogleImagesAPI, DALL_E
-from app.configuration import directories
-from flask import jsonify
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import boto3
+from flask import abort, jsonify, request
+
 import app.configuration.buckets as buckets
+from app.configuration import directories
+from app.content_generation import DALL_E, GoogleImagesAPI
+from app.models.image_model import ImageModel
+from app.services.s3 import S3
 
 # from app.content_generation import  
 from . import image_generator_api_bp  # Import the Blueprint
-import logging
 
 logging.basicConfig(level=logging.INFO)
 

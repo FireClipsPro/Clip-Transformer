@@ -1,6 +1,7 @@
+import logging
+
 from moviepy.editor import *
 from moviepy.editor import concatenate_videoclips
-import logging
 
 logging.basicConfig(level=logging.DEBUG)
 

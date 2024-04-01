@@ -1,13 +1,14 @@
-import subprocess
-import os
-import moviepy.editor as mp
-import math
-import numpy
-from PIL import Image
 import logging
+import math
+import os
+import subprocess
+
+import moviepy.editor as mp
 import moviepy.video.fx.all as vfx
-from moviepy.video.io.VideoFileClip import VideoFileClip
+import numpy
 from moviepy.editor import ImageClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 
