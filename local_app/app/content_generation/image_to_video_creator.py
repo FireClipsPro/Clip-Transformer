@@ -447,15 +447,18 @@ class ImageToVideoCreator:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def enlarge_image(self, image, image_path, enlarged_image_path, frame_width, frame_height):
         logging.info(f'Image {str(image)} is too small to crop. enlarging instead.')
+        logging.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        logging.info(f"Frame width: {frame_width}, Frame height: {frame_height}")
         
         scale_factor = 1
-        if image['width'] > image['height']:
-            scale_factor = frame_width * PERCENT_OF_DISPLAY_SCREEN / image['width']
+        if frame_height < frame_width:
+            scale_factor = (frame_height * PERCENT_OF_DISPLAY_SCREEN) / image['height']
         else:
-            scale_factor = frame_height * PERCENT_OF_DISPLAY_SCREEN / image['height']
+            scale_factor = (frame_width * PERCENT_OF_DISPLAY_SCREEN) / image['width']
         
         new_height = int(image['height'] * scale_factor)
         new_width = int(image['width'] * scale_factor)
+        logging.info(f"New width: {new_width}, New height: {new_height}")
         
         command = [
             'ffmpeg',

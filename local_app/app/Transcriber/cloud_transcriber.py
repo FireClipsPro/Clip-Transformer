@@ -1,6 +1,7 @@
 import requests
 import json
 import boto3
+import os
 from werkzeug.datastructures import FileStorage
 import logging
 import time
@@ -20,6 +21,13 @@ class CloudTranscriber:
             "user_id": "string"
         }
         '''
+        logging.info(f"Transcribing {audio_file_name}")
+        # if transcript already exists in the output folder, return it
+        if f"{audio_file_name}.json" in os.listdir(self.output_folder):
+            logging.info("Transcription already exists")
+            with open(f"{self.output_folder}/{audio_file_name}.json", "r") as f:
+                return json.load(f)
+        
         folder_name = audio_file_name.split(".")[0]
         audio_file_path = f"{self.input_audio_folder}/{audio_file_name}"
         # read the mp3 file from the path

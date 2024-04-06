@@ -169,10 +169,10 @@ def main():
             y_percent=preset['Y_PERCENT_HEIGHT_OF_SUBTITLE'],
             number_of_characters_per_line=preset['NUMBER_OF_CHARACTERS_PER_LINE'])
         
-        video_with_intro = intro_adder.add_video_intro(video_file_name=video_with_subtitles_name,
-                                                       intro_file_name=preset['INTRO_FILE'])
+        # video_with_intro = intro_adder.add_video_intro(video_file_name=video_with_subtitles_name,
+        #                                                intro_file_name=preset['INTRO_FILE'])
         
-        logging.info('FINISHED!!!' + video_with_intro + " Congrats you amazing guy you!")
+        logging.info('FINISHED!!!' + video_with_subtitles_name + " Congrats you amazing guy you!")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def create_audio_file(text_2_speech,
                       audio_file,
