@@ -3,6 +3,7 @@
 This README will guide you through making a video with the program. First, let's get some background information to understand the repository better.
 
 ## 3rd party AI API keys:
+
 Elevenlabs: this is for text to speech.
 
 OpenAI: this is for OpenAI.
@@ -12,25 +13,32 @@ elevnlabs_key.txt and OPENAI_API_KEY.txt.
 So if your repository is in /code/Clip-Transformer/, then the files should be in the /code/ folder.
 
 # How to run the API tests
+
 1. cd to the root directory of the git
 2. run `python -m unittest tests.s3_tests`
 
 # How to test API endpoint
+
 1. cd to run.py and run `python run.py`
 2. in browser enter your endpoint for example: http://localhost:5000/background_maker_api/video/
 3. enter parameters in the endpoint
 
 # AWS
+
 ## How to log into aws:
+
 1. make sure the aws CLI is downloaded and any AWS packages
 2. type `aws configure`
 3. log in with your access keys
+
 - access keys are stored on aws -> IAM -> users -> find your user account and either generate a new key or use the stored key of your user
 
 ## How to list aws buckets:
+
 `aws s3 ls`
 
 ## Running Local Version
+
 # Programs
 
 There are three programs in this repository:
@@ -62,8 +70,8 @@ Inside `app/configuration/`, there are 3 preset files. A preset is a configurati
 1. Create a `.txt` file containing the script of your video with a title relevant to your video and place the text file inside the folder `media_storage/video_maker/text_input/`. For this example, we will call our input text file `panda.txt`.
 
 2. Open `/media_storage/video_maker/video_maker_input.csv` and inside `video_maker_input.csv`, delete any current entries of `filename,preset` and replace it with `panda.txt,your_preset_name`. For this example, we will use the preset: `curious_primates_long_form`, so the contents of the file would look like this:
-filename,preset
-panda.txt,curious_primates_long_form
+   filename,preset
+   panda.txt,curious_primates_long_form
 
 3. Now we need three more things to create the video: intro video, a song, background video(s).
 
