@@ -1,4 +1,5 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException
+from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
 import whisperx
 import torch
@@ -7,17 +8,24 @@ import os
 import json
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# Global variable for the model
+model = None
 
-# int8 is chosen to run on CPU instead of GPU (and for running on Mac OS X):
-compute_type = "float16" if torch.cuda.is_available() else "int8"
-
-# Can change the model size to "small" or "large" if needed
-# larger models will have better accuracy but will be slower
-model = whisperx.load_model("medium", DEVICE, compute_type=compute_type, language="en")
-
-app = FastAPI()
+# Load the WhisperX model when the server starts
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global model
+    # int8 is chosen to run on CPU instead of GPU (and for running on Mac OS X):
+    compute_type = "float16" if torch.cuda.is_available() else "int8"
+    # Load the ML model
+    # Can change the model size to "small" or "large" if needed, larger models will have better accuracy but will be slower
+    model = whisperx.load_model("medium", DEVICE, compute_type=compute_type, language="en")
+    print("Model loaded successfully.")
+    yield
+    print('shutting down server')
 
 s3_client = boto3.client('s3')
+app = FastAPI(lifespan=lifespan)
 
 # Transcribe the audio file and upload the result to S3
 # temp_file_path: the path to the temporary file where the audio is stored
@@ -71,7 +79,12 @@ async def handler(bucket_id: str, user_id: str, project_id: str, background_task
         # Start the transcription process in the background (asynchronously)
         background_tasks.add_task(transcribe_audio_async, temp_file_path, bucket_id, key_to_upload_transcription)
     except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Error downloading file from S3")
+        error_code = e.response['Error']['Code']
+        if error_code == '404':
+            print(f"Object not found: {key_to_download_audio}. Error: {str(e)}")
+            raise HTTPException(status_code=404, detail="File not found in S3")
+        else:
+            print(f"Unexpected error: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error accessing S3")
 
     return JSONResponse('Started the transcription process. Check back S3 later for the results.')
