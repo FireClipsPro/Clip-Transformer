@@ -68,6 +68,8 @@ def add_subtitles():
     for word in transcription['word_segments']:  # Loop through each dictionary in the list
         if 'word' in word:  # Check if the dictionary has the key 'word'
             word['text'] = word['word'] 
+            
+    transcription = clean_transcription(transcription)
     
     subtitle_adder = AWSSubtitleAdder()
 
@@ -103,6 +105,34 @@ def add_subtitles():
         abort(500, description=str(e))
 
     return jsonify({"url": url}), 200
+
+def clean_transcription(transcription):
+    for i in range(len(transcription["word_segments"])):
+        transcription["word_segments"][i]['text'] = transcription["word_segments"][i]['word']
+        del transcription["word_segments"][i]['word']
+        if i == 0:
+            if 'start' not in transcription["word_segments"][i]:
+                transcription["word_segments"][i]['start'] = 0
+            if 'end' not in transcription["word_segments"][i]:
+                if len(transcription["word_segments"]) > 1:
+                    for j in range(1, len(transcription["word_segments"])):
+                        if 'start' in transcription["word_segments"][j]:
+                            transcription["word_segments"][i]['end'] = transcription["word_segments"][j]['start']
+                            break
+                else:
+                    transcription["word_segments"][i]['end'] = 0
+        else:
+            if 'start' not in transcription["word_segments"][i]:
+                transcription["word_segments"][i]['start'] = transcription["word_segments"][i-1]['end']
+            if 'end' not in transcription["word_segments"][i]:
+                if len(transcription["word_segments"]) > i+1:
+                    for j in range(i+1, len(transcription["word_segments"])):
+                        if 'start' in transcription["word_segments"][j]:
+                            transcription["word_segments"][i]['end'] = transcription["word_segments"][j]['start']
+                            break
+                else:
+                    transcription["word_segments"][i]['end'] = transcription["word_segments"][i]['start']
+    return transcription
 
 def ensure_fonts_directory_exists(fonts_directory):
     """Ensure that the fonts directory exists."""
