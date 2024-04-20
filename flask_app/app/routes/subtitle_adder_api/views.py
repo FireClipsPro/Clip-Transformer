@@ -21,28 +21,29 @@ def add_subtitles():
     This function adds subtitles to a video given a video id and transcription id
     It fetches the video and transcription from an s3 bucket using this id.
     The data sent should be:
-    {
-        "project_id": "string",
-        "video_id": "string"
+    {   
+        "user_id": "int",
+        "project_id": "string"
     }
     '''
     logging.info("Adding subtitles")
     data = request.get_json()
 
     # Validate payload
-    if not all(key in data for key in ['project_id', 'video_id', 'font_size', 'font_name', 'outline_color', 'outline_width', 'font_color', 'all_caps', 'punctuation', 'y_percent']):
+    if not all(key in data for key in ['user_id', 'project_id']):
         abort(400, description="Missing data in request payload")
 
+    user_id = data['user_id']
     project_id = data['project_id']
-    video_id = data['video_id']
     font_size = presets.preset['default']['FONT_SIZE']
     font_name = presets.preset['default']['FONT']
-    outline_color = "black"
+    outline_color = presets.preset['default']['FONT_OUTLINE_COLOR']
     outline_width = presets.preset['default']['FONT_OUTLINE_WIDTH']
-    font_color = "white"
+    font_color = presets.preset['default']['FONT_COLOR']
     all_caps = presets.preset['default']['ALL_CAPS']
     punctuation = presets.preset['default']['PUNCTUATION']
     y_percent = presets.preset['default']['Y_PERCENT_HEIGHT_OF_SUBTITLE']
+    charcters_per_line = presets.preset['default']['NUMBER_OF_CHARACTERS_PER_LINE']
     
     fonts_directory = os.path.join(os.getcwd(), 'fonts/')
     ensure_fonts_directory_exists(fonts_directory=fonts_directory)
@@ -50,35 +51,46 @@ def add_subtitles():
 
     s3 = S3(boto3.client('s3'))
 
+    # get the font
     if not os.path.exists(local_font_path):
         s3.download_file(bucket_name=buckets.font_bucket,
                          font_key=font_name,
                          local_font_path=local_font_path)
 
-    clip = s3.get_videofileclip(video_id=video_id, bucket_name=buckets.videos_with_media)
-    transcription = s3.get_dict_from_video_data(project_id=project_id ,
+    clip = s3.get_videofileclip(video_id=buckets.video_with_media_fname, 
+                                bucket_name=buckets.project_data,
+                                prefix=f"{user_id}/{project_id}/{buckets.video_with_media_folder}")
+    
+    transcription = s3.get_dict_from_video_data(prefix=f"{user_id}/{project_id}/{buckets.transcripts_folder}",
                                                 file_name='transcription.json',
                                                 bucket_name=buckets.project_data)
     
     subtitle_adder = AWSSubtitleAdder()
 
     try:
-        final = subtitle_adder.add_subtitles(
-            clip,
-            transcription,
-            font_size,
-            local_font_path,
-            outline_color,
-            outline_width,
-            font_color,
-            all_caps,
-            punctuation,
-            y_percent)
+        final = subtitle_adder.add_subtitles_to_video(clip,
+                                                        transcription['word_segments'],
+                                                        font_size,
+                                                        font_name,
+                                                        outline_color,
+                                                        outline_width,
+                                                        font_color,
+                                                        all_caps,
+                                                        punctuation,
+                                                        y_percent,
+                                                        charcters_per_line)
         
         # Write the final video to s3
         s3.write_videofileclip(clip=final,
-                               video_id=video_id,
-                               bucket_name=buckets.videos_with_subtitles)
+                               video_id=buckets.video_with_subtitles_fname,
+                               bucket_name=buckets.project_data,
+                               prefix=f"{user_id}/{project_id}/{buckets.subtitled_vid_folder}")
+        
+        # get the url
+        url = s3.get_item_url(bucket_name=buckets.project_data,
+                                object_key=f"{user_id}/{project_id}/{buckets.subtitled_vid_folder}{buckets.video_with_subtitles_fname}",
+                                expiry_time=url_expiry_time)
+        
         s3.dispose_temp_files()
 
     except Exception as e:
@@ -86,7 +98,7 @@ def add_subtitles():
         logging.exception("Failed to add subtitles to video")
         abort(500, description=str(e))
 
-    return jsonify({"message": f"Subtitles added successfully. Video saved to bucket {buckets.videos_with_subtitles} with video id {video_id}"}), 200
+    return jsonify({"url": url}), 200
 
 def ensure_fonts_directory_exists(fonts_directory):
     """Ensure that the fonts directory exists."""

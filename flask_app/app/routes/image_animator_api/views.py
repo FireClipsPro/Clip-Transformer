@@ -25,7 +25,7 @@ def animate_images():
         "project_id": "42069",
         "images": [{    "id": "id",
                         "start": 0,
-                        "end": 10a
+                        "end": 10
                     }, ...],
         "overlay_zone_top_left": [0, 0],
         "overlay_zone_width": 1920,
@@ -35,7 +35,7 @@ def animate_images():
     '''
     logging.info("Creating video")
     data = request.get_json()
-    
+    # TODO remove the overlay variables from the payload
     # Validate payload
     if not all(key in data for key in ['user_id',
                                        'project_id',

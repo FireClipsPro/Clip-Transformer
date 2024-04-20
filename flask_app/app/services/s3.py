@@ -147,6 +147,8 @@ class S3():
 
         # Use tempfile to create a temporary video file
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
+            
+            logging.info(f"Writing video {video_id} to temporary file {tmp_file.name}")
             # Export the clip to the temporary file
             clip.write_videofile(tmp_file.name, codec="libx264", audio_codec="aac")
             
@@ -154,6 +156,8 @@ class S3():
             self.aws_s3.upload_file(Filename=tmp_file.name, Bucket=bucket_name, Key=full_key_path)
     
         logging.info(f"Successfully uploaded {video_id} to S3 bucket {bucket_name} under prefix '{prefix}'")
+        
+        self.temp_files.append(tmp_file.name)
         
         return True
     

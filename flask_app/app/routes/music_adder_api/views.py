@@ -36,7 +36,9 @@ def add_music():
     if not all(key in data for key in ['user_id',
                                        'project_id',
                                        'music_id',
-                                       'music_is_private']):
+                                       'music_is_private',
+                                       'video_name',
+                                       'video_folder']):
         abort(400, description="Missing data in request payload")
     
     user_id = data['user_id']
@@ -124,7 +126,7 @@ def upload():
         
         if file:
             s3 = S3(boto3.client('s3'))
-            bucket_path = user_id + "/" + project_id + "/" + buckets.music_folder
+            bucket_path = user_id + "/" + buckets.music_folder
             logging.info(f"Uploading audio file to {bucket_path}")
             s3.upload_mp3(file_name=filename,
                             file=file,
@@ -149,4 +151,4 @@ def upload():
 # curl -X POST http://localhost:5000/music_adder_api/upload \
 #      -F "user_id=SnoopDoggyDog@weed.com" \
 #      -F "project_id=19b112e0-e393-4247-9d36-7d9e54cfa222" \
-#      -F "audio_file=@/Users/alexander/Documents/Code/Clip_Transformer/Clip-Transformer/media_storage/video_maker/audio_input/joe_beast.mp3"
+#      -F "audio_file=@/Users/alexander/Documents/Code/Clip_Transformer/Clip-Transformer/local_app/media_storage/video_maker/songs/Can_You_Hear_The_Music.mp3"
