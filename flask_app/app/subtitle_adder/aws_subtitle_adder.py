@@ -2,6 +2,7 @@ from PIL import Image, ImageFont, ImageDraw
 import numpy as np
 from moviepy.editor import ImageClip, CompositeVideoClip
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -154,7 +155,10 @@ class AWSSubtitleAdder:
                                         font_name):
         outline_color = (*outline_color, 255)
         text_color = (*text_color, 255)
-        font = ImageFont.truetype(font_name, fontsize)
+        
+        font_path = os.path.join('./fonts', font_name)
+        
+        font = ImageFont.truetype(font_path, fontsize)
         text_width, text_height = font.getsize(text)
         logging.info(f"Text Width: {text_width}, Text Height: {text_height}")
         img = Image.new('RGBA',    # Change here: Use 'RGB' instead of 'RGBA'

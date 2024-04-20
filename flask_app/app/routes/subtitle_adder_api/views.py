@@ -106,6 +106,7 @@ def add_subtitles():
 
     return jsonify({"url": url}), 200
 
+# TODO this should be in the cloud transcription class or maybe in the docker server
 def clean_transcription(transcription):
     for i in range(len(transcription["word_segments"])):
         transcription["word_segments"][i]['text'] = transcription["word_segments"][i]['word']
