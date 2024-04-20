@@ -65,6 +65,10 @@ def add_subtitles():
                                                 file_name='transcription.json',
                                                 bucket_name=buckets.project_data)
     
+    for word in transcription['word_segments']:  # Loop through each dictionary in the list
+        if 'word' in word:  # Check if the dictionary has the key 'word'
+            word['text'] = word['word'] 
+    
     subtitle_adder = AWSSubtitleAdder()
 
     try:
