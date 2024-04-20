@@ -201,19 +201,20 @@ def get_user_bg_video():
 def get_all_public_bgs():
     '''
     No input required
-    Returns a list links of all public background videos
+    Returns a list links of all public background videos and their ids
     '''
     s3 = S3(boto3.client('s3'))
     bg_video_ids = s3.get_all_items(bucket_name=buckets.bg_videos, 
                                     prefix=buckets.public_bg_videos_prefix)
-    
+
     bg_video_links = []
     for id in bg_video_ids:
-        bg_video_links.append(s3.get_item_url(bucket_name=buckets.bg_videos,
+        bg_video_links.append({"url": s3.get_item_url(bucket_name=buckets.bg_videos,
                                               object_key=id,
-                                              expiry_time=url_expiry_time))
+                                              expiry_time=url_expiry_time),
+                                # id is public/cloud.mp4 and we want cloud.mp4
+                               "id": id.split('/')[1]})
         
-
     return jsonify(bg_video_links)
 
 def validate_payload(payload):
