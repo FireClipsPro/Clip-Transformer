@@ -89,7 +89,7 @@ class YoutubeVideoDownloader:
         self.__get_saved_videos()
         
         for raw_video in raw_videos:
-            if raw_video['link'].endswith('.mp4'):
+            if raw_video['link'].endswith('.mp4') or  raw_video['link'].endswith('.mov'):
                 # check to see if the video is already downloaded
                 raw_video['raw_video_name'] = raw_video['link']
                 continue

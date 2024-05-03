@@ -23,7 +23,7 @@ def add_music():
     {
         "user_id": "panda@example.com",
         "project_id": "42069",
-        "music_id": "id",
+        "music_id": "file.mp3",
         "music_is_private": "true",
         "video_name": "video.mp4",
         "video_folder": "video_folder"

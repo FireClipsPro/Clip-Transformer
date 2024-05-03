@@ -1,18 +1,17 @@
-from VideoEditor import MediaAdder, VideoResizer, VideoClipper, HeadTrackingCropper, WatermarkAdder, ImageSpacer, PauseRemover, SoundEffectAdder
+from VideoEditor import MediaAdder, VideoClipper, HeadTrackingCropper, WatermarkAdder, ImageSpacer, PauseRemover, SoundEffectAdder
 from content_generation import ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
 from text_analyzer import ImageQueryCreator, TranscriptAnalyzer, OpenaiApi
-from Transcriber import WhisperTranscriber, AudioExtractor
-from file_organisation import FileDeleter, FinishedVideoSorter
+from Transcriber import CloudTranscriber, AudioExtractor
+from file_organisation import FinishedVideoSorter
 from video_downloader import YoutubeVideoDownloader
 from music_adder import MusicAdder
 from subtitle_adder import SubtitleAdder
 import configuration.directories as directories
 import configuration.pod_clips_presets as presets
-import os
-import math
+import boto3
+from services import S3
 import logging
-import csv
-import time
+
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 def main():
@@ -27,8 +26,9 @@ def main():
     audio_extractor = AudioExtractor(directories.INPUT_FOLDER,
                                      directories.AUDIO_EXTRACTIONS_FOLDER)
 
-    transcriber = WhisperTranscriber(directories.AUDIO_EXTRACTIONS_FOLDER, 
-                                     directories.TRANSCRIPTS_FOLDER)
+    transcriber = CloudTranscriber(s3=S3(boto3.client('s3')),
+                                   output_folder=directories.TRANSCRIPTS_FOLDER,
+                                   input_audio_folder=directories.AUDIO_EXTRACTIONS_FOLDER)
     
     
     pause_remover = PauseRemover(directories.INPUT_FOLDER, 
@@ -52,16 +52,14 @@ def main():
                                           directories.RESIZED_FOLDER,
                                           directories.RESIZED_FOLDER)
     
-    image_classifier = ImageClassifier(directories.IMAGE_FOLDER)
+    # image_classifier = ImageClassifier(directories.IMAGE_FOLDER)
     
     image_evaluator = ImageEvaluator(directories.IMAGE_FOLDER)
 
     image_scraper = GoogleImagesAPI(directories.IMAGE_FOLDER,
-                                    image_classifier,
                                     image_evaluator)
     
-    dall_e = DALL_E(directories.IMAGE_FOLDER,
-                    directories.GENERATED_PROMPTS_FOLDER)
+    dall_e = DALL_E()
     
     image_getter = ImageGetter(directories.IMAGE_FOLDER,
                                image_scraper,
@@ -105,8 +103,7 @@ def main():
         
         audio_extraction_file_name = audio_extractor.extract(clipped_video['file_name'])
         
-        transcription = transcriber.transcribe(audio_extraction_file_name,
-            theme['CENSOR_PROFANITY'])
+        transcription = transcriber.transcribe(audio_extraction_file_name)
         
         if transcription == None:
             continue
@@ -116,7 +113,7 @@ def main():
             theme['MAXIMUM_PAUSE_LENGTH'])
         
 
-        clipped_video = head_tracker.crop_video_to_face_center( clipped_video,
+        clipped_video = head_tracker.crop_video_to_face_center(clipped_video,
             presets.VERTICAL_VIDEO_WIDTH,
             presets.VERTICAL_VIDEO_HEIGHT)
 
@@ -141,10 +138,7 @@ def main():
                 video=clipped_video,
                 wants_sounds=theme['WANTS_SOUND_EFFECTS'])
             
-            time_stamped_images = image_getter.get_images(query_list)
-                    
-            # where images could not be found, DALL-E will be used to generate images
-            time_stamped_images = dall_e.create_missing_images(time_stamped_images)
+            time_stamped_images = image_getter.get_images(query_list, theme['WANTS_DALL_E_IMAGES'])
             
             # print the _time_stamped_images array
             print(time_stamped_images)
