@@ -1,5 +1,5 @@
 from VideoEditor import MediaAdder, VideoClipper, HeadTrackingCropper, WatermarkAdder, ImageSpacer, PauseRemover, SoundEffectAdder
-from content_generation import ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageClassifier, ImageEvaluator, FullScreenImageSelector
+from content_generation import ImageToVideoCreator, DALL_E, ImageGetter, GoogleImagesAPI, ImageEvaluator, FullScreenImageSelector
 from text_analyzer import ImageQueryCreator, TranscriptAnalyzer, OpenaiApi
 from Transcriber import CloudTranscriber, AudioExtractor
 from file_organisation import FinishedVideoSorter

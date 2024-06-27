@@ -27,8 +27,7 @@ def make_background():
         "background_videos": [{"file_name": "media_id1",
                                "bucket": "project-data-69",
                                "is_private": true}, ...],
-        "width": 1920,
-        "height": 1080
+        "video_type": "vertical" or "horizontal",
     }
     Audio ID must first be put in the database
     '''
@@ -41,8 +40,12 @@ def make_background():
     user_id = payload['user_id']
     project_id = payload['project_id']
     background_videos = payload['background_videos']  # This is a list of dictionaries
-    width = payload['width']
-    height = payload['height']
+    if payload['video_type'] == "vertical":
+        width = 1080
+        height = 1920
+    else:
+        width = 1920
+        height = 1080
     
     s3 = S3(boto3.client('s3'))
     bg_creator = AWSBackgroundCreator()
@@ -228,7 +231,7 @@ def validate_payload(payload):
     if not payload:
         return False, "Payload is empty."
     
-    required_top_level_keys = ["user_id", "project_id", "background_videos", "width", "height"]
+    required_top_level_keys = ["user_id", "project_id", "background_videos", "video_type"]
     for key in required_top_level_keys:
         if key not in payload:
             return False, f"Missing '{key}' in payload."
@@ -249,11 +252,8 @@ def validate_payload(payload):
             if media_key not in item:
                 return False, f"Missing '{media_key}' in background_videos item."
     
-    if not isinstance(payload["width"], int) or payload["width"] <= 0:
-        return False, "'width' must be a positive integer."
-    
-    if not isinstance(payload["height"], int) or payload["height"] <= 0:
-        return False, "'height' must be a positive integer."
+    if not isinstance(payload["video_type"], str) or payload["video_type"] not in ["vertical", "horizontal"]:
+        return False, "'video_type' must be either 'vertical' or 'horizontal'."
     
     return True, "Valid payload."
 

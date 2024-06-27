@@ -15,12 +15,6 @@ class CloudTranscriber:
         self.s3 = s3
         
     def transcribe(self, audio_file_name: str):
-        '''
-        {
-            "project_id": "string",
-            "user_id": "string"
-        }
-        '''
         logging.info(f"Transcribing {audio_file_name}")
         # if transcript already exists in the output folder, return it
         if f"{audio_file_name}.json" in os.listdir(self.output_folder):
@@ -28,7 +22,7 @@ class CloudTranscriber:
             with open(f"{self.output_folder}/{audio_file_name}.json", "r") as f:
                 return json.load(f)
         
-        folder_name = audio_file_name.split(".")[0]
+        folder_name = audio_file_name.replace(".mp3", "")
         audio_file_path = f"{self.input_audio_folder}/{audio_file_name}"
         # read the mp3 file from the path
         audio_file = open(audio_file_path, 'rb')

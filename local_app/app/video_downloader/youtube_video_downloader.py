@@ -2,6 +2,7 @@ import os
 import yt_dlp as youtube_dl
 import logging
 import re
+import uuid
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,12 +23,24 @@ class YoutubeVideoDownloader:
             logging.info(f"Saved videos: {self.saved_videos}")
         
     def download_youtube_video(self, link):
+        logging.info(f"~~~~~~~~~~~~~~~~~~~~~~~~~~output folder is: {self.output_folder}~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         logging.info(f"Downloading video from {link}")
+        random_name = link.replace("/","") + ".mp4"
+        # if the video is already downloaded, return the name of the video
+        # open self.__downloaded_videos_file and check if the link is already there
+        # if it is, return the name of the video
+        with open(self.__downloaded_videos_file, 'r') as f:
+            for line in f:
+                if link in line:
+                    logging.info(f"~~~~~~~Video {line.split('#')[1].split('.')[0]} already downloaded")
+                    video_title = line.split("#")[1].split(".")[0]
+                    return random_name, video_title
+        
         ydl_opts = {
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]',
-            'outtmpl': os.path.join(self.output_folder, '%(title)s.%(ext)s'),
-            'noplaylist': True,
-            'progress_hooks': [self.post_process_hook],  # Add the post-process hook here
+            'outtmpl': os.path.join(self.output_folder, random_name),
+            # 'noplaylist': True,
+            # 'progress_hooks': [self.post_process_hook],  # Add the post-process hook here
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(link, download=False)
@@ -37,13 +50,41 @@ class YoutubeVideoDownloader:
         logging.info(f"Done! Video downloaded to {self.output_folder}")
         logging.info(f"Video title: {video_title}")
 
-        self.saved_videos[link] = video_title
+        self.saved_videos[link] = random_name
         
-        # write the line: link,video_title to the downloaded_videos_file
+        # write the line: link, video_title to the downloaded_videos_file
         with open(self.__downloaded_videos_file, 'a') as f:
             f.write(f"{link}#{video_title}.mp4\n")
         
-        return f"{video_title}.mp4"
+        return random_name, f"{video_title}.mp4"
+    
+    # def download_youtube_video(self, link):
+    #     logging.info(f"Downloading video from {link}")
+    #     # generate a random name for the video
+    #     # name = str(uuid.uuid4())
+    #     ydl_opts = {
+    #         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]',
+    #         'outtmpl': os.path.join(self.output_folder, '%(title)s.%(ext)s'),
+    #         'noplaylist': True,
+    #         'progress_hooks': [self.post_process_hook],  # Add the post-process hook here
+    #     }
+    #     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    #         info_dict = ydl.extract_info(link, download=False)
+    #         ydl.download([link])
+    #         video_title = safe_filename(info_dict.get('title', ''))
+    #         logging.info(f"Video downloaded: {video_title}")
+
+    #     logging.info(f"Done! Video downloaded to {self.output_folder}")
+    #     logging.info(f"Video title: {video_title}")
+
+    #     self.saved_videos[link] = video_title
+
+    #     # Write the line: link, video_title to the downloaded_videos_file
+    #     with open(self.__downloaded_videos_file, 'a') as f:
+    #         f.write(f"{link}#{video_title}.mp4\n")
+
+    #     return f"{video_title}.mp4"
+
     
     def post_process_hook(self, d):
         if d['status'] == 'finished':
@@ -89,16 +130,17 @@ class YoutubeVideoDownloader:
         self.__get_saved_videos()
         
         for raw_video in raw_videos:
-            if raw_video['link'].endswith('.mp4') or  raw_video['link'].endswith('.mov'):
-                # check to see if the video is already downloaded
-                raw_video['raw_video_name'] = raw_video['link']
-                continue
+            # if raw_video['link'].endswith('.mp4') or  raw_video['link'].endswith('.mov'):
+            #     # check to see if the video is already downloaded
+            #     raw_video['raw_video_name'] = raw_video['link']
+            #     continue
             
-            if raw_video['link'] in self.saved_videos.keys():
-                raw_video['raw_video_name'] = self.saved_videos[raw_video['link']]
-                logging.info(f"Video {raw_video['raw_video_name']} already downloaded")
-            else:
-                raw_video['raw_video_name'] = self.download_youtube_video(raw_video['link'])
+            # if raw_video['link'] in self.saved_videos.keys():
+            #     raw_video['raw_video_name'] = self.saved_videos[raw_video['link']]
+            #     logging.info(f"Video {raw_video['raw_video_name']} already downloaded")
+            # else:
+                
+            raw_video['video_id'], raw_video['video_name'] = self.download_youtube_video(raw_video['link'])
         
         return raw_videos
     

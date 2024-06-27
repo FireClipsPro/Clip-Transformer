@@ -26,9 +26,7 @@ def add_media():
                         "start": 0,
                         "end": 10
                     }, ...],
-        "overlay_zone_top_left": [x, y],
-        "overlay_zone_width": 100,
-        "overlay_zone_height": 100
+        video_type: "horizontal" or "vertical"
     }
     Videos are the videos (or animated images) that will be overlayed on top of the original video.
     '''
@@ -39,16 +37,24 @@ def add_media():
     if not all(key in data for key in ['user_id',
                                        'project_id',
                                        'videos',
-                                       'overlay_zone_top_left',
-                                       'overlay_zone_width',
-                                       'overlay_zone_height']):
+                                       'video_type']):
         abort(400, description="Missing data in request payload")
     
     videos = data['videos']
     if not isinstance(videos, list):
         abort(400, description="Videos must be a list")
+        
     user_id = data['user_id']
     project_id = data['project_id']
+    
+    overlay_zone_top_left = [0, 0]
+    if data['video_type'] == 'horizontal':
+        overlay_zone_width = 1920
+        overlay_zone_height = 1080
+    else:
+        overlay_zone_width = 1080
+        overlay_zone_height = 1920
+    
     s3 = S3(boto3.client('s3'))
     media_adder = AWSMediaAdder()
     
@@ -65,9 +71,9 @@ def add_media():
         
         video_with_media = media_adder.add_media_to_video(original_vid=blank_video,
                                                             videos=videos,
-                                                            overlay_zone_top_left=data['overlay_zone_top_left'],
-                                                            overlay_zone_width=data['overlay_zone_width'],
-                                                            overlay_zone_height=data['overlay_zone_height'])
+                                                            overlay_zone_top_left=overlay_zone_top_left,
+                                                            overlay_zone_width=overlay_zone_width,
+                                                            overlay_zone_height=overlay_zone_height)
         
         bucket_path = user_id + "/" + project_id + "/" + buckets.video_with_media_folder
         response = s3.write_videofileclip(clip=video_with_media,

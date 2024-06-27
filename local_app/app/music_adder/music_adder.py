@@ -141,7 +141,7 @@ class MusicAdder:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # this method currently has a problem with the last segment being too short then it cannot
     # measure the loudness of the last segment
-    def normalize_audio_chunks(self, audio: AudioSegment, target_loudness=-35.0):
+    def normalize_audio_chunks(self, audio: AudioSegment, target_loudness=-38.0):
         logging.info(f"Normalizing audio: {audio}")
         meter = pyln.Meter(audio.frame_rate)  # Initialize loudness meter
 
