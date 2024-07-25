@@ -5,7 +5,7 @@ FROM python:3.10-slim
 # Set the working directory in the container
 WORKDIR /python-docker
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt .
 
 # Install ffmpeg and git using apt-get package manager in the container to enable video processing
 # Clean up the container to reduce the image size
@@ -15,16 +15,15 @@ RUN apt-get update && apt-get install -y ffmpeg git \
 
 RUN pip install -r requirements.txt
 
+RUN pip install uvicorn
+
 # Install whisperx from github repository using pip
 RUN pip install "git+https://github.com/m-bain/whisperx.git"
 
-ENV AWS_ACCESS_KEY_ID=AKIA5YMGV6ADBVMLNDGB
-ENV AWS_SECRET_ACCESS_KEY=29QkQJwb5EWSR/5dGbnw4YZMgTGZKQrv2sfb&DA7
-
 COPY . .
 
-EXPOSE 8000
+EXPOSE 5001
 
 # Run the FastAPI app using uvicorn server when the container starts
 # uvicorn is a lightning-fast ASGI server implementation
-CMD ["uvicorn", "fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "fastapi_app:app", "--host", "0.0.0.0", "--port", "5001"]
