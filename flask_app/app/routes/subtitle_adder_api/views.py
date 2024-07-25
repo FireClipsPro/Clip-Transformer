@@ -109,8 +109,9 @@ def add_subtitles():
 # TODO this should be in the cloud transcription class or maybe in the docker server
 def clean_transcription(transcription):
     for i in range(len(transcription["word_segments"])):
-        transcription["word_segments"][i]['text'] = transcription["word_segments"][i]['word']
-        del transcription["word_segments"][i]['word']
+        if 'word' in transcription["word_segments"][i]:
+            transcription["word_segments"][i]['text'] = transcription["word_segments"][i]['word']
+        
         if i == 0:
             if 'start' not in transcription["word_segments"][i]:
                 transcription["word_segments"][i]['start'] = 0

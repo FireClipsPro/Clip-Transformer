@@ -1,6 +1,5 @@
 import logging
 import uuid
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import boto3
 from flask import abort, jsonify, request
@@ -45,12 +44,12 @@ def create_images():
     images = build_image_models(query_list)
 
     try:
-        images = generate_and_scrape_images(project_id,
-                                            images,
-                                            DALL_E(api_key_path=directories.OPENAI_API_KEY_PATH,),
-                                            S3(boto3.client('s3')),
-                                            GoogleImagesAPI(),
-                                            user_id)
+        images = scrape_and_generate_images(project_id,
+                                                images,
+                                                DALL_E(api_key_path=directories.OPENAI_API_KEY_PATH,),
+                                                S3(boto3.client('s3')),
+                                                GoogleImagesAPI(),
+                                                user_id)
     except Exception as e:
         # Log the exception and return a 500 error
         logging.exception("Failed to create video")
@@ -83,27 +82,20 @@ def generate_and_scrape_image(query,
         query.url = image_scraper.get_image_link(query=query.query)
     return query
 
-def generate_and_scrape_images(project_id,
-                               queries,
-                               dall_e,
-                               s3,
-                               image_scraper,
-                               user_id):
-    # Use ThreadPoolExecutor to execute tasks concurrently
-    with ThreadPoolExecutor(max_workers=20) as executor:
-        # Schedule the execution of each task and return futures
-        futures = [executor.submit(generate_and_scrape_image, 
-                                   query,
-                                   dall_e,
-                                   s3,
-                                   image_scraper,
-                                   project_id,
-                                   user_id) for query in queries]
-
-        # Wait for the futures to complete and collect the results
-        results = []
-        for future in as_completed(futures):
-            results.append(future.result())
+def scrape_and_generate_images(project_id,
+                    queries,
+                    dall_e,
+                    s3,
+                    image_scraper,
+                    user_id):
+    results = []
+    for query in queries:
+        results.append(generate_and_scrape_image(query,
+                                                    dall_e,
+                                                    s3,
+                                                    image_scraper,
+                                                    project_id,
+                                                    user_id))
 
     return results
 

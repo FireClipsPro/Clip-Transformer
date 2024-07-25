@@ -27,9 +27,7 @@ def animate_images():
                         "start": 0,
                         "end": 10
                     }, ...],
-        "overlay_zone_top_left": [0, 0],
-        "overlay_zone_width": 1920,
-        "overlay_zone_height": 1080
+        "video_type": "horizontal" or "vertical"
     }
     Videos are the videos (or animated images) that will be overlayed on top of the original video.
     '''
@@ -40,10 +38,15 @@ def animate_images():
     if not all(key in data for key in ['user_id',
                                        'project_id',
                                        'images',
-                                       'overlay_zone_top_left',
-                                       'overlay_zone_width',
-                                       'overlay_zone_height']):
+                                       'video_type']):
         abort(400, description="Missing data in request payload")
+    
+    if data['video_type'] == 'horizontal':
+        frame_width = configuration.HORIZONTAL_VIDEO_WIDTH
+        frame_height = configuration.VERTICAL_VIDEO_HEIGHT
+    elif data['video_type'] == 'vertical':
+        frame_width = configuration.VERTICAL_VIDEO_WIDTH
+        frame_height = configuration.VERTICAL_VIDEO_HEIGHT
     
     images = data['images']
     if not isinstance(images, list):
@@ -51,8 +54,8 @@ def animate_images():
     user_id = data['user_id']
     project_id = data['project_id']
     s3 = S3(boto3.client('s3'))
-    image_to_video_creator = AWSImageToVideoCreator(frame_height=configuration.HORIZONTAL_VIDEO_HEIGHT,
-                                                    frame_width=configuration.HORIZONTAL_VIDEO_WIDTH) 
+    image_to_video_creator = AWSImageToVideoCreator(frame_height=frame_height,
+                                                    frame_width=frame_width) 
 
     try:    
         image_clips = get_images_from_s3(user_id=user_id, 
@@ -62,8 +65,8 @@ def animate_images():
                 
         animated_images = image_to_video_creator.convert_to_videos(images=image_clips,
                                                                     border_colors=[(0,0,0)],
-                                                                    frame_width=configuration.HORIZONTAL_VIDEO_WIDTH,
-                                                                    frame_height=configuration.HORIZONTAL_VIDEO_HEIGHT,
+                                                                    frame_width=frame_width,
+                                                                    frame_height=frame_height,
                                                                     zoom_speed='fast')
         
         urls = []

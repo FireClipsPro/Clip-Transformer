@@ -17,7 +17,7 @@ So if your repository is in /code/Clip-Transformer/, then the files should be in
 1. cd to the root directory of the git
 2. run `python -m unittest tests.s3_tests`
 
-# How to test API endpoin
+# How to test API endpoint
 
 1. cd to run.py and run `python run.py`
 2. in browser enter your endpoint for example: http://localhost:5000/background_maker_api/video/

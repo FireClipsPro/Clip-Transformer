@@ -28,6 +28,7 @@ themes = {
         "NUMBER_OF_CHARACTERS_PER_LINE" : 17,
         "FONT_COLOR" : (255, 255, 255), # white
         "WANTS_IMAGES" : True,
+        "WANTS_DALL_E_IMAGES": True,
         "IMAGE_BORDER_COLOR(S)" : [ (124,252,0), # green
                                     (0,245,255), # cyan
                                     (255,255,0), # yellow

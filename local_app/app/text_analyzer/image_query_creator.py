@@ -94,8 +94,11 @@ class ImageQueryCreator:
             if description['start'] <= time_chunk_start and description['end'] >= time_chunk_start:
                 return description
 
+        if len(descriptions) == 0:
         # throw error
-        raise Exception("No description found for time chunk")
+            raise Exception("No description found for time chunk")
+        else:
+            return descriptions[-1]
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def assign_query_to_time_chunk(self, sentence_list, i, video_description, wants_free_images):
         current_sentence = sentence_list[i]

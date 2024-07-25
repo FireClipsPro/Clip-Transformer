@@ -161,11 +161,12 @@ class AWSSubtitleAdder:
         font = ImageFont.truetype(font_path, fontsize)
         text_width, text_height = font.getsize(text)
         logging.info(f"Text Width: {text_width}, Text Height: {text_height}")
+        
         img = Image.new('RGBA',    # Change here: Use 'RGB' instead of 'RGBA'
                         (text_width + 2 * outline_width, text_height + 2 * outline_width),
                         (0, 0, 0, 0))    # Change here: Set background to black or any other color
         draw = ImageDraw.Draw(img)
-
+        
         # draw outline
         for x in range(-outline_width, outline_width+1):
             for y in range(-outline_width, outline_width+1):

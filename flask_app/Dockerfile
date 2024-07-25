@@ -4,10 +4,9 @@ FROM python:3.10
 WORKDIR /app
 
 # Install any needed system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg && \
-    apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update --fix-missing
+RUN apt-get install -y ffmpeg
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install any needed packages specified in requirements.txt
 COPY requirements.txt .
