@@ -1,0 +1,29 @@
+services:
+  service_5000:
+    build:
+      context: ./flask_app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - my_network
+    # Set environment variables for AWS access. The Access key is extracted from the user here - https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/users/details/User_For_Flask_Server_ACCESS?section=permissions
+    environment:
+      - AWS_ACCESS_KEY_ID=AKIA5YMGV6ADMFKQOX7K
+      - AWS_SECRET_ACCESS_KEY=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
+
+  service_5001:
+    build:
+      context: ./WhisperX_API_Setup
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    networks:
+      - my_network
+    environment:
+      - AWS_ACCESS_KEY_ID=AKIA5YMGV6ADMFKQOX7K
+      - AWS_SECRET_ACCESS_KEY=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
+
+networks:
+  my_network:
+    driver: bridge

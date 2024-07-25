@@ -32,7 +32,7 @@ def transcribe():
     project_id = data['project_id']
     user_id = data['user_id']
 
-    url = f"https://ydkkh6bb1a.execute-api.us-east-1.amazonaws.com/transcribe?bucket_id=project-data-69&project_id={project_id}&user_id={user_id}"
+    url = f"http://service_5001:5001/transcribe?bucket_id=project-data-69&project_id={project_id}&user_id={user_id}"
     
     # Make the POST request
     response = requests.post(url)

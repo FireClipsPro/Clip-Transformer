@@ -34,9 +34,7 @@ class CloudTranscriber:
                             bucket_name="project-data-69",
                             prefix=prefix)
         
-        url = f"https://ydkkh6bb1a.execute-api.us-east-1.amazonaws.com/transcribe?bucket_id=project-data-69&project_id={folder_name}&user_id=420"
-        
-        # url = f"http://localhost:8000/transcribe?bucket_id=project-data-69&project_id={folder_name}&user_id=420"
+        url = f"http://service_5001:5001/transcribe?bucket_id=project-data-69&project_id={folder_name}&user_id=420"
 
         # Make the POST request
         response = requests.post(url)
