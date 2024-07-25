@@ -79,9 +79,9 @@ def main():
                                    output_folder_path=directories.VM_SUBTITLED_VIDEOS)
     
     
-    intro_adder = IntroAdder(intro_video_folder=directories.VM_INTRO_VIDOES,
-                             video_folder=directories.VM_SUBTITLED_VIDEOS,
-                             output_folder=directories.VM_FINISHED_VIDEOS)
+    # intro_adder = IntroAdder(intro_video_folder=directories.VM_INTRO_VIDOES,
+    #                          video_folder=directories.VM_SUBTITLED_VIDEOS,
+    #                          output_folder=directories.VM_FINISHED_VIDEOS)
 
     # loop through the files
     for audio_file in audio_files:
