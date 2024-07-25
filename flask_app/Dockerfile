@@ -21,10 +21,6 @@ RUN python -m nltk.downloader punkt
 # Copy the rest of your application's code
 COPY . .
 
-# Set environment variables for AWS access. The Access key is extracted from the user here - https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/users/details/User_For_Flask_Server_ACCESS?section=permissions
-ENV AWS_ACCESS_KEY_ID=AKIA5YMGV6ADMFKQOX7K
-ENV AWS_SECRET_ACCESS_KEY=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
-
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
