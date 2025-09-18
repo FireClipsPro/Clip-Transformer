@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont, ImageDraw
 import numpy as np
-from moviepy.editor import ImageClip, VideoFileClip, CompositeVideoClip
+import moviepy
 import math
 import logging
 import matplotlib
@@ -159,11 +159,14 @@ class SubtitleAdder:
         outline_color = (*outline_color, 255)
         text_color = (*text_color, 255)
         font = ImageFont.truetype(font_name, fontsize)
-        text_width, text_height = font.getsize(text)
+
+        # Use getbbox() instead of deprecated getsize()
+        bbox = font.getbbox(text)
+        text_width, text_height = bbox[2], bbox[3]
         logging.info(f"Text Width: {text_width}, Text Height: {text_height}")
-        img = Image.new('RGBA',    # Change here: Use 'RGB' instead of 'RGBA'
+        img = Image.new('RGBA',
                         (text_width + 2 * outline_width, text_height + 2 * outline_width),
-                        (0, 0, 0, 0))    # Change here: Set background to black or any other color
+                        (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
 
         # draw outline
@@ -190,11 +193,12 @@ class SubtitleAdder:
                                number_of_characters_per_line,
                                interval=2):
         # if video already exists don't make it again
-        if os.path.exists(self.output_folder_path + output_file_name):
-            return output_file_name
+        output_path = os.path.join(self.output_folder_path, output_file_name)
+        if os.path.exists(output_path):
+            return output_path
         transcription = self.edit_punctuation_and_caps(transcription, all_caps, punctuation)
         
-        clip = VideoFileClip(self.input_folder_path + video_file_name)
+        clip = moviepy.VideoFileClip(self.input_folder_path + video_file_name)
         
         clip_height = clip.h
         
@@ -209,13 +213,14 @@ class SubtitleAdder:
                                                       outline_color=outline_color,
                                                       outline_width=outline_width,
                                                       font_name=font_name)
-            txt_clip = ImageClip(np.array(img)).set_duration((float(subtitle['end']) - float(subtitle['start']))).set_start(float(subtitle['start'])).set_position(lambda t: ('center', y_percent * clip_height / 100))
+            duration = float(subtitle['end']) - float(subtitle['start'])
+            txt_clip = moviepy.ImageClip(np.array(img), duration=duration).with_start(float(subtitle['start'])).with_position(lambda t: ('center', y_percent * clip_height / 100))
             clips.append(txt_clip)
             
-        final = CompositeVideoClip([clip] + clips)
-        final.write_videofile(self.output_folder_path + output_file_name, codec='libx264', audio_codec='aac', threads=4)
+        final = moviepy.CompositeVideoClip([clip] + clips)
+        final.write_videofile(output_path, codec='libx264', audio_codec='aac', threads=4)
         
-        return output_file_name
+        return output_path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     def edit_punctuation_and_caps(self, transcription, all_caps, punctuation):
         #make all caps
@@ -245,11 +250,12 @@ class SubtitleAdder:
                                 y_percent,
                                 number_of_characters_per_line):
         # if video already exists don't make it again
-        if os.path.exists(self.output_folder_path + output_file_name):
-            return output_file_name
+        output_path = os.path.join(self.output_folder_path, output_file_name)
+        if os.path.exists(output_path):
+            return output_path
         transcription = self.edit_punctuation_and_caps(transcription, all_caps, punctuation)
         
-        clip = VideoFileClip(self.input_folder_path + video_file_name)
+        clip = moviepy.VideoFileClip(self.input_folder_path + video_file_name)
         clip_height = clip.h
         
         clips = []
@@ -260,13 +266,14 @@ class SubtitleAdder:
                                                       outline_color=outline_color,
                                                       outline_width=outline_width,
                                                       font_name=font_name)
-            txt_clip = ImageClip(np.array(img)).set_duration((float(subtitle['end']) - float(subtitle['start']))).set_start(float(subtitle['start'])).set_position(lambda t: ('center', y_percent * clip_height / 100))
+            duration = float(subtitle['end']) - float(subtitle['start'])
+            txt_clip = moviepy.ImageClip(np.array(img), duration=duration).with_start(float(subtitle['start'])).with_position(lambda t: ('center', y_percent * clip_height / 100))
             clips.append(txt_clip)
             
-        final = CompositeVideoClip([clip] + clips)
+        final = moviepy.CompositeVideoClip([clip] + clips)
         final.write_videofile(self.output_folder_path + output_file_name, codec='libx264', threads=4)
         
-        return output_file_name
+        return output_path
                 
 
 # Tests ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
